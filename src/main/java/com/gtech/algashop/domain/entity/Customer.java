@@ -1,57 +1,61 @@
 package com.gtech.algashop.domain.entity;
 
+import com.gtech.algashop.domain.entity.VO.*;
 import com.gtech.algashop.domain.exceptions.CustomerArchivedException;
-import com.gtech.algashop.domain.exceptions.LoyaltyValueException;
-import com.gtech.algashop.domain.util.FieldValidations;
-import com.gtech.algashop.domain.valueobject.CustomerId;
-import com.gtech.algashop.domain.valueobject.FullName;
-import com.gtech.algashop.domain.valueobject.LoyaltyPoints;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.apache.commons.validator.routines.EmailValidator;
+import lombok.Builder;
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-import static com.gtech.algashop.domain.exceptions.ErrorMessages.*;
+import static com.gtech.algashop.domain.exceptions.ErrorMessages.VALIDATION_ERROR_FULLNAME_IS_NULL;
 
-@Getter
-@Setter
-@NoArgsConstructor
+/*
+ * Aggregate Root = entidade principal que controla todos os objetos internos
+ * garantindo consistência do domínio.
+ *
+ * Nenhum objeto interno deve ser alterado diretamente de fora.
+ * Nenhum membro value ou entity dentro de root deve conhecer o outro
+ * dentro da entidade root! Somente se fizer parte de sua relação
+ * Toda modificação passa por métodos de domínio do Customer.
+ */
 public class Customer {
-    private CustomerId id;
-    private FullName fullName;
-    private LocalDate birthDate;
-    private String email;
-    private String phone;
-    private String document;
-    private Boolean promotionNotificationsAllowed;
-    private Boolean archived;
-    private OffsetDateTime registeredAt;
-    private OffsetDateTime archivedAt;
-    private LoyaltyPoints loyaltyPoints;
+    private CustomerId id;                  // Identidade da entidade (Entity ID)
+    private FullName fullName;              // Value Object (imutável)
+    private BirthDate birthDate;            // Value Object
+    private Email email;                    // Value Object
+    private Phone phone;                    // Value Object
+    private Document document;              // Value Object
+    private Boolean promotionNotificationsAllowed; // Estado de regra de negócio
+    private Boolean archived;               // Soft delete lógico
+    private OffsetDateTime registeredAt;    // Auditoria de criação
+    private OffsetDateTime archivedAt;      // Auditoria de arquivamento
+    private LoyaltyPoints loyaltyPoints;    // Value Object com comportamento
+    private Address address;                // Value Object complexo
 
-    public Customer(CustomerId id, FullName fullName, LocalDate birthDate, String email,
-                    String phone, String document, Boolean promotionNotificationsAllowed,
-                    OffsetDateTime registeredAt) {
-        this.setId(id);
-        this.setFullName(fullName);
-        this.setBirthDate(birthDate);
-        this.setEmail(email);
-        this.setPhone(phone);
-        this.setDocument(document);
-        this.setPromotionNotificationsAllowed(promotionNotificationsAllowed);
-        this.setRegisteredAt(registeredAt);
-        this.setArchived(false);
-        this.setLoyaltyPoints(LoyaltyPoints.ZERO);
+    // construtor para novo cliente, padrao static factory
+    @Builder(builderClassName = "BrandNewCustomerBuild", builderMethodName = "brandNew")
+    private static Customer createBrandNew(FullName fullName, BirthDate birthDate, Email email,
+                                          Phone phone, Document document, Boolean promotionNotificationsAllowed,
+                                          Address address) {
+        return new Customer(new CustomerId(),
+                fullName,
+                birthDate,
+                email,
+                phone,
+                document,
+                promotionNotificationsAllowed,
+                false,
+                OffsetDateTime.now(),
+                null,
+                LoyaltyPoints.ZERO,
+                address);
     }
 
-    public Customer(CustomerId id, FullName fullName, LocalDate birthDate, String email, String phone,
-                    String document, Boolean promotionNotificationsAllowed, Boolean archived,
-                    OffsetDateTime registeredAt, OffsetDateTime archivedAt, LoyaltyPoints loyaltyPoints) {
+    @Builder(builderClassName = "ExistingCustomerBuild", builderMethodName = "existing")
+    private Customer(CustomerId id, FullName fullName, BirthDate birthDate, Email email, Phone phone,
+                    Document document, Boolean promotionNotificationsAllowed, Boolean archived,
+                    OffsetDateTime registeredAt, OffsetDateTime archivedAt, LoyaltyPoints loyaltyPoints, Address address) {
         this.setId(id);
         this.setFullName(fullName);
         this.setBirthDate(birthDate);
@@ -63,9 +67,8 @@ public class Customer {
         this.setRegisteredAt(registeredAt);
         this.setArchivedAt(archivedAt);
         this.setLoyaltyPoints(loyaltyPoints);
+        this.setAddress(address);
     }
-
-
 
     /////////////////////////////////////
     ///  METHODS
@@ -79,13 +82,17 @@ public class Customer {
     public void archive() {
         verifyIsChangeble();
         this.setArchived(true);
-        this.setEmail(UUID.randomUUID() + "@anonymous.com");
+        this.setEmail(new Email(UUID.randomUUID() + "@anonymous.com"));
         this.setArchivedAt(OffsetDateTime.now());
         this.setFullName(new FullName("Anonymous", "Anonymous"));
-        this.setPhone("000-000-0000");
-        this.setDocument("000-00-0000");
+        this.setPhone(new Phone("000-000-0000"));
+        this.setDocument(new Document("000-00-0000"));
         this.setBirthDate(null);
         this.setPromotionNotificationsAllowed(false);
+        this.setAddress(this.address().toBuilder()
+                .number("Anonymized")
+                .complement(null)
+                .build());
     }
 
     public void enablePromotionNotifications() {
@@ -103,14 +110,19 @@ public class Customer {
         this.setFullName(fullName);
     }
 
-    public void changeEmail(String email) {
+    public void changeEmail(Email email) {
         verifyIsChangeble();
         this.setEmail(email);
     }
 
-    public void changePhone(String phone) {
+    public void changePhone(Phone phone) {
         verifyIsChangeble();
         this.setPhone(phone);
+    }
+
+    public void changeAddress(Address address) {
+        verifyIsChangeble();
+        this.setAddress(address);
     }
 
     /////////////////////////////////////
@@ -125,15 +137,15 @@ public class Customer {
         return archivedAt;
     }
 
-    public LocalDate birthDate() {
+    public BirthDate birthDate() {
         return birthDate;
     }
 
-    public String document() {
+    public Document document() {
         return document;
     }
 
-    public String email() {
+    public Email email() {
         return email;
     }
 
@@ -149,7 +161,7 @@ public class Customer {
         return loyaltyPoints;
     }
 
-    public String phone() {
+    public Phone phone() {
         return phone;
     }
 
@@ -159,6 +171,10 @@ public class Customer {
 
     public OffsetDateTime registeredAt() {
         return registeredAt;
+    }
+
+    public Address address() {
+        return address;
     }
 
     /////////////////////////////////////
@@ -174,25 +190,20 @@ public class Customer {
         this.archivedAt = archivedAt;
     }
 
-    private void setBirthDate(LocalDate birthDate) {
+    private void setBirthDate(BirthDate birthDate) {
         if (birthDate == null) {
             this.birthDate = null;
             return;
         }
-        // verifica se data está no passado
-        if (birthDate.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException(VALIDATION_ERROR_BIRTHDATE_MUST_IN_PAST);
-        }
         this.birthDate = birthDate;
     }
 
-    private void setDocument(String document) {
+    private void setDocument(Document document) {
         Objects.requireNonNull(document);
         this.document = document;
     }
 
-    private void setEmail(String email) {
-        FieldValidations.requiresEmailValid(email, VALIDATION_ERROR_EMAIL_IS_INVALID);
+    private void setEmail(Email email) {
         this.email = email;
     }
 
@@ -211,7 +222,7 @@ public class Customer {
         this.loyaltyPoints = loyaltyPoints;
     }
 
-    private void setPhone(String phone) {
+    private void setPhone(Phone phone) {
         Objects.requireNonNull(phone);
         this.phone = phone;
     }
@@ -224,6 +235,11 @@ public class Customer {
     private void setRegisteredAt(OffsetDateTime registeredAt) {
         Objects.requireNonNull(registeredAt);
         this.registeredAt = registeredAt;
+    }
+
+    private void setAddress(Address address) {
+        Objects.requireNonNull(address);
+        this.address = address;
     }
 
     private void verifyIsChangeble() {

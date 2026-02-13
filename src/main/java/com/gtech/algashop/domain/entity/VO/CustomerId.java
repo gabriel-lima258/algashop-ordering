@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.valueobject;
+package com.gtech.algashop.domain.entity.VO;
 
 import com.gtech.algashop.domain.util.IdGenerator;
 
