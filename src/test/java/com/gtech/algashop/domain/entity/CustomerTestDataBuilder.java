@@ -1,6 +1,7 @@
 package com.gtech.algashop.domain.entity;
 
 import com.gtech.algashop.domain.entity.VO.*;
+import com.gtech.algashop.domain.entity.VO.id.CustomerId;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;

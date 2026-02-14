@@ -1,6 +1,7 @@
 package com.gtech.algashop.domain.entity;
 
 import com.gtech.algashop.domain.entity.VO.*;
+import com.gtech.algashop.domain.entity.VO.id.CustomerId;
 import com.gtech.algashop.domain.exceptions.CustomerArchivedException;
 import lombok.Builder;
 

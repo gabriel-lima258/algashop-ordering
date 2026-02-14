@@ -1,5 +1,6 @@
 package com.gtech.algashop.domain.entity.VO;
 
+import com.gtech.algashop.domain.entity.VO.id.CustomerId;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 

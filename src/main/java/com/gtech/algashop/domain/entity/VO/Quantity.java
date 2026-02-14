@@ -1,8 +1,11 @@
 package com.gtech.algashop.domain.entity.VO;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public record Quantity(Integer quantity) implements Comparable<Quantity> {
+
+    public static final Quantity ZERO = new Quantity(0);
 
     public Quantity {
         Objects.requireNonNull(quantity);
