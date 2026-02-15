@@ -1,6 +1,7 @@
 package com.gtech.algashop.domain.entity;
 
 import com.gtech.algashop.domain.entity.VO.*;
+import com.gtech.algashop.domain.entity.factory.CustomerTestDataBuilder;
 import com.gtech.algashop.domain.exceptions.CustomerArchivedException;
 import com.gtech.algashop.domain.exceptions.LoyaltyValueException;
 import org.assertj.core.api.Assertions;

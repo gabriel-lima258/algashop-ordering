@@ -1,6 +1,7 @@
 package com.gtech.algashop.domain.entity;
 
 import com.gtech.algashop.domain.entity.VO.Money;
+import com.gtech.algashop.domain.entity.VO.Product;
 import com.gtech.algashop.domain.entity.VO.ProductName;
 import com.gtech.algashop.domain.entity.VO.Quantity;
 import com.gtech.algashop.domain.entity.VO.id.OrderId;
@@ -37,14 +38,17 @@ public class OrderItem {
     ////////////////////////////////////
 
     @Builder(builderClassName = "BrandNewOrderItemBuilder", builderMethodName = "brandNew")
-    private static OrderItem createBrandNew(OrderId orderId, ProductId productId, ProductName productName,
-                     Money price, Quantity quantity) {
+    private static OrderItem createBrandNew(OrderId orderId, Product product, Quantity quantity) {
+        Objects.requireNonNull(orderId);
+        Objects.requireNonNull(product);
+        Objects.requireNonNull(quantity);
+
         OrderItem orderItem = new OrderItem(
               new OrderItemId(),
                 orderId,
-                productId,
-                productName,
-                price,
+                product.id(),
+                product.productName(),
+                product.price(),
                 quantity,
                 Money.ZERO
         );
@@ -60,6 +64,12 @@ public class OrderItem {
 
     private void recalculateTotals() {
         this.setTotalAmount(this.price().multiply(this.quantity));
+    }
+
+    void changeQuantity(Quantity quantity) {
+        Objects.requireNonNull(quantity);
+        this.setQuantity(quantity);
+        this.recalculateTotals();
     }
 
     /////////////////////////////////////
@@ -144,4 +154,6 @@ public class OrderItem {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
+
 }

@@ -1,5 +1,6 @@
-package com.gtech.algashop.domain.entity;
+package com.gtech.algashop.domain.entity.factory;
 
+import com.gtech.algashop.domain.entity.Customer;
 import com.gtech.algashop.domain.entity.VO.*;
 import com.gtech.algashop.domain.entity.VO.id.CustomerId;
 
