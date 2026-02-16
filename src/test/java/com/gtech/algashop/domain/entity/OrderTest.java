@@ -2,12 +2,11 @@ package com.gtech.algashop.domain.entity;
 
 import com.gtech.algashop.domain.entity.VO.*;
 import com.gtech.algashop.domain.entity.VO.id.CustomerId;
+import com.gtech.algashop.domain.entity.VO.id.OrderItemId;
 import com.gtech.algashop.domain.entity.VO.id.ProductId;
 import com.gtech.algashop.domain.entity.factory.OrderTestDataBuilder;
 import com.gtech.algashop.domain.entity.factory.ProductTestDataBuilder;
-import com.gtech.algashop.domain.exceptions.OrderInvalidShippingDeliveryDateException;
-import com.gtech.algashop.domain.exceptions.OrderStatusCannotBeChanged;
-import com.gtech.algashop.domain.exceptions.ProductOutOfStockException;
+import com.gtech.algashop.domain.exceptions.*;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
@@ -19,8 +18,27 @@ class OrderTest {
 
     @Test
     void shouldGenerate() {
-        Order order = Order.draft(new CustomerId());
-        Assertions.assertThat(order).isNotNull();
+        CustomerId customerId = new CustomerId();
+        Order order = Order.draft(customerId);
+
+        Assertions.assertWith(order,
+                o -> Assertions.assertThat(o.id()).isNotNull(),
+                o -> Assertions.assertThat(o.customerId()).isEqualTo(customerId),
+                o -> Assertions.assertThat(o.totalAmount()).isEqualTo(Money.ZERO),
+                o -> Assertions.assertThat(o.totalQuantity()).isEqualTo(Quantity.ZERO),
+                o -> Assertions.assertThat(o.isDraft()).isTrue(),
+                o -> Assertions.assertThat(o.items()).isEmpty(),
+
+                o -> Assertions.assertThat(o.placedAt()).isNull(),
+                o -> Assertions.assertThat(o.paidAt()).isNull(),
+                o -> Assertions.assertThat(o.canceledAt()).isNull(),
+                o -> Assertions.assertThat(o.readyAt()).isNull(),
+                o -> Assertions.assertThat(o.billing()).isNull(),
+                o -> Assertions.assertThat(o.shipping()).isNull(),
+                o -> Assertions.assertThat(o.paymentMethod()).isNull()
+                );
+
+
     }
 
     @Test
@@ -45,13 +63,76 @@ class OrderTest {
     }
 
     @Test
+    void shouldNotAllowAddItemWhenOrderIsNotDraft() {
+        Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.PLACED).build();
+        Product product = ProductTestDataBuilder.aProductRamMemory().build();
+
+        Assertions.assertThatExceptionOfType(OrderCannotBeEditedException.class)
+                .isThrownBy(() -> order.addItem(product, new Quantity(1)));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenTryToRemoveOrderItemIdIsNull() {
+        Order order = Order.draft(new CustomerId());
+
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+                .isThrownBy(() -> order.removeItem(null));
+    }
+
+    @Test
+    void shouldRemoveItemSuccessfullyAndRecalculateTotals() {
+        Order order = Order.draft(new CustomerId());
+
+        Product notebook = ProductTestDataBuilder.aProduct().build();
+        Product mousePad = ProductTestDataBuilder.aProductMousePad().build();
+
+        order.addItem(notebook, new Quantity(1));
+        order.addItem(mousePad, new Quantity(1));
+
+        Assertions.assertThat(order.items()).hasSize(2);
+        Assertions.assertThat(order.totalQuantity()).isEqualTo(new Quantity(2));
+        Assertions.assertThat(order.totalAmount()).isEqualTo(new Money("4620"));
+
+        OrderItemId itemIdToRemove = order.items().stream()
+                .filter(i -> i.productId().equals(mousePad.id()))
+                .findFirst()
+                .orElseThrow()
+                .id();
+
+        order.removeItem(itemIdToRemove);
+
+        Assertions.assertThat(order.items()).hasSize(1);
+        Assertions.assertThat(order.totalQuantity()).isEqualTo(new Quantity(1));
+        Assertions.assertThat(order.totalAmount()).isEqualTo(new Money("4500"));
+    }
+
+    @Test
+    void shouldThrowWhenRemovingItemThatDoesNotExist() {
+        Order order = Order.draft(new CustomerId());
+        OrderItemId nonExistingItem = new OrderItemId();
+
+        Assertions.assertThatExceptionOfType(OrderDoesNotContainOrderItemException.class)
+                .isThrownBy(() -> order.removeItem(nonExistingItem));
+    }
+
+    @Test
+    void shouldNotAllowRemoveItemWhenOrderIsNotDraft() {
+        Order order = OrderTestDataBuilder.anOrder().build();
+        order.markAsPlaced();
+
+        OrderItemId itemId = order.items().iterator().next().id();
+
+        Assertions.assertThatExceptionOfType(OrderCannotBeEditedException.class)
+                .isThrownBy(() -> order.removeItem(itemId));
+    }
+
+    @Test
     void shouldRecalculateItemsTotals() {
         Order order = Order.draft(new CustomerId());
         Product mousePad = ProductTestDataBuilder.aProductMousePad().build();
         Product ramMemory = ProductTestDataBuilder.aProductRamMemory().build();
 
         order.addItem(mousePad, new Quantity(1));
-
         order.addItem(ramMemory, new Quantity(2));
 
         Assertions.assertThat(order.totalAmount()).isEqualTo(new Money("520"));
@@ -106,12 +187,72 @@ class OrderTest {
     }
 
     @Test
-    void givenOrderWhenMarkAsCanceledShouldChangeAsCanceled() {
+    void givenDraftOrderWhenMarkAsReadyShouldThrowException() {
+        Order order = OrderTestDataBuilder.anOrder().build();
+
+        Assertions.assertThatExceptionOfType(OrderStatusCannotBeChanged.class)
+                .isThrownBy(order::markAsReady);
+    }
+
+    @Test
+    void givenPlacedOrderWhenMarkAsReadyShouldThrowException() {
+        Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.PLACED).build();
+
+        Assertions.assertThatExceptionOfType(OrderStatusCannotBeChanged.class)
+                .isThrownBy(order::markAsReady);
+    }
+
+    @Test
+    void givenCanceledOrderWhenMarkAsReadyShouldThrowException() {
+        Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.CANCELED).build();
+
+        Assertions.assertThatExceptionOfType(OrderStatusCannotBeChanged.class)
+                .isThrownBy(order::markAsReady);
+    }
+
+
+    @Test
+    void givenDraftOrderWhenMarkAsCanceledShouldChangeAsCanceled() {
         Order order = OrderTestDataBuilder.anOrder().build();
         order.markAsCanceled();
 
         Assertions.assertThat(order.isCanceled()).isTrue();
         Assertions.assertThat(order.canceledAt()).isNotNull();
+    }
+
+    @Test
+    void givenPlacedtOrderWhenMarkAsCanceledShouldChangeAsCanceled() {
+        Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.PLACED).build();
+        order.markAsCanceled();
+
+        Assertions.assertThat(order.isCanceled()).isTrue();
+        Assertions.assertThat(order.canceledAt()).isNotNull();
+    }
+
+    @Test
+    void givenPaidOrderWhenMarkAsCanceledShouldChangeAsCanceled() {
+        Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.PAID).build();
+        order.markAsCanceled();
+
+        Assertions.assertThat(order.isCanceled()).isTrue();
+        Assertions.assertThat(order.canceledAt()).isNotNull();
+    }
+
+    @Test
+    void givenReadytOrderWhenMarkAsCanceledShouldChangeAsCanceled() {
+        Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.READY).build();
+        order.markAsCanceled();
+
+        Assertions.assertThat(order.isCanceled()).isTrue();
+        Assertions.assertThat(order.canceledAt()).isNotNull();
+    }
+
+    @Test
+    void givenCanceledOrderWhenMarkAsCanceledShouldThrowException() {
+        Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.CANCELED).build();
+
+        Assertions.assertThatExceptionOfType(OrderStatusCannotBeChanged.class)
+                .isThrownBy(order::markAsCanceled);
     }
 
     @Test
@@ -122,28 +263,47 @@ class OrderTest {
     }
 
     @Test
-    void draftOrderWhenChangeBillingInfoShouldAllowChange() {
-        Address address = Address.builder()
-                .street("Bourbon Street")
-                .number("1134")
-                .neighborhood("North Ville")
-                .city("York")
-                .state("South California")
-                .zipCode(new ZipCode("12345"))
-                .complement("Apt. 114")
-                .build();
+    void shouldNotChangePaymentMethodWhenNotDraft() {
+        Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.PLACED).build();
+        Assertions.assertThatExceptionOfType(OrderCannotBeEditedException.class)
+                .isThrownBy(() -> order.changePaymentMethod(PaymentMethod.CREDIT_CARD));
+    }
 
-        BillingInfo billingInfo = BillingInfo.builder()
-                .address(address)
-                .fullName(new FullName("John", "Doe"))
-                .phone(new Phone("123-111-9911"))
-                .document(new Document("255-09-1992"))
-                .build();
+    @Test
+    void shouldNotChangeShippingWhenNotDraft() {
+        Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.PLACED).build();
+        Shipping shipping = OrderTestDataBuilder.aShipping();
+
+        Assertions.assertThatExceptionOfType(OrderCannotBeEditedException.class)
+                .isThrownBy(() -> order.changeShipping(shipping));
+    }
+
+    @Test
+    void shouldNotChangeBillingWhenNotDraft() {
+        Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.PLACED).build();
+        Billing billing = OrderTestDataBuilder.aBilling();
+
+        Assertions.assertThatExceptionOfType(OrderCannotBeEditedException.class)
+                .isThrownBy(() -> order.changeBilling(billing));
+    }
+
+    @Test
+    void shouldNotChangeItemQuantityWhenNotDraft() {
+        Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.PLACED).build();
+        OrderItem orderItem = order.items().iterator().next();
+
+        Assertions.assertThatExceptionOfType(OrderCannotBeEditedException.class)
+                .isThrownBy(() -> order.changeItemQuantity(orderItem.id(), new Quantity(5)));
+    }
+
+    @Test
+    void draftOrderWhenChangeBillingInfoShouldAllowChange() {
+        Billing billing = OrderTestDataBuilder.aBilling();
 
         Order order = Order.draft(new CustomerId());
-        order.changeBillingInfo(billingInfo);
+        order.changeBilling(billing);
 
-        Assertions.assertThat(order.billing()).isEqualTo(billingInfo);
+        Assertions.assertThat(order.billing()).isEqualTo(billing);
     }
 
     @Test
