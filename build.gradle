@@ -29,6 +29,8 @@ dependencies {
     implementation 'com.fasterxml.uuid:java-uuid-generator:5.1.0'
     implementation 'commons-validator:commons-validator:1.9.0' // lib de validacao
     implementation 'io.hypersistence:hypersistence-tsid:2.1.4' // TSID lib
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.h2database:h2'
     compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -36,6 +38,41 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// roda JUNIT5 por padrão
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// classe test não deve rodar testes de integração
+test {
+    filter {
+        excludeTestsMatching("*IT")
+    }
+}
+
+// check roda ambos testes
+tasks.named('check') {
+    dependsOn(test, integrationTest)
+}
+
+// nova task de test focada em integração
+tasks.register('integrationTest', Test) {
+    description = 'Run integration tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+
+    shouldRunAfter test
+
+    useJUnitPlatform()
+
+    testLogging {
+        events "passed"
+    }
+
+    filter {
+        includeTestsMatching "*IT"
+        excludeTestsMatching "*Test"
+    }
 }
