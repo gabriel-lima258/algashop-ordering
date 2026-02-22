@@ -1,7 +1,10 @@
 package com.gtech.algashop.domain.model.repository;
 
 import com.gtech.algashop.domain.model.entity.Customer;
+import com.gtech.algashop.domain.model.entity.VO.Email;
 import com.gtech.algashop.domain.model.entity.VO.id.CustomerId;
+
+import java.util.Optional;
 
 /**
  * REPOSITÓRIO DE DOMÍNIO para o Aggregate Root Customer.
@@ -22,4 +25,7 @@ import com.gtech.algashop.domain.model.entity.VO.id.CustomerId;
  * Isso significa que o domínio pode ser compilado e testado de forma completamente independente.
  */
 public interface Customers extends Repository<Customer, CustomerId> {
+    // filtro de email
+    Optional<Customer> ofEmail(Email email);
+    boolean isEmailUnique(Email email, CustomerId exceptCustomerId);
 }

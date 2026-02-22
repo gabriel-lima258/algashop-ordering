@@ -19,7 +19,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString(of = "id")
-@Table(name = "customer")
+@Table(name = "\"customer\"")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
 public class CustomerPersistenceEntity {
@@ -60,4 +60,6 @@ public class CustomerPersistenceEntity {
 
     @Version
     private Long version;
+
+
 }

@@ -1,11 +1,12 @@
 package com.gtech.algashop.domain.model.factory;
 
-import com.gtech.algashop.domain.model.util.IdGenerator;
 import com.gtech.algashop.infrastructure.persistence.embeddable.AddressEmbeddable;
 import com.gtech.algashop.infrastructure.persistence.entity.CustomerPersistenceEntity;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+
+import static com.gtech.algashop.domain.model.entity.factory.CustomerTestDataBuilder.DEFAULT_CUSTOMER_ID;
 
 public class CustomerPersistenceEntityTestDataBuilder {
 
@@ -13,10 +14,10 @@ public class CustomerPersistenceEntityTestDataBuilder {
 
     public static CustomerPersistenceEntity.CustomerPersistenceEntityBuilder existingCustomer() {
         return CustomerPersistenceEntity.builder()
-                .id(IdGenerator.generateTimeBasedUUID())
+                .id(DEFAULT_CUSTOMER_ID.value())
                 .firstName("John")
                 .lastName("Doe")
-                .birthDate(LocalDate.now())
+                .birthDate(LocalDate.of(1991, 7,5))
                 .email("john@gmail.com")
                 .phone("6199273293")
                 .document("12345")

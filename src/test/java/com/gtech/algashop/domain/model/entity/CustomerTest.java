@@ -95,9 +95,6 @@ class CustomerTest {
         Customer customer = CustomerTestDataBuilder.brandNewCustomer().build();
 
         Assertions.assertThatExceptionOfType(LoyaltyValueException.class)
-                .isThrownBy(() -> customer.addLoyaltyPoints(new LoyaltyPoints(0)));
-
-        Assertions.assertThatExceptionOfType(LoyaltyValueException.class)
                 .isThrownBy(() -> customer.addLoyaltyPoints(new LoyaltyPoints(-10)));
     }
 

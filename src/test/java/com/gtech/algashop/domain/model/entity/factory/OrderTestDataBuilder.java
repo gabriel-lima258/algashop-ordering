@@ -8,9 +8,11 @@ import com.gtech.algashop.domain.model.entity.VO.id.CustomerId;
 
 import java.time.LocalDate;
 
+import static com.gtech.algashop.domain.model.entity.factory.CustomerTestDataBuilder.DEFAULT_CUSTOMER_ID;
+
 public class OrderTestDataBuilder {
 
-    private CustomerId customerId= new CustomerId();
+    private CustomerId customerId = DEFAULT_CUSTOMER_ID;
     private PaymentMethod paymentMethod = PaymentMethod.GATEWAY_BALANCE;
 
     private Shipping shipping = aShipping();

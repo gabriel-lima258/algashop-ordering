@@ -1,7 +1,12 @@
 package com.gtech.algashop.domain.model.repository;
 
 import com.gtech.algashop.domain.model.entity.Order;
+import com.gtech.algashop.domain.model.entity.VO.Money;
+import com.gtech.algashop.domain.model.entity.VO.id.CustomerId;
 import com.gtech.algashop.domain.model.entity.VO.id.OrderId;
+
+import java.time.Year;
+import java.util.List;
 
 /**
  * REPOSITÓRIO DE DOMÍNIO para o Aggregate Root Order.
@@ -23,4 +28,7 @@ import com.gtech.algashop.domain.model.entity.VO.id.OrderId;
  * Isso mantém o domínio puro e testável de forma isolada.
  */
 public interface Orders extends Repository<Order, OrderId> {
+    List<Order> placedByCustomerInYear(CustomerId customerId, Year year);
+    long salesQuantityByCustomerInYear(CustomerId customerId, Year year);
+    Money totalSoldForCustomer(CustomerId customerId);
 }

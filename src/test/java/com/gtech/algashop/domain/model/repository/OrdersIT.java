@@ -1,19 +1,29 @@
 package com.gtech.algashop.domain.model.repository;
 
+import com.gtech.algashop.domain.model.entity.Customer;
 import com.gtech.algashop.domain.model.entity.Order;
 import com.gtech.algashop.domain.model.entity.OrderStatus;
+import com.gtech.algashop.domain.model.entity.VO.Money;
+import com.gtech.algashop.domain.model.entity.VO.id.CustomerId;
 import com.gtech.algashop.domain.model.entity.VO.id.OrderId;
+import com.gtech.algashop.domain.model.entity.factory.CustomerTestDataBuilder;
 import com.gtech.algashop.domain.model.entity.factory.OrderTestDataBuilder;
+import com.gtech.algashop.infrastructure.persistence.assembler.CustomerPersistenceEntityAssembler;
 import com.gtech.algashop.infrastructure.persistence.assembler.OrderPersistenceEntityAssembler;
+import com.gtech.algashop.infrastructure.persistence.disassembler.CustomerPersistenceEntityDisassembler;
 import com.gtech.algashop.infrastructure.persistence.disassembler.OrderPersistenceEntityDisassembler;
+import com.gtech.algashop.infrastructure.persistence.provider.CustomersPersistenceProvider;
 import com.gtech.algashop.infrastructure.persistence.provider.OrderPersistenceProvider;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
+import java.time.Year;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,17 +57,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import({
         OrderPersistenceProvider.class,
         OrderPersistenceEntityAssembler.class,
-        OrderPersistenceEntityDisassembler.class})
+        OrderPersistenceEntityDisassembler.class,
+        CustomersPersistenceProvider.class,
+        CustomerPersistenceEntityAssembler.class,
+        CustomerPersistenceEntityDisassembler.class
+})
 class OrdersIT {
 
     // Injetado como Orders (interface de domínio), não como OrderPersistenceProvider.
     // Isso replica exatamente como a aplicação real usaria o repositório.
     // Substituir por um fake seria trivial — basta trocar o @Import.
     private Orders orders;
+    private Customers customers;
 
     @Autowired
-    public OrdersIT(Orders orders) {
+    public OrdersIT(Orders orders, Customers customers) {
         this.orders = orders;
+        this.customers = customers;
+    }
+
+    @BeforeEach
+    void setUp() {
+        if (!customers.exists(CustomerTestDataBuilder.DEFAULT_CUSTOMER_ID)) {
+            customers.add(
+                    CustomerTestDataBuilder.existingCustomer().build()
+            );
+        }
     }
 
     /**
@@ -162,5 +187,81 @@ class OrdersIT {
 
         Assertions.assertThat(orders.exists(order.id())).isTrue();
         Assertions.assertThat(orders.exists(new OrderId())).isFalse();
+    }
+
+    @Test
+    void shouldListExistingOrdersByYear() {
+        orders.add(
+                OrderTestDataBuilder.anOrder().status(OrderStatus.PLACED).build()
+        );
+        orders.add(
+                OrderTestDataBuilder.anOrder().status(OrderStatus.PLACED).build()
+        );
+        orders.add(
+                OrderTestDataBuilder.anOrder().status(OrderStatus.CANCELED).build()
+        );
+        orders.add(
+                OrderTestDataBuilder.anOrder().status(OrderStatus.DRAFT).build()
+        );
+
+        CustomerId customerId = CustomerTestDataBuilder.DEFAULT_CUSTOMER_ID;
+
+        List<Order> listedOrders = this.orders.placedByCustomerInYear(customerId, Year.now());
+        Assertions.assertThat(listedOrders).isNotEmpty();
+        Assertions.assertThat(listedOrders.size()).isEqualTo(2);
+
+        listedOrders = orders.placedByCustomerInYear(customerId, Year.now().minusYears(1));
+        Assertions.assertThat(listedOrders).isEmpty();
+
+        listedOrders = orders.placedByCustomerInYear(new CustomerId(), Year.now());
+        Assertions.assertThat(listedOrders).isEmpty();
+    }
+
+    @Test
+    void shouldReturnTotalSoldByCustomer() {
+        Order order1 = OrderTestDataBuilder.anOrder().status(OrderStatus.PAID).build();
+        Order order2 = OrderTestDataBuilder.anOrder().status(OrderStatus.PAID).build();
+
+        orders.add(order1);
+        orders.add(order2);
+
+        // valores que devem ser ignorados
+        orders.add(
+                OrderTestDataBuilder.anOrder().status(OrderStatus.CANCELED).build()
+        );
+        orders.add(
+                OrderTestDataBuilder.anOrder().status(OrderStatus.PLACED).build()
+        );
+
+        // valor esperado
+        Money expectedTotalAmount = order1.totalAmount().add(order2.totalAmount());
+        CustomerId customerId = CustomerTestDataBuilder.DEFAULT_CUSTOMER_ID;
+
+        Assertions.assertThat(orders.totalSoldForCustomer(customerId)).isEqualTo(expectedTotalAmount);
+
+        // invalidos
+        Assertions.assertThat(orders.totalSoldForCustomer(new CustomerId())).isEqualTo(Money.ZERO);
+    }
+
+    @Test
+    void shouldReturnSalesQuantityByCustomer() {
+        Order order1 = OrderTestDataBuilder.anOrder().status(OrderStatus.PAID).build();
+        Order order2 = OrderTestDataBuilder.anOrder().status(OrderStatus.PAID).build();
+
+        orders.add(order1);
+        orders.add(order2);
+
+        // valores que devem ser ignorados
+        orders.add(
+                OrderTestDataBuilder.anOrder().status(OrderStatus.CANCELED).build()
+        );
+        orders.add(
+                OrderTestDataBuilder.anOrder().status(OrderStatus.PLACED).build()
+        );
+
+        CustomerId customerId = CustomerTestDataBuilder.DEFAULT_CUSTOMER_ID;
+
+        Assertions.assertThat(orders.salesQuantityByCustomerInYear(customerId, Year.now())).isEqualTo(2L);
+        Assertions.assertThat(orders.salesQuantityByCustomerInYear(customerId, Year.now().minusYears(1))).isZero();
     }
 }

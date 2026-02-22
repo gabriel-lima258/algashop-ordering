@@ -25,10 +25,14 @@ public class ShoppingCart implements AggregateRoot<ShoppingCartId> {
 
     private Set<ShoppingCartItem> items;
 
+    // controle de concorrencia no banco
+    private Long version;
+
     @Builder(builderClassName = "ExistingShoppingCartBuilder", builderMethodName = "existing")
-    public ShoppingCart(ShoppingCartId id, CustomerId customerId, Money totalAmount,
+    public ShoppingCart(ShoppingCartId id, Long version, CustomerId customerId, Money totalAmount,
                         Quantity totalItems, OffsetDateTime createdAt, Set<ShoppingCartItem> items) {
         this.setId(id);
+        this.setVersion(version);
         this.setCustomerId(customerId);
         this.setTotalAmount(totalAmount);
         this.setTotalItems(totalItems);
@@ -39,6 +43,7 @@ public class ShoppingCart implements AggregateRoot<ShoppingCartId> {
     public static ShoppingCart startShopping(CustomerId customerId) {
         return new ShoppingCart(
                 new ShoppingCartId(),
+                null,
                 customerId,
                 Money.ZERO,
                 Quantity.ZERO,
@@ -113,6 +118,10 @@ public class ShoppingCart implements AggregateRoot<ShoppingCartId> {
         return id;
     }
 
+    public Long version() {
+        return version;
+    }
+
     public CustomerId customerId() {
         return customerId;
     }
@@ -140,6 +149,10 @@ public class ShoppingCart implements AggregateRoot<ShoppingCartId> {
     private void setId(ShoppingCartId id) {
         Objects.requireNonNull(id);
         this.id = id;
+    }
+
+    private void setVersion(Long version) {
+        this.version = version;
     }
 
     private void setCustomerId(CustomerId customerId) {

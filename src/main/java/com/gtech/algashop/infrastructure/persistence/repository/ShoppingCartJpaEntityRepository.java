@@ -1,13 +1,15 @@
 package com.gtech.algashop.infrastructure.persistence.repository;
 
+import com.gtech.algashop.domain.model.entity.ShoppingCart;
 import com.gtech.algashop.infrastructure.persistence.entity.OrderPersistenceEntity;
+import com.gtech.algashop.infrastructure.persistence.entity.ShoppingCartPersistenceEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -26,39 +28,6 @@ import java.util.UUID;
  * Apenas o OrderPersistenceProvider (o adapter do domínio).
  * Nenhuma classe de domínio ou serviço de aplicação deve importar este repositório diretamente.
  */
-public interface OrderJpaEntityRepository extends JpaRepository<OrderPersistenceEntity, Long> {
-
-
-    @Query("""
-        SELECT o
-        FROM OrderPersistenceEntity o
-        WHERE o.customer.id = :customerId
-        AND YEAR(o.placedAt) = :year
-    """)
-    List<OrderPersistenceEntity> placedByCustomerInYear(
-            @Param("customerId") UUID customerId,
-            @Param("year") Integer year
-    );
-
-    @Query("""
-        SELECT COUNT(o)
-        FROM OrderPersistenceEntity o
-        WHERE o.customer.id = :customerId
-        AND YEAR(o.placedAt) = :year
-        AND o.paidAt IS NOT NULL
-        AND o.canceledAt IS NULL
-    """)
-    long salesQuantityByCustomerInYear(
-            @Param("customerId") UUID customerId,
-            @Param("year") Integer year
-    );
-
-    @Query("""
-        SELECT COALESCE(SUM(o.totalAmount), 0)
-        FROM OrderPersistenceEntity o
-        WHERE o.customer.id = :customerId
-        AND o.canceledAt IS NULL
-        AND o.paidAt IS NOT NULL
-    """)
-    BigDecimal totalSoldForCustomer(@Param("customerId") UUID customerId);
+public interface ShoppingCartJpaEntityRepository extends JpaRepository<ShoppingCartPersistenceEntity, UUID> {
+    Optional<ShoppingCartPersistenceEntity> findByCustomer_Id(UUID customerId);
 }

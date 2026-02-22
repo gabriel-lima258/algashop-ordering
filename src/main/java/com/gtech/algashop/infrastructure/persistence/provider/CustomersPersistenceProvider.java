@@ -1,6 +1,7 @@
 package com.gtech.algashop.infrastructure.persistence.provider;
 
 import com.gtech.algashop.domain.model.entity.Customer;
+import com.gtech.algashop.domain.model.entity.VO.Email;
 import com.gtech.algashop.domain.model.entity.VO.id.CustomerId;
 import com.gtech.algashop.domain.model.repository.Customers;
 import com.gtech.algashop.infrastructure.persistence.assembler.CustomerPersistenceEntityAssembler;
@@ -83,6 +84,19 @@ public class CustomersPersistenceProvider implements Customers {
     @Override
     public long count() {
         return persistenceRepository.count();
+    }
+
+    @Override
+    public Optional<Customer> ofEmail(Email email) {
+        // conversao de uma entidade persistencia para dominio
+        return persistenceRepository.findByEmail(email.email())
+                .map(disassembler::toDomainEntity);
+    }
+
+    // valida se o email não é unico!
+    @Override
+    public boolean isEmailUnique(Email email, CustomerId exceptCustomerId) {
+        return !persistenceRepository.existsByEmailAndIdNot(email.email(), exceptCustomerId.value());
     }
 
     private void insert(Customer aggregateRoot) {

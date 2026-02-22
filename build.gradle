@@ -18,6 +18,7 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+    mockitoAgent
 }
 
 repositories {
@@ -36,6 +37,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.assertj:assertj-core:3.27.3'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    mockitoAgent('org.mockito:mockito-core:5.14.2') {transitive = false}
 }
 
 // roda JUNIT5 por padrão
@@ -48,6 +50,7 @@ test {
     filter {
         excludeTestsMatching("*IT")
     }
+    jvmArgs += "-javaagent:${configurations.mockitoAgent.asPath}"
 }
 
 // check roda ambos testes
@@ -59,6 +62,7 @@ tasks.named('check') {
 tasks.register('integrationTest', Test) {
     description = 'Run integration tests.'
     group = 'verification'
+    jvmArgs += "-javaagent:${configurations.mockitoAgent.asPath}"
 
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath

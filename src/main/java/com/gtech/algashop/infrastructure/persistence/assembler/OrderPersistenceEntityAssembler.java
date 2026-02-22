@@ -10,8 +10,11 @@ import com.gtech.algashop.infrastructure.persistence.embeddable.AddressEmbeddabl
 import com.gtech.algashop.infrastructure.persistence.embeddable.BillingEmbeddable;
 import com.gtech.algashop.infrastructure.persistence.embeddable.RecipientEmbeddable;
 import com.gtech.algashop.infrastructure.persistence.embeddable.ShippingEmbeddable;
+import com.gtech.algashop.infrastructure.persistence.entity.CustomerPersistenceEntity;
 import com.gtech.algashop.infrastructure.persistence.entity.OrderItemPersistenceEntity;
 import com.gtech.algashop.infrastructure.persistence.entity.OrderPersistenceEntity;
+import com.gtech.algashop.infrastructure.persistence.repository.CustomerJpaEntityRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -44,7 +47,10 @@ import java.util.stream.Collectors;
  * @see Order
  */
 @Component
+@RequiredArgsConstructor
 public class OrderPersistenceEntityAssembler {
+
+    private final CustomerJpaEntityRepository customerJpaEntityRepository;
 
     /**
      * Cria uma nova OrderPersistenceEntity a partir de um Order de domínio.
@@ -79,7 +85,6 @@ public class OrderPersistenceEntityAssembler {
     public OrderPersistenceEntity merge(OrderPersistenceEntity orderPersistenceEntity, Order order) {
         // Campos escalares: Value Objects do domínio são "desempacotados" para tipos primitivos do banco
         orderPersistenceEntity.setId(order.id().value().toLong());              // OrderId (TSID) → Long
-        orderPersistenceEntity.setCustomerId(order.customerId().value());       // CustomerId → Long
         orderPersistenceEntity.setTotalAmount(order.totalAmount().money());     // Money → BigDecimal
         orderPersistenceEntity.setTotalItems(order.totalQuantity().quantity()); // Quantity → Integer
         orderPersistenceEntity.setStatus(order.status().name());                // Enum → String
@@ -101,6 +106,9 @@ public class OrderPersistenceEntityAssembler {
         // Itens são tratados separadamente pois exigem lógica de merge (criar novos ou atualizar existentes)
         Set<OrderItemPersistenceEntity> mergedItems = mergeItems(order, orderPersistenceEntity);
         orderPersistenceEntity.replaceItems(mergedItems);
+
+        var customerReference = customerJpaEntityRepository.getReferenceById(order.customerId().value());
+        orderPersistenceEntity.setCustomer(customerReference);
 
         return orderPersistenceEntity;
     }
@@ -146,7 +154,7 @@ public class OrderPersistenceEntityAssembler {
         // Caso 2: entidade ainda não tem itens (INSERT inicial) — converte todos do zero
         if (exisitingItems == null || exisitingItems.isEmpty()) {
             return updatedItems.stream()
-                    .map(item -> fromDomain(item))
+                    .map(this::fromDomain)
                     .collect(Collectors.toSet());
         }
 
