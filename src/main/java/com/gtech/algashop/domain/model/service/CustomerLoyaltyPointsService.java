@@ -6,9 +6,11 @@ import com.gtech.algashop.domain.model.entity.VO.LoyaltyPoints;
 import com.gtech.algashop.domain.model.entity.VO.Money;
 import com.gtech.algashop.domain.model.exceptions.CanAddLoyaltyPointsOrderIsNotReadyException;
 import com.gtech.algashop.domain.model.exceptions.OrderNotBelongsToCustomerException;
+import com.gtech.algashop.domain.model.util.DomainService;
 
 import java.util.Objects;
 
+@DomainService
 public class CustomerLoyaltyPointsService {
 
     private static final LoyaltyPoints basicPoints = new LoyaltyPoints(5);

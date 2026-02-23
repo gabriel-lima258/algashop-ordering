@@ -5,13 +5,14 @@ import com.gtech.algashop.domain.model.entity.VO.*;
 import com.gtech.algashop.domain.model.entity.VO.id.CustomerId;
 import com.gtech.algashop.domain.model.exceptions.CustomerEmailInUseException;
 import com.gtech.algashop.domain.model.repository.Customers;
+import com.gtech.algashop.domain.model.util.DomainService;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@DomainService
 public class CustomerRegistrationService {
 
-    // interface de persistencia para fazer verificaçoes mas nunca persistencia
-    private Customers customers;
+    private final Customers customers;
 
     public Customer register(
             FullName fullName, BirthDate birthDate, Email email,

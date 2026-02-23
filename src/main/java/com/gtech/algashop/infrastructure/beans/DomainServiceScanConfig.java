@@ -1,0 +1,18 @@
+package com.gtech.algashop.infrastructure.beans;
+
+import com.gtech.algashop.domain.model.util.DomainService;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
+
+// essa classe faz o Spring registrar beans sem poluir o domínio com @Service
+@Configuration
+@ComponentScan(
+        basePackages = "com.gtech.algashop.domain.model",
+        includeFilters = @ComponentScan.Filter(
+                type = FilterType.ANNOTATION,
+                classes = DomainService.class
+        )
+)
+public class DomainServiceScanConfig {
+}

@@ -184,14 +184,14 @@ public class ShoppingCart implements AggregateRoot<ShoppingCartId> {
     ///  HELPERS
     ////////////////////////////////////
 
-    private ShoppingCartItem findItem(ShoppingCartItemId shoppingCartItemId) {
+    public ShoppingCartItem findItem(ShoppingCartItemId shoppingCartItemId) {
         return this.items().stream()
                 .filter(i -> i.id().equals(shoppingCartItemId))
                 .findFirst()
                 .orElseThrow(() -> new ShoppingCartDoesNotContainItemException(this.id(), shoppingCartItemId));
     }
 
-    private ShoppingCartItem findItem(ProductId productId) {
+    public ShoppingCartItem findItem(ProductId productId) {
         return this.items().stream()
                 .filter(i -> i.productId().equals(productId))
                 .findFirst()
