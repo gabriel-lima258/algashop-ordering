@@ -1,0 +1,176 @@
+package com.gtech.algashop.application.customer.loyaltypoints;
+
+import com.gtech.algashop.application.customer.management.CustomerInputTestDataBuilder;
+import com.gtech.algashop.application.customer.management.CustomerManagementApplicationService;
+import com.gtech.algashop.application.customer.management.CustomerOutput;
+import com.gtech.algashop.domain.model.costumer.CanAddLoyaltyPointsOrderIsNotReadyException;
+import com.gtech.algashop.domain.model.costumer.CustomerArchivedException;
+import com.gtech.algashop.domain.model.costumer.CustomerNotFoundException;
+import com.gtech.algashop.domain.model.costumer.CustomerId;
+import com.gtech.algashop.domain.model.costumer.Customers;
+import com.gtech.algashop.domain.model.customer.CustomerTestDataBuilder;
+import com.gtech.algashop.domain.model.order.Order;
+import com.gtech.algashop.domain.model.order.OrderId;
+import com.gtech.algashop.domain.model.order.OrderNotBelongsToCustomerException;
+import com.gtech.algashop.domain.model.order.OrderNotFoundException;
+import com.gtech.algashop.domain.model.order.OrderStatus;
+import com.gtech.algashop.domain.model.order.OrderTestDataBuilder;
+import com.gtech.algashop.domain.model.order.Orders;
+import com.gtech.algashop.domain.model.product.ProductCatalogService;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
+@SpringBootTest
+@Transactional
+class CustomerLoyaltyPointsApplicationServiceIT {
+
+    @Autowired
+    private CustomerLoyaltyPointsApplicationService loyaltyPointsApplicationService;
+
+    @Autowired
+    private CustomerManagementApplicationService customerManagementApplicationService;
+
+    @Autowired
+    private Customers customers;
+
+    @Autowired
+    private Orders orders;
+
+    @MockitoBean
+    private ProductCatalogService productCatalogService;
+
+    /**
+     * Default READY order total:
+     *   1x Notebook Max Pro (R$4500.00) + 1x 16GB RAM (R$200.00) + shipping (R$10.00) = R$4710.00
+     * Points: floor(4710 / 1000) * 5 = 4 * 5 = 20 points
+     */
+    @Test
+    void shouldAddLoyaltyPointsSuccessfully() {
+        UUID customerId = customerManagementApplicationService.create(
+                CustomerInputTestDataBuilder.aCustomer().build());
+
+        Order order = OrderTestDataBuilder.anOrder()
+                .customerId(new CustomerId(customerId))
+                .status(OrderStatus.READY)
+                .build();
+        orders.add(order);
+
+        loyaltyPointsApplicationService.addLoyaltyPoints(customerId, order.id().toString());
+
+        CustomerOutput output = customerManagementApplicationService.findById(customerId);
+        Assertions.assertThat(output.getLoyaltyPoints()).isEqualTo(20);
+    }
+
+    @Test
+    void shouldThrowCustomerNotFoundExceptionWhenCustomerDoesNotExist() {
+        // Order must reference a real customer to satisfy the FK constraint,
+        // but we query addLoyaltyPoints with a different, non-existent UUID.
+        UUID realCustomerId = customerManagementApplicationService.create(
+                CustomerInputTestDataBuilder.aCustomer().build());
+
+        Order order = OrderTestDataBuilder.anOrder()
+                .customerId(new CustomerId(realCustomerId))
+                .status(OrderStatus.READY)
+                .build();
+        orders.add(order);
+
+        UUID nonExistentCustomerId = UUID.randomUUID();
+
+        Assertions.assertThatThrownBy(() ->
+                loyaltyPointsApplicationService.addLoyaltyPoints(
+                        nonExistentCustomerId, order.id().toString()))
+                .isInstanceOf(CustomerNotFoundException.class);
+    }
+
+    @Test
+    void shouldThrowOrderNotFoundExceptionWhenOrderDoesNotExist() {
+        UUID customerId = customerManagementApplicationService.create(
+                CustomerInputTestDataBuilder.aCustomer().build());
+
+        String nonExistentOrderId = new OrderId().toString();
+
+        Assertions.assertThatThrownBy(() ->
+                loyaltyPointsApplicationService.addLoyaltyPoints(customerId, nonExistentOrderId))
+                .isInstanceOf(OrderNotFoundException.class);
+    }
+
+    @Test
+    void shouldThrowCustomerArchivedExceptionWhenCustomerIsArchived() {
+        UUID customerId = customerManagementApplicationService.create(
+                CustomerInputTestDataBuilder.aCustomer().build());
+
+        Order order = OrderTestDataBuilder.anOrder()
+                .customerId(new CustomerId(customerId))
+                .status(OrderStatus.READY)
+                .build();
+        orders.add(order);
+
+        customerManagementApplicationService.archive(customerId);
+
+        Assertions.assertThatThrownBy(() ->
+                loyaltyPointsApplicationService.addLoyaltyPoints(
+                        customerId, order.id().toString()))
+                .isInstanceOf(CustomerArchivedException.class);
+    }
+
+    @Test
+    void shouldThrowOrderNotBelongsToCustomerExceptionWhenOrderBelongsToAnotherCustomer() {
+        UUID customerAId = customerManagementApplicationService.create(
+                CustomerInputTestDataBuilder.aCustomer().build());
+        UUID customerBId = customerManagementApplicationService.create(
+                CustomerInputTestDataBuilder.aCustomer().email("janedoe@email.com").build());
+
+        Order orderForCustomerB = OrderTestDataBuilder.anOrder()
+                .customerId(new CustomerId(customerBId))
+                .status(OrderStatus.READY)
+                .build();
+        orders.add(orderForCustomerB);
+
+        Assertions.assertThatThrownBy(() ->
+                loyaltyPointsApplicationService.addLoyaltyPoints(
+                        customerAId, orderForCustomerB.id().toString()))
+                .isInstanceOf(OrderNotBelongsToCustomerException.class);
+    }
+
+    @Test
+    void shouldThrowCanAddLoyaltyPointsOrderIsNotReadyExceptionWhenOrderIsNotReady() {
+        UUID customerId = customerManagementApplicationService.create(
+                CustomerInputTestDataBuilder.aCustomer().build());
+
+        Order order = OrderTestDataBuilder.anOrder()
+                .customerId(new CustomerId(customerId))
+                .status(OrderStatus.PLACED)
+                .build();
+        orders.add(order);
+
+        Assertions.assertThatThrownBy(() ->
+                loyaltyPointsApplicationService.addLoyaltyPoints(
+                        customerId, order.id().toString()))
+                .isInstanceOf(CanAddLoyaltyPointsOrderIsNotReadyException.class);
+    }
+
+    @Test
+    void shouldNotAddPointsWhenOrderTotalIsBelowThreshold() {
+        UUID customerId = customerManagementApplicationService.create(
+                CustomerInputTestDataBuilder.aCustomer().build());
+
+        // withItems(false) → total = R$0.00 (below R$1000 threshold) → 0 points
+        Order order = OrderTestDataBuilder.anOrder()
+                .customerId(new CustomerId(customerId))
+                .withItems(false)
+                .status(OrderStatus.READY)
+                .build();
+        orders.add(order);
+
+        loyaltyPointsApplicationService.addLoyaltyPoints(customerId, order.id().toString());
+
+        CustomerOutput output = customerManagementApplicationService.findById(customerId);
+        Assertions.assertThat(output.getLoyaltyPoints()).isZero();
+    }
+}
