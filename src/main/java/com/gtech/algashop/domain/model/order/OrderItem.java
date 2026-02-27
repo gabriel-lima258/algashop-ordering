@@ -1,12 +1,10 @@
-package com.gtech.algashop.domain.model.entity;
+package com.gtech.algashop.domain.model.order;
 
-import com.gtech.algashop.domain.model.entity.VO.Money;
-import com.gtech.algashop.domain.model.entity.VO.Product;
-import com.gtech.algashop.domain.model.entity.VO.ProductName;
-import com.gtech.algashop.domain.model.entity.VO.Quantity;
-import com.gtech.algashop.domain.model.entity.VO.id.OrderId;
-import com.gtech.algashop.domain.model.entity.VO.id.OrderItemId;
-import com.gtech.algashop.domain.model.entity.VO.id.ProductId;
+import com.gtech.algashop.domain.model.commons.Money;
+import com.gtech.algashop.domain.model.product.Product;
+import com.gtech.algashop.domain.model.product.ProductName;
+import com.gtech.algashop.domain.model.commons.Quantity;
+import com.gtech.algashop.domain.model.product.ProductId;
 import lombok.Builder;
 
 import java.util.Objects;

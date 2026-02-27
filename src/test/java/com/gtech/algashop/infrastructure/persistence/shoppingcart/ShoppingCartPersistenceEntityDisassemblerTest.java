@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.persistence.disassembler;
+package com.gtech.algashop.infrastructure.persistence.shoppingcart;
 
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCart;
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartItem;
@@ -9,9 +9,6 @@ import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartId;
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartItemId;
 import com.gtech.algashop.domain.model.product.ProductId;
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartPersistenceEntityTestDataBuilder;
-import com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartItemPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartPersistenceEntityDisassembler;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;

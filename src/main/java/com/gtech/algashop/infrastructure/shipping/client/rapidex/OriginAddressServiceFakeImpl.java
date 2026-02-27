@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.fake;
+package com.gtech.algashop.infrastructure.shipping.client.rapidex;
 
 import com.gtech.algashop.domain.model.commons.Address;
 import com.gtech.algashop.domain.model.commons.ZipCode;

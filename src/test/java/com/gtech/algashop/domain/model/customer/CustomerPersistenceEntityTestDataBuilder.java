@@ -1,12 +1,12 @@
-package com.gtech.algashop.domain.model.factory;
+package com.gtech.algashop.domain.model.customer;
 
-import com.gtech.algashop.infrastructure.persistence.embeddable.AddressEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.entity.CustomerPersistenceEntity;
+import com.gtech.algashop.infrastructure.persistence.commons.AddressEmbeddable;
+import com.gtech.algashop.infrastructure.persistence.customer.CustomerPersistenceEntity;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
-import static com.gtech.algashop.domain.model.entity.factory.CustomerTestDataBuilder.DEFAULT_CUSTOMER_ID;
+import static com.gtech.algashop.domain.model.customer.CustomerTestDataBuilder.DEFAULT_CUSTOMER_ID;
 
 public class CustomerPersistenceEntityTestDataBuilder {
 

@@ -1,10 +1,7 @@
-package com.gtech.algashop.domain.model.entity;
+package com.gtech.algashop.domain.model.costumer;
 
 import com.gtech.algashop.domain.model.AggregateRoot;
 import com.gtech.algashop.domain.model.commons.*;
-import com.gtech.algashop.domain.model.entity.VO.*;
-import com.gtech.algashop.domain.model.entity.VO.id.CustomerId;
-import com.gtech.algashop.domain.model.exceptions.CustomerArchivedException;
 import lombok.Builder;
 
 import java.time.OffsetDateTime;

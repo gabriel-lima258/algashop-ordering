@@ -1,6 +1,4 @@
-package com.gtech.algashop.domain.model.repository;
-
-import com.gtech.algashop.domain.model.AggregateRoot;
+package com.gtech.algashop.domain.model;
 
 /**
  * EXTENSÃO OPCIONAL para repositórios que precisam remover Aggregates.

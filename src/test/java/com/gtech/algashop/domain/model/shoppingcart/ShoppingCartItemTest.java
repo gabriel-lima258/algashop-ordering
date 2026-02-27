@@ -1,16 +1,11 @@
-package com.gtech.algashop.domain.model.entity;
+package com.gtech.algashop.domain.model.shoppingcart;
 
 import com.gtech.algashop.domain.model.commons.Money;
 import com.gtech.algashop.domain.model.product.Product;
 import com.gtech.algashop.domain.model.product.ProductName;
 import com.gtech.algashop.domain.model.commons.Quantity;
 import com.gtech.algashop.domain.model.product.ProductId;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartId;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartItem;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartItemId;
-import com.gtech.algashop.domain.model.entity.factory.ProductTestDataBuilder;
-import com.gtech.algashop.domain.model.entity.factory.ShoppingCartItemTestDataBuilder;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartItemIncompatibleProductException;
+import com.gtech.algashop.domain.model.product.ProductTestDataBuilder;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.model.service;
+package com.gtech.algashop.domain.model.order.shipping;
 
 import com.gtech.algashop.domain.model.commons.Address;
 

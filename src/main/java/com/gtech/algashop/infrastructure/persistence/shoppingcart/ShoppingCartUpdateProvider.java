@@ -1,9 +1,8 @@
-package com.gtech.algashop.infrastructure.persistence.provider;
+package com.gtech.algashop.infrastructure.persistence.shoppingcart;
 
 import com.gtech.algashop.domain.model.commons.Money;
 import com.gtech.algashop.domain.model.product.ProductId;
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartProductAdjustmentService;
-import com.gtech.algashop.infrastructure.persistence.repository.ShoppingCartJpaEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

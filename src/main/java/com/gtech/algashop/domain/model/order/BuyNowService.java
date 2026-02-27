@@ -1,13 +1,9 @@
-package com.gtech.algashop.domain.model.service;
+package com.gtech.algashop.domain.model.order;
 
-import com.gtech.algashop.domain.model.order.Order;
-import com.gtech.algashop.domain.model.order.PaymentMethod;
-import com.gtech.algashop.domain.model.entity.VO.Billing;
-import com.gtech.algashop.domain.model.entity.VO.Product;
-import com.gtech.algashop.domain.model.entity.VO.Quantity;
-import com.gtech.algashop.domain.model.entity.VO.Shipping;
-import com.gtech.algashop.domain.model.entity.VO.id.CustomerId;
-import com.gtech.algashop.domain.model.util.DomainService;
+import com.gtech.algashop.domain.model.product.Product;
+import com.gtech.algashop.domain.model.commons.Quantity;
+import com.gtech.algashop.domain.model.costumer.CustomerId;
+import com.gtech.algashop.domain.model.DomainService;
 
 @DomainService
 public class BuyNowService {

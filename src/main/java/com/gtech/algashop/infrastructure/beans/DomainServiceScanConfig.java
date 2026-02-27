@@ -1,6 +1,6 @@
 package com.gtech.algashop.infrastructure.beans;
 
-import com.gtech.algashop.domain.model.util.DomainService;
+import com.gtech.algashop.domain.model.DomainService;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;

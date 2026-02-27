@@ -1,5 +1,6 @@
-package com.gtech.algashop.application.model;
+package com.gtech.algashop.application.customer.management;
 
+import com.gtech.algashop.application.commons.AddressData;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

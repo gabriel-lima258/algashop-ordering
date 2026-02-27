@@ -1,6 +1,4 @@
-package com.gtech.algashop.domain.model.entity.VO;
-
-import com.gtech.algashop.domain.model.exceptions.LoyaltyValueException;
+package com.gtech.algashop.domain.model.costumer;
 
 import java.util.Objects;
 

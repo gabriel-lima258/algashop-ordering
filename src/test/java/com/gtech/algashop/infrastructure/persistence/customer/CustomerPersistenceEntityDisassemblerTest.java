@@ -1,10 +1,8 @@
-package com.gtech.algashop.infrastructure.persistence.disassembler;
+package com.gtech.algashop.infrastructure.persistence.customer;
 
 import com.gtech.algashop.domain.model.costumer.Customer;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
 import com.gtech.algashop.domain.model.customer.CustomerPersistenceEntityTestDataBuilder;
-import com.gtech.algashop.infrastructure.persistence.customer.CustomerPersistenceEntityDisassembler;
-import com.gtech.algashop.infrastructure.persistence.customer.CustomerPersistenceEntity;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

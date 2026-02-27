@@ -1,9 +1,8 @@
-package com.gtech.algashop.domain.model.repository;
+package com.gtech.algashop.domain.model.order;
 
-import com.gtech.algashop.domain.model.order.Order;
-import com.gtech.algashop.domain.model.entity.VO.Money;
-import com.gtech.algashop.domain.model.entity.VO.id.CustomerId;
-import com.gtech.algashop.domain.model.entity.VO.id.OrderId;
+import com.gtech.algashop.domain.model.commons.Money;
+import com.gtech.algashop.domain.model.costumer.CustomerId;
+import com.gtech.algashop.domain.model.Repository;
 
 import java.time.Year;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.model.util;
+package com.gtech.algashop.domain.model;
 
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedEpochRandomGenerator;

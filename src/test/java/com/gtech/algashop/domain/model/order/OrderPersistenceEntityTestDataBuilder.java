@@ -1,12 +1,13 @@
-package com.gtech.algashop.domain.model.factory;
+package com.gtech.algashop.domain.model.order;
 
 import com.gtech.algashop.domain.model.IdGenerator;
-import com.gtech.algashop.infrastructure.persistence.embeddable.AddressEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.embeddable.BillingEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.embeddable.RecipientEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.embeddable.ShippingEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.entity.OrderItemPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.entity.OrderPersistenceEntity;
+import com.gtech.algashop.domain.model.customer.CustomerPersistenceEntityTestDataBuilder;
+import com.gtech.algashop.infrastructure.persistence.commons.AddressEmbeddable;
+import com.gtech.algashop.infrastructure.persistence.order.BillingEmbeddable;
+import com.gtech.algashop.infrastructure.persistence.order.RecipientEmbeddable;
+import com.gtech.algashop.infrastructure.persistence.order.ShippingEmbeddable;
+import com.gtech.algashop.infrastructure.persistence.order.OrderItemPersistenceEntity;
+import com.gtech.algashop.infrastructure.persistence.order.OrderPersistenceEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

@@ -1,9 +1,7 @@
-package com.gtech.algashop.domain.model.repository;
+package com.gtech.algashop.domain.model.shoppingcart;
 
 import com.gtech.algashop.domain.model.RemoveCapableRepository;
-import com.gtech.algashop.domain.model.entity.ShoppingCart;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
-import com.gtech.algashop.domain.model.entity.VO.id.ShoppingCartId;
 
 import java.util.Optional;
 

@@ -1,13 +1,9 @@
-package com.gtech.algashop.infrastructure.persistence.provider;
+package com.gtech.algashop.infrastructure.persistence.shoppingcart;
 
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCart;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartId;
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCarts;
-import com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartPersistenceEntityAssembler;
-import com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartPersistenceEntityDisassembler;
-import com.gtech.algashop.infrastructure.persistence.entity.ShoppingCartPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.repository.ShoppingCartJpaEntityRepository;
 import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;

@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.persistence.disassembler;
+package com.gtech.algashop.infrastructure.persistence.order;
 
 import com.gtech.algashop.domain.model.order.Order;
 import com.gtech.algashop.domain.model.order.OrderStatus;
@@ -8,8 +8,6 @@ import com.gtech.algashop.domain.model.commons.Quantity;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
 import com.gtech.algashop.domain.model.order.OrderId;
 import com.gtech.algashop.domain.model.order.OrderPersistenceEntityTestDataBuilder;
-import com.gtech.algashop.infrastructure.persistence.order.OrderPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.order.OrderPersistenceEntityDisassembler;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -1,6 +1,5 @@
-package com.gtech.algashop.domain.model.entity;
+package com.gtech.algashop.domain.model.order;
 
-import com.gtech.algashop.domain.model.order.OrderStatus;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 

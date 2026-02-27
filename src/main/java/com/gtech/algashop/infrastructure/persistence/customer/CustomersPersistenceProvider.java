@@ -1,13 +1,9 @@
-package com.gtech.algashop.infrastructure.persistence.provider;
+package com.gtech.algashop.infrastructure.persistence.customer;
 
 import com.gtech.algashop.domain.model.costumer.Customer;
 import com.gtech.algashop.domain.model.commons.Email;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
 import com.gtech.algashop.domain.model.costumer.Customers;
-import com.gtech.algashop.infrastructure.persistence.assembler.CustomerPersistenceEntityAssembler;
-import com.gtech.algashop.infrastructure.persistence.disassembler.CustomerPersistenceEntityDisassembler;
-import com.gtech.algashop.infrastructure.persistence.entity.CustomerPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.repository.CustomerJpaEntityRepository;
 import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;

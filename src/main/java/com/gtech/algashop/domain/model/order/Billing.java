@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.model.entity.VO;
+package com.gtech.algashop.domain.model.order;
 
 import com.gtech.algashop.domain.model.commons.*;
 import lombok.Builder;

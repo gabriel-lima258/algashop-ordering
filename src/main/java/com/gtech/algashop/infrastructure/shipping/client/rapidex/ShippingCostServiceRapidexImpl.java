@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.shipping.rapidex;
+package com.gtech.algashop.infrastructure.shipping.client.rapidex;
 
 import com.gtech.algashop.domain.model.commons.Money;
 import com.gtech.algashop.domain.model.order.shipping.ShippingCostService;

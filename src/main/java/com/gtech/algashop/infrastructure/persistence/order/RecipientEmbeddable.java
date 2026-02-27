@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.persistence.embeddable;
+package com.gtech.algashop.infrastructure.persistence.order;
 
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;

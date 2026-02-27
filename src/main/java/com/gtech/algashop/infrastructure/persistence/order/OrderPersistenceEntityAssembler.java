@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.persistence.assembler;
+package com.gtech.algashop.infrastructure.persistence.order;
 
 import com.gtech.algashop.domain.model.order.Order;
 import com.gtech.algashop.domain.model.order.OrderItem;
@@ -6,13 +6,8 @@ import com.gtech.algashop.domain.model.commons.Address;
 import com.gtech.algashop.domain.model.order.Billing;
 import com.gtech.algashop.domain.model.order.Recipient;
 import com.gtech.algashop.domain.model.order.Shipping;
-import com.gtech.algashop.infrastructure.persistence.embeddable.AddressEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.order.BillingEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.order.RecipientEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.order.ShippingEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.order.OrderItemPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.order.OrderPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.repository.CustomerJpaEntityRepository;
+import com.gtech.algashop.infrastructure.persistence.commons.AddressEmbeddable;
+import com.gtech.algashop.infrastructure.persistence.customer.CustomerJpaEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

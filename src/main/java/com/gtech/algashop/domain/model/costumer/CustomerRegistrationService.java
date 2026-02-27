@@ -1,11 +1,6 @@
-package com.gtech.algashop.domain.model.service;
+package com.gtech.algashop.domain.model.costumer;
 
 import com.gtech.algashop.domain.model.commons.*;
-import com.gtech.algashop.domain.model.costumer.BirthDate;
-import com.gtech.algashop.domain.model.costumer.Customer;
-import com.gtech.algashop.domain.model.costumer.CustomerId;
-import com.gtech.algashop.domain.model.costumer.CustomerEmailInUseException;
-import com.gtech.algashop.domain.model.repository.Customers;
 import com.gtech.algashop.domain.model.DomainService;
 import lombok.RequiredArgsConstructor;
 

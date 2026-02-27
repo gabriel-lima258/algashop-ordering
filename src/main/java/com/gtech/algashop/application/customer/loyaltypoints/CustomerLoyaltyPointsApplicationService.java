@@ -1,4 +1,4 @@
-package com.gtech.algashop.application.customer.management;
+package com.gtech.algashop.application.customer.loyaltypoints;
 
 import com.gtech.algashop.domain.model.costumer.*;
 import com.gtech.algashop.domain.model.order.Order;
@@ -34,9 +34,6 @@ public class CustomerLoyaltyPointsApplicationService {
                 .orElseThrow(OrderNotFoundException::new);
 
         customerLoyaltyPointsService.addPoints(customer, order);
-
         customers.add(customer);
-
-
     }
 }

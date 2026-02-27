@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.persistence.entity;
+package com.gtech.algashop.infrastructure.persistence.shoppingcart;
 
 import com.gtech.algashop.infrastructure.persistence.customer.CustomerPersistenceEntity;
 import jakarta.persistence.*;

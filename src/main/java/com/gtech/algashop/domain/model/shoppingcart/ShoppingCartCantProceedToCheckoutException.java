@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.model.exceptions;
+package com.gtech.algashop.domain.model.shoppingcart;
 
 import com.gtech.algashop.domain.model.BusinessException;
 

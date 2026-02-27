@@ -1,10 +1,8 @@
-package com.gtech.algashop.domain.model.exceptions;
+package com.gtech.algashop.domain.model.order;
 
 import com.gtech.algashop.domain.model.BusinessException;
-import com.gtech.algashop.domain.model.entity.VO.id.OrderId;
-import com.gtech.algashop.domain.model.entity.VO.id.OrderItemId;
 
-import static com.gtech.algashop.domain.model.exceptions.ErrorMessages.ERROR_ORDER_DOES_NOT_CONTAIN_ITEM;
+import static com.gtech.algashop.domain.model.ErrorMessages.ERROR_ORDER_DOES_NOT_CONTAIN_ITEM;
 
 public class OrderDoesNotContainOrderItemException extends BusinessException {
     public OrderDoesNotContainOrderItemException(OrderId id, OrderItemId orderItemId) {

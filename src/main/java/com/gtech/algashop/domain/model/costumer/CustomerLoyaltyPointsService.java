@@ -1,10 +1,7 @@
-package com.gtech.algashop.domain.model.service;
+package com.gtech.algashop.domain.model.costumer;
 
-import com.gtech.algashop.domain.model.costumer.Customer;
 import com.gtech.algashop.domain.model.order.Order;
-import com.gtech.algashop.domain.model.costumer.LoyaltyPoints;
 import com.gtech.algashop.domain.model.commons.Money;
-import com.gtech.algashop.domain.model.costumer.CanAddLoyaltyPointsOrderIsNotReadyException;
 import com.gtech.algashop.domain.model.order.OrderNotBelongsToCustomerException;
 import com.gtech.algashop.domain.model.DomainService;
 

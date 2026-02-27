@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.model.VO;
+package com.gtech.algashop.domain.model.valueobject;
 
 import com.gtech.algashop.domain.model.costumer.CustomerId;
 import org.assertj.core.api.Assertions;

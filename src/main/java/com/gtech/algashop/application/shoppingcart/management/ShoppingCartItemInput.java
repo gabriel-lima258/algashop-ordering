@@ -1,4 +1,4 @@
-package com.gtech.algashop.application.shoppingcart;
+package com.gtech.algashop.application.shoppingcart.management;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

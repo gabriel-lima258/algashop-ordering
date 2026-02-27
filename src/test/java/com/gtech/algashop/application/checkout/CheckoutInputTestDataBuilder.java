@@ -1,16 +1,14 @@
 package com.gtech.algashop.application.checkout;
 
 import com.gtech.algashop.application.commons.AddressData;
-import com.gtech.algashop.domain.model.customer.CustomerTestDataBuilder;
-import com.gtech.algashop.domain.model.product.ProductTestDataBuilder;
 
-public class BuyNowInputTestDataBuilder {
+import java.util.UUID;
 
-    public static BuyNowInput.BuyNowInputBuilder aBuyNowInput() {
-        return BuyNowInput.builder()
-                .productId(ProductTestDataBuilder.DEFAULT_PRODUCT_ID.value())
-                .customerId(CustomerTestDataBuilder.DEFAULT_CUSTOMER_ID.value())
-                .quantity(2)
+public class CheckoutInputTestDataBuilder {
+
+    public static CheckoutInput.CheckoutInputBuilder aCheckoutInput(UUID shoppingCartId) {
+        return CheckoutInput.builder()
+                .shoppingCartId(shoppingCartId)
                 .paymentMethod("CREDIT_CARD")
                 .shipping(ShippingInput.builder()
                         .recipient(RecipientData.builder()
@@ -46,5 +44,4 @@ public class BuyNowInputTestDataBuilder {
                                 .build())
                         .build());
     }
-
 }

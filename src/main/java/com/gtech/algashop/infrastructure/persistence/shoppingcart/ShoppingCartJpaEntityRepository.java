@@ -1,6 +1,5 @@
-package com.gtech.algashop.infrastructure.persistence.repository;
+package com.gtech.algashop.infrastructure.persistence.shoppingcart;
 
-import com.gtech.algashop.infrastructure.persistence.entity.ShoppingCartPersistenceEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

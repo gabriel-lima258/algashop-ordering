@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.persistence.disassembler;
+package com.gtech.algashop.infrastructure.persistence.shoppingcart;
 
 import com.gtech.algashop.domain.model.commons.Money;
 import com.gtech.algashop.domain.model.commons.Quantity;
@@ -9,8 +9,6 @@ import com.gtech.algashop.domain.model.shoppingcart.ShoppingCart;
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartId;
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartItem;
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartItemId;
-import com.gtech.algashop.infrastructure.persistence.entity.ShoppingCartItemPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.entity.ShoppingCartPersistenceEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;

@@ -1,7 +1,6 @@
 package com.gtech.algashop.domain.model.order;
 
-public class OrderNotFoundException extends RuntimeException {
-  public OrderNotFoundException(String message) {
-    super(message);
-  }
+import com.gtech.algashop.domain.model.BusinessException;
+
+public class OrderNotFoundException extends BusinessException {
 }

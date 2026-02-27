@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.model.entity.VO.id;
+package com.gtech.algashop.domain.model.order;
 
 import com.gtech.algashop.domain.model.IdGenerator;
 import io.hypersistence.tsid.TSID;

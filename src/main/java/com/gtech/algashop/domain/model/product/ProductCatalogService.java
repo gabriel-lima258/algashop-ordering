@@ -1,7 +1,4 @@
-package com.gtech.algashop.domain.model.service;
-
-import com.gtech.algashop.domain.model.entity.VO.Product;
-import com.gtech.algashop.domain.model.entity.VO.id.ProductId;
+package com.gtech.algashop.domain.model.product;
 
 import java.util.Optional;
 

@@ -1,7 +1,6 @@
 package com.gtech.algashop.domain.model.product;
 
-public class ProductNotFoundException extends RuntimeException {
-  public ProductNotFoundException(String message) {
-    super(message);
-  }
+import com.gtech.algashop.domain.model.BusinessException;
+
+public class ProductNotFoundException extends BusinessException {
 }

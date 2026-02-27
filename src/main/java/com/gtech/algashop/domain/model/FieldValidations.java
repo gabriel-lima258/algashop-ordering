@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.model.util;
+package com.gtech.algashop.domain.model;
 
 import org.apache.commons.validator.routines.EmailValidator;
 

@@ -1,11 +1,10 @@
-package com.gtech.algashop.domain.model.entity;
+package com.gtech.algashop.domain.model.order;
 
 import com.gtech.algashop.domain.model.AggregateRoot;
-import com.gtech.algashop.domain.model.entity.VO.*;
-import com.gtech.algashop.domain.model.entity.VO.id.CustomerId;
-import com.gtech.algashop.domain.model.entity.VO.id.OrderId;
-import com.gtech.algashop.domain.model.entity.VO.id.OrderItemId;
-import com.gtech.algashop.domain.model.exceptions.*;
+import com.gtech.algashop.domain.model.commons.Money;
+import com.gtech.algashop.domain.model.commons.Quantity;
+import com.gtech.algashop.domain.model.costumer.CustomerId;
+import com.gtech.algashop.domain.model.product.Product;
 import lombok.Builder;
 
 import java.math.BigDecimal;

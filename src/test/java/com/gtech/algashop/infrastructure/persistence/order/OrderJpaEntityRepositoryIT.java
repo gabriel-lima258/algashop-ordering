@@ -1,12 +1,10 @@
-package com.gtech.algashop.infrastructure.persistence.repository;
+package com.gtech.algashop.infrastructure.persistence.order;
 
 import com.gtech.algashop.domain.model.customer.CustomerTestDataBuilder;
 import com.gtech.algashop.domain.model.customer.CustomerPersistenceEntityTestDataBuilder;
 import com.gtech.algashop.infrastructure.persistence.SpringDataAuditingConfig;
 import com.gtech.algashop.infrastructure.persistence.customer.CustomerJpaEntityRepository;
 import com.gtech.algashop.infrastructure.persistence.customer.CustomerPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.order.OrderJpaEntityRepository;
-import com.gtech.algashop.infrastructure.persistence.order.OrderPersistenceEntity;
 import com.gtech.algashop.domain.model.order.OrderPersistenceEntityTestDataBuilder;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

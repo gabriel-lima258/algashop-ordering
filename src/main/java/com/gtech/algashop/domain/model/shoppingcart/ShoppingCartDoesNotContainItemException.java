@@ -1,8 +1,6 @@
-package com.gtech.algashop.domain.model.exceptions;
+package com.gtech.algashop.domain.model.shoppingcart;
 
 import com.gtech.algashop.domain.model.BusinessException;
-import com.gtech.algashop.domain.model.entity.VO.id.ShoppingCartId;
-import com.gtech.algashop.domain.model.entity.VO.id.ShoppingCartItemId;
 
 import static com.gtech.algashop.domain.model.ErrorMessages.*;
 

@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.model.service;
+package com.gtech.algashop.domain.model.customer;
 
 import com.gtech.algashop.domain.model.commons.*;
 import com.gtech.algashop.domain.model.costumer.BirthDate;

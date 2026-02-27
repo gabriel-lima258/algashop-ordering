@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.persistence.provider;
+package com.gtech.algashop.infrastructure.persistence.shoppingcart;
 
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCart;
 import com.gtech.algashop.domain.model.commons.Quantity;
@@ -7,13 +7,9 @@ import com.gtech.algashop.domain.model.product.ProductTestDataBuilder;
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartTestDataBuilder;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
 import com.gtech.algashop.infrastructure.persistence.customer.CustomerPersistenceEntityAssembler;
-import com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartPersistenceEntityAssembler;
 import com.gtech.algashop.infrastructure.persistence.SpringDataAuditingConfig;
 import com.gtech.algashop.infrastructure.persistence.customer.CustomerPersistenceEntityDisassembler;
 import com.gtech.algashop.infrastructure.persistence.customer.CustomersPersistenceProvider;
-import com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartPersistenceEntityDisassembler;
-import com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartJpaEntityRepository;
-import com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartPersistenceProvider;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

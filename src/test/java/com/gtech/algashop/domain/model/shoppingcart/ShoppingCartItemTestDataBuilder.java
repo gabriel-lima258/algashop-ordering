@@ -1,9 +1,8 @@
-package com.gtech.algashop.domain.model.entity.factory;
+package com.gtech.algashop.domain.model.shoppingcart;
 
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartItem;
+import com.gtech.algashop.domain.model.product.ProductTestDataBuilder;
 import com.gtech.algashop.domain.model.product.Product;
 import com.gtech.algashop.domain.model.commons.Quantity;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartId;
 
 public class ShoppingCartItemTestDataBuilder {
 

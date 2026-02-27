@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.persistence.disassembler;
+package com.gtech.algashop.infrastructure.persistence.order;
 
 import com.gtech.algashop.domain.model.commons.*;
 import com.gtech.algashop.domain.model.order.*;
@@ -7,12 +7,7 @@ import com.gtech.algashop.domain.model.order.OrderId;
 import com.gtech.algashop.domain.model.order.OrderItemId;
 import com.gtech.algashop.domain.model.product.ProductId;
 import com.gtech.algashop.domain.model.product.ProductName;
-import com.gtech.algashop.infrastructure.persistence.embeddable.AddressEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.order.BillingEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.order.RecipientEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.order.ShippingEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.order.OrderItemPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.order.OrderPersistenceEntity;
+import com.gtech.algashop.infrastructure.persistence.commons.AddressEmbeddable;
 import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.Set;

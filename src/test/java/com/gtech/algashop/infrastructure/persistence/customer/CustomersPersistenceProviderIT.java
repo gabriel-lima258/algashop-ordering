@@ -1,14 +1,9 @@
-package com.gtech.algashop.infrastructure.persistence.provider;
+package com.gtech.algashop.infrastructure.persistence.customer;
 
 import com.gtech.algashop.domain.model.costumer.Customer;
 import com.gtech.algashop.domain.model.costumer.LoyaltyPoints;
 import com.gtech.algashop.domain.model.customer.CustomerTestDataBuilder;
-import com.gtech.algashop.infrastructure.persistence.customer.CustomerPersistenceEntityAssembler;
 import com.gtech.algashop.infrastructure.persistence.SpringDataAuditingConfig;
-import com.gtech.algashop.infrastructure.persistence.customer.CustomerPersistenceEntityDisassembler;
-import com.gtech.algashop.infrastructure.persistence.customer.CustomerPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.customer.CustomersPersistenceProvider;
-import com.gtech.algashop.infrastructure.persistence.customer.CustomerJpaEntityRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

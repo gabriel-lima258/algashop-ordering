@@ -4,17 +4,14 @@ import com.gtech.algashop.application.commons.AddressData;
 
 import java.time.LocalDate;
 
-public class CustomerInputTestDataBuilder {
+public class CustomerUpdatedInputTestDataBuilder {
 
-    public static CustomerInput.CustomerInputBuilder aCustomer() {
-        return CustomerInput.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .birthDate(LocalDate.of(1991, 7,5))
-                .document("255-08-0578")
-                .phone("478-256-2604")
-                .email("johndoe@email.com")
-                .promotionNotificationsAllowed(false)
+    public static CustomerUpdateInput.CustomerUpdateInputBuilder aUpdatedCustomer() {
+        return CustomerUpdateInput.builder()
+                .firstName("Matheus")
+                .lastName("Damon")
+                .phone("478-256-1123")
+                .promotionNotificationsAllowed(true)
                 .address(AddressData.builder()
                         .street("Bourbon Street")
                         .number("1200")

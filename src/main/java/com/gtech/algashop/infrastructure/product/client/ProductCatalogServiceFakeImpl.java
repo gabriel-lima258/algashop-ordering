@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.fake;
+package com.gtech.algashop.infrastructure.product.client;
 
 import com.gtech.algashop.domain.model.commons.Money;
 import com.gtech.algashop.domain.model.product.Product;

@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.model.service;
+package com.gtech.algashop.domain.model.customer;
 
 
 import com.gtech.algashop.domain.model.costumer.Customer;
@@ -8,9 +8,8 @@ import com.gtech.algashop.domain.model.order.OrderStatus;
 import com.gtech.algashop.domain.model.costumer.LoyaltyPoints;
 import com.gtech.algashop.domain.model.product.Product;
 import com.gtech.algashop.domain.model.commons.Quantity;
-import com.gtech.algashop.domain.model.entity.factory.CustomerTestDataBuilder;
-import com.gtech.algashop.domain.model.entity.factory.OrderTestDataBuilder;
-import com.gtech.algashop.domain.model.entity.factory.ProductTestDataBuilder;
+import com.gtech.algashop.domain.model.order.OrderTestDataBuilder;
+import com.gtech.algashop.domain.model.product.ProductTestDataBuilder;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 

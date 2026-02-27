@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.model.exceptions;
+package com.gtech.algashop.domain.model.costumer;
 import com.gtech.algashop.domain.model.BusinessException;
 
 import static com.gtech.algashop.domain.model.ErrorMessages.ERROR_LOYALTY_VALUE;

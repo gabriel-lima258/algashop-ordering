@@ -1,6 +1,4 @@
-package com.gtech.algashop.domain.model.repository;
-
-import com.gtech.algashop.domain.model.AggregateRoot;
+package com.gtech.algashop.domain.model;
 
 import java.util.Optional;
 

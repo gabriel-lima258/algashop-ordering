@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.shipping.rapidex;
+package com.gtech.algashop.infrastructure.shipping.client.rapidex;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

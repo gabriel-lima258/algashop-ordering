@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.model.entity;
+package com.gtech.algashop.domain.model;
 
 // essa classe indica que todos aggregate root devem expor suas identidades
 // aggregate é a porta, repository salva e busca aggregate

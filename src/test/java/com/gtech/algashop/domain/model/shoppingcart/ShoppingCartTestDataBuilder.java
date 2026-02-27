@@ -1,6 +1,6 @@
-package com.gtech.algashop.domain.model.entity.factory;
+package com.gtech.algashop.domain.model.shoppingcart;
 
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCart;
+import com.gtech.algashop.domain.model.product.ProductTestDataBuilder;
 import com.gtech.algashop.domain.model.commons.Quantity;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
 

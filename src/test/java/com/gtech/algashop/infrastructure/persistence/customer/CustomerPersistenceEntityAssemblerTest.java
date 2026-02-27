@@ -1,9 +1,7 @@
-package com.gtech.algashop.infrastructure.persistence.assembler;
+package com.gtech.algashop.infrastructure.persistence.customer;
 
 import com.gtech.algashop.domain.model.costumer.Customer;
 import com.gtech.algashop.domain.model.customer.CustomerTestDataBuilder;
-import com.gtech.algashop.infrastructure.persistence.customer.CustomerPersistenceEntityAssembler;
-import com.gtech.algashop.infrastructure.persistence.customer.CustomerPersistenceEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

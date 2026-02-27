@@ -1,7 +1,6 @@
-package com.gtech.algashop.domain.model.exceptions;
+package com.gtech.algashop.domain.model.product;
 
 import com.gtech.algashop.domain.model.BusinessException;
-import com.gtech.algashop.domain.model.entity.VO.id.ProductId;
 
 import static com.gtech.algashop.domain.model.ErrorMessages.ERROR_PRODUCT_IS_OUT_OF_STOCK;
 

@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.model.service;
+package com.gtech.algashop.domain.model.shoppingcart;
 
 import com.gtech.algashop.domain.model.commons.Money;
 import com.gtech.algashop.domain.model.product.ProductId;

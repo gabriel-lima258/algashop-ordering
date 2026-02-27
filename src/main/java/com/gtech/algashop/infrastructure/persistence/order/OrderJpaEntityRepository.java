@@ -1,6 +1,5 @@
-package com.gtech.algashop.infrastructure.persistence.repository;
+package com.gtech.algashop.infrastructure.persistence.order;
 
-import com.gtech.algashop.infrastructure.persistence.order.OrderPersistenceEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

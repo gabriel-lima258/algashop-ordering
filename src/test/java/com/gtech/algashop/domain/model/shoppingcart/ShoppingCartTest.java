@@ -1,12 +1,10 @@
-package com.gtech.algashop.domain.model.entity;
+package com.gtech.algashop.domain.model.shoppingcart;
 
 import com.gtech.algashop.domain.model.commons.Money;
 import com.gtech.algashop.domain.model.product.Product;
 import com.gtech.algashop.domain.model.commons.Quantity;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
-import com.gtech.algashop.domain.model.shoppingcart.*;
-import com.gtech.algashop.domain.model.entity.factory.ProductTestDataBuilder;
-import com.gtech.algashop.domain.model.entity.factory.ShoppingCartTestDataBuilder;
+import com.gtech.algashop.domain.model.product.ProductTestDataBuilder;
 import com.gtech.algashop.domain.model.product.ProductOutOfStockException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;

@@ -1,9 +1,7 @@
-package com.gtech.algashop.domain.model.repository;
+package com.gtech.algashop.domain.model.costumer;
 
 import com.gtech.algashop.domain.model.Repository;
-import com.gtech.algashop.domain.model.costumer.Customer;
 import com.gtech.algashop.domain.model.commons.Email;
-import com.gtech.algashop.domain.model.costumer.CustomerId;
 
 import java.util.Optional;
 

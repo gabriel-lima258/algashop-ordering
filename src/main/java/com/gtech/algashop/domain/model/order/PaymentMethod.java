@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.model.entity;
+package com.gtech.algashop.domain.model.order;
 
 public enum PaymentMethod {
     CREDIT_CARD,

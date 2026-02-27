@@ -1,9 +1,8 @@
-package com.gtech.algashop.infrastructure.persistence.assembler;
+package com.gtech.algashop.infrastructure.persistence.customer;
 
 import com.gtech.algashop.domain.model.costumer.Customer;
 import com.gtech.algashop.domain.model.commons.Address;
-import com.gtech.algashop.infrastructure.persistence.embeddable.AddressEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.entity.CustomerPersistenceEntity;
+import com.gtech.algashop.infrastructure.persistence.commons.AddressEmbeddable;
 import org.springframework.stereotype.Component;
 
 @Component

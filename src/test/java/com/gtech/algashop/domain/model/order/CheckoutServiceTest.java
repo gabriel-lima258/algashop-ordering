@@ -1,14 +1,12 @@
-package com.gtech.algashop.domain.model.service;
+package com.gtech.algashop.domain.model.order;
 
 import com.gtech.algashop.domain.model.commons.Money;
 import com.gtech.algashop.domain.model.commons.Quantity;
-import com.gtech.algashop.domain.model.order.*;
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCart;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
 import com.gtech.algashop.domain.model.product.ProductId;
-import com.gtech.algashop.domain.model.entity.factory.OrderTestDataBuilder;
-import com.gtech.algashop.domain.model.entity.factory.ProductTestDataBuilder;
-import com.gtech.algashop.domain.model.entity.factory.ShoppingCartTestDataBuilder;
+import com.gtech.algashop.domain.model.product.ProductTestDataBuilder;
+import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartTestDataBuilder;
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartCantProceedToCheckoutException;
 import com.gtech.algashop.domain.model.product.Product;
 import org.assertj.core.api.Assertions;

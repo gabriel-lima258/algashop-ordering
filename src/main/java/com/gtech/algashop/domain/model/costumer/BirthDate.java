@@ -1,4 +1,4 @@
-package com.gtech.algashop.domain.model.entity.VO;
+package com.gtech.algashop.domain.model.costumer;
 
 import java.time.LocalDate;
 import java.time.Period;

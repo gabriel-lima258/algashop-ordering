@@ -1,12 +1,11 @@
-package com.gtech.algashop.infrastructure.persistence.disassembler;
+package com.gtech.algashop.infrastructure.persistence.customer;
 
 import com.gtech.algashop.domain.model.commons.*;
 import com.gtech.algashop.domain.model.costumer.BirthDate;
 import com.gtech.algashop.domain.model.costumer.Customer;
 import com.gtech.algashop.domain.model.costumer.LoyaltyPoints;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
-import com.gtech.algashop.infrastructure.persistence.embeddable.AddressEmbeddable;
-import com.gtech.algashop.infrastructure.persistence.entity.CustomerPersistenceEntity;
+import com.gtech.algashop.infrastructure.persistence.commons.AddressEmbeddable;
 import org.springframework.stereotype.Component;
 
 /**

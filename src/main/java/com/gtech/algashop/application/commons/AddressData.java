@@ -1,4 +1,4 @@
-package com.gtech.algashop.application.model;
+package com.gtech.algashop.application.commons;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,12 +1,14 @@
-package com.gtech.algashop.domain.model.service;
+package com.gtech.algashop.domain.model.shoppingcart;
 
 import com.gtech.algashop.domain.model.commons.ZipCode;
 import com.gtech.algashop.domain.model.order.shipping.OriginAddressService;
 import com.gtech.algashop.domain.model.order.shipping.ShippingCostService;
+import com.gtech.algashop.domain.model.product.ProductCatalogService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest
 class ShippingCostServiceIT {
@@ -16,6 +18,9 @@ class ShippingCostServiceIT {
 
     @Autowired
     private OriginAddressService originAddressService;
+
+    @MockitoBean
+    private ProductCatalogService productCatalogService;
 
     @Test
     void shouldCalculate() {

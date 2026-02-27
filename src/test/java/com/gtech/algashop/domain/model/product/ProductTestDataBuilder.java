@@ -1,17 +1,16 @@
-package com.gtech.algashop.domain.model.entity.factory;
+package com.gtech.algashop.domain.model.product;
 
 import com.gtech.algashop.domain.model.commons.Money;
-import com.gtech.algashop.domain.model.product.Product;
-import com.gtech.algashop.domain.model.product.ProductName;
-import com.gtech.algashop.domain.model.product.ProductId;
 
 public class ProductTestDataBuilder {
+
+    public static final ProductId DEFAULT_PRODUCT_ID = new ProductId();
 
     private ProductTestDataBuilder() {}
 
     public static Product.ProductBuilder aProduct() {
         return Product.builder()
-                .id(new ProductId())
+                .id(DEFAULT_PRODUCT_ID)
                 .inStock(true)
                 .productName(new ProductName("Notebook Max Pro"))
                 .price(new Money("4500.00"));

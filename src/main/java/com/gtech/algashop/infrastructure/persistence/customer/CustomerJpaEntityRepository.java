@@ -1,6 +1,5 @@
-package com.gtech.algashop.infrastructure.persistence.repository;
+package com.gtech.algashop.infrastructure.persistence.customer;
 
-import com.gtech.algashop.infrastructure.persistence.entity.CustomerPersistenceEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -1,12 +1,12 @@
-package com.gtech.algashop.domain.model.entity.factory;
+package com.gtech.algashop.domain.model.order;
 
 import com.gtech.algashop.domain.model.commons.*;
-import com.gtech.algashop.domain.model.order.*;
+import com.gtech.algashop.domain.model.product.ProductTestDataBuilder;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
 
 import java.time.LocalDate;
 
-import static com.gtech.algashop.domain.model.entity.factory.CustomerTestDataBuilder.DEFAULT_CUSTOMER_ID;
+import static com.gtech.algashop.domain.model.customer.CustomerTestDataBuilder.DEFAULT_CUSTOMER_ID;
 
 public class OrderTestDataBuilder {
 

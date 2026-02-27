@@ -5,13 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RecipientData {
-    private String firstName;
-    private String lastName;
-    private String document;
-    private String phone;
+public class CheckoutInput {
+    private UUID shoppingCartId;
+    private String paymentMethod;
+    private ShippingInput shipping;
+    private BillingData billing;
 }

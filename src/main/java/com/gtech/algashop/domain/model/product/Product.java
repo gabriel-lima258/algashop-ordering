@@ -1,8 +1,6 @@
-package com.gtech.algashop.domain.model.entity.VO;
+package com.gtech.algashop.domain.model.product;
 
 import com.gtech.algashop.domain.model.commons.Money;
-import com.gtech.algashop.domain.model.entity.VO.id.ProductId;
-import com.gtech.algashop.domain.model.exceptions.ProductOutOfStockException;
 import lombok.Builder;
 
 import java.util.Objects;

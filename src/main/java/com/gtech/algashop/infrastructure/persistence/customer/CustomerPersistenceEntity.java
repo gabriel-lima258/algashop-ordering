@@ -1,6 +1,6 @@
-package com.gtech.algashop.infrastructure.persistence.entity;
+package com.gtech.algashop.infrastructure.persistence.customer;
 
-import com.gtech.algashop.infrastructure.persistence.embeddable.AddressEmbeddable;
+import com.gtech.algashop.infrastructure.persistence.commons.AddressEmbeddable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;

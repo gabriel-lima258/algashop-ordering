@@ -1,10 +1,13 @@
-package com.gtech.algashop.application.service;
+package com.gtech.algashop.application.customer.management;
 
-import com.gtech.algashop.application.model.AddressData;
-import com.gtech.algashop.application.model.CustomerInput;
-import com.gtech.algashop.application.model.CustomerOutput;
+import com.gtech.algashop.application.commons.AddressData;
+import com.gtech.algashop.application.util.Mapper;
 import com.gtech.algashop.domain.model.commons.*;
 import com.gtech.algashop.domain.model.costumer.*;
+import com.gtech.algashop.domain.model.order.Order;
+import com.gtech.algashop.domain.model.order.OrderId;
+import com.gtech.algashop.domain.model.order.OrderNotFoundException;
+import com.gtech.algashop.domain.model.order.Orders;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +20,11 @@ import java.util.UUID;
 public class CustomerManagementApplicationService {
 
     private final CustomerRegistrationService customerRegistration;
+
+    // repositorios
     private final Customers customers;
+
+    private final Mapper mapper;
 
     @Transactional
     public UUID create(CustomerInput input) {
@@ -58,28 +65,65 @@ public class CustomerManagementApplicationService {
         Customer customer = customers.ofId(new CustomerId(customerId))
                 .orElseThrow(CustomerNotFoundException::new);
 
-        return CustomerOutput.builder()
-                .id(customer.id().value())
-                .firstName(customer.fullName().firstName())
-                .lastName(customer.fullName().lastName())
-                .email(customer.email().email())
-                .document(customer.document().document())
-                .phone(customer.phone().phone())
-                .promotionNotificationsAllowed(customer.isPromotionNotificationsAllowed())
-                .loyaltyPoints(customer.loyaltyPoints().point())
-                .registeredAt(customer.registeredAt())
-                .archived(customer.isArchived())
-                .archivedAt(customer.archivedAt() != null ? customer.archivedAt() : null)
-                .birthDate(customer.birthDate() != null ? customer.birthDate().birthDate() : null)
-                .address(AddressData.builder()
-                        .street(customer.address().street())
-                        .number(customer.address().number())
-                        .complement(customer.address().complement())
-                        .neighborhood(customer.address().neighborhood())
-                        .city(customer.address().city())
-                        .state(customer.address().state())
-                        .zipCode(customer.address().zipCode().zipcode())
-                        .build())
-                .build();
+        // mapeia automaticamente de customer para customerDto
+        return mapper.convert(customer, CustomerOutput.class);
     }
+
+    @Transactional
+    public void update(UUID customerId, CustomerUpdateInput input) {
+        Objects.requireNonNull(customerId);
+        Objects.requireNonNull(input);
+
+        // procura o customer em persistencia
+        Customer customer = customers.ofId(new CustomerId(customerId))
+                .orElseThrow(CustomerNotFoundException::new);
+
+        // alterações a serem feitas
+        customer.changeName(new FullName(input.getFirstName(), input.getLastName()));
+        customer.changePhone(new Phone(input.getPhone()));
+
+        if (Boolean.TRUE.equals(input.getPromotionNotificationsAllowed())) {
+            customer.enablePromotionNotifications();
+        } else {
+            customer.disablePromotionNotifications();
+        }
+
+        AddressData address = input.getAddress();
+
+        customer.changeAddress(Address.builder()
+                .street(address.getStreet())
+                .number(address.getNumber())
+                .city(address.getCity())
+                .state(address.getState())
+                .neighborhood(address.getNeighborhood())
+                .complement(address.getComplement())
+                .zipCode(new ZipCode(address.getZipCode()))
+                .build());
+
+        // persistindo no banco
+        customers.add(customer);
+    }
+
+    @Transactional
+    public void archive(UUID customerId) {
+        Objects.requireNonNull(customerId);
+
+        // procura o customer em persistencia
+        Customer customer = customers.ofId(new CustomerId(customerId))
+                .orElseThrow(CustomerNotFoundException::new);
+        customer.archive();
+        customers.add(customer);
+    }
+
+    @Transactional
+    public void changeEmail(UUID customerId, String newEmail) {
+        Objects.requireNonNull(customerId);
+
+        Customer customer = customers.ofId(new CustomerId(customerId))
+                .orElseThrow(CustomerNotFoundException::new);
+
+        customerRegistration.changeEmail(customer, new Email(newEmail));
+        customers.add(customer);
+    }
+
 }

@@ -1,7 +1,6 @@
 package com.gtech.algashop.domain.model.shoppingcart;
 
-public class ShoppingCartNotFound extends RuntimeException {
-  public ShoppingCartNotFound(String message) {
-    super(message);
-  }
+import com.gtech.algashop.domain.model.BusinessException;
+
+public class ShoppingCartNotFound extends BusinessException {
 }

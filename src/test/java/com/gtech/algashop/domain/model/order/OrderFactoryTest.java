@@ -1,15 +1,9 @@
-package com.gtech.algashop.domain.model.factory;
+package com.gtech.algashop.domain.model.order;
 
-import com.gtech.algashop.domain.model.order.Order;
-import com.gtech.algashop.domain.model.order.OrderFactory;
-import com.gtech.algashop.domain.model.order.PaymentMethod;
-import com.gtech.algashop.domain.model.order.Billing;
 import com.gtech.algashop.domain.model.product.Product;
 import com.gtech.algashop.domain.model.commons.Quantity;
-import com.gtech.algashop.domain.model.order.Shipping;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
-import com.gtech.algashop.domain.model.entity.factory.OrderTestDataBuilder;
-import com.gtech.algashop.domain.model.entity.factory.ProductTestDataBuilder;
+import com.gtech.algashop.domain.model.product.ProductTestDataBuilder;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 

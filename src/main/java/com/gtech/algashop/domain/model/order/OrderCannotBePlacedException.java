@@ -1,8 +1,6 @@
-package com.gtech.algashop.domain.model.exceptions;
+package com.gtech.algashop.domain.model.order;
 
-import com.gtech.algashop.domain.model.entity.VO.id.OrderId;
-
-import static com.gtech.algashop.domain.model.exceptions.ErrorMessages.*;
+import static com.gtech.algashop.domain.model.ErrorMessages.*;
 
 public class OrderCannotBePlacedException extends RuntimeException {
 

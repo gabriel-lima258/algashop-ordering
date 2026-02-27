@@ -1,10 +1,8 @@
-package com.gtech.algashop.infrastructure.persistence.assembler;
+package com.gtech.algashop.infrastructure.persistence.shoppingcart;
 
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCart;
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartItem;
 import com.gtech.algashop.infrastructure.persistence.order.OrderPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.entity.ShoppingCartItemPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.entity.ShoppingCartPersistenceEntity;
 import com.gtech.algashop.infrastructure.persistence.customer.CustomerJpaEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -45,11 +43,11 @@ public class ShoppingCartPersistenceEntityAssembler {
     private final CustomerJpaEntityRepository customerJpaEntityRepository;
 
     /**
-     * Cria uma nova com.gtech.algashop.infrastructure.persistence.entity.ShoppingCartPersistenceEntity a partir de um ShoppingCart de domínio.
+     * Cria uma nova com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartPersistenceEntity a partir de um ShoppingCart de domínio.
      * Delega para merge() evitando duplicação de lógica de mapeamento.
      *
      * Usado pelo repositório no fluxo de INSERT:
-     *   ShoppingCart (domínio) → com.gtech.algashop.infrastructure.persistence.entity.ShoppingCartPersistenceEntity (nova) → JPA salva no banco
+     *   ShoppingCart (domínio) → com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartPersistenceEntity (nova) → JPA salva no banco
      */
     public ShoppingCartPersistenceEntity fromDomain(ShoppingCart shoppingCart) {
         // Passa uma entidade vazia para merge() — evita duplicar a lógica de mapeamento

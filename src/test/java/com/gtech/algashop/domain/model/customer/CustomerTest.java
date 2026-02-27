@@ -1,9 +1,8 @@
-package com.gtech.algashop.domain.model.entity;
+package com.gtech.algashop.domain.model.customer;
 
 import com.gtech.algashop.domain.model.commons.*;
 import com.gtech.algashop.domain.model.costumer.Customer;
 import com.gtech.algashop.domain.model.costumer.LoyaltyPoints;
-import com.gtech.algashop.domain.model.entity.factory.CustomerTestDataBuilder;
 import com.gtech.algashop.domain.model.costumer.CustomerArchivedException;
 import com.gtech.algashop.domain.model.costumer.LoyaltyValueException;
 import org.assertj.core.api.Assertions;

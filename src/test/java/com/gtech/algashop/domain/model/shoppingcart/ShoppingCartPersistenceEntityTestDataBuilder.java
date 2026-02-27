@@ -1,8 +1,9 @@
-package com.gtech.algashop.domain.model.factory;
+package com.gtech.algashop.domain.model.shoppingcart;
 
 import com.gtech.algashop.domain.model.IdGenerator;
-import com.gtech.algashop.infrastructure.persistence.entity.ShoppingCartItemPersistenceEntity;
-import com.gtech.algashop.infrastructure.persistence.entity.ShoppingCartPersistenceEntity;
+import com.gtech.algashop.domain.model.customer.CustomerPersistenceEntityTestDataBuilder;
+import com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartItemPersistenceEntity;
+import com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartPersistenceEntity;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;

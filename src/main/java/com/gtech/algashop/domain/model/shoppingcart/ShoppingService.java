@@ -1,11 +1,9 @@
-package com.gtech.algashop.domain.model.service;
+package com.gtech.algashop.domain.model.shoppingcart;
 
-import com.gtech.algashop.domain.model.entity.ShoppingCart;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
 import com.gtech.algashop.domain.model.costumer.CustomerAlreadyHaveShoppingCartException;
 import com.gtech.algashop.domain.model.costumer.CustomerNotFoundException;
 import com.gtech.algashop.domain.model.costumer.Customers;
-import com.gtech.algashop.domain.model.repository.ShoppingCarts;
 import com.gtech.algashop.domain.model.DomainService;
 import lombok.RequiredArgsConstructor;
 

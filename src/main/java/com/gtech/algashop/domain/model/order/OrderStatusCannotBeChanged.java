@@ -1,10 +1,8 @@
-package com.gtech.algashop.domain.model.exceptions;
+package com.gtech.algashop.domain.model.order;
 
 import com.gtech.algashop.domain.model.BusinessException;
-import com.gtech.algashop.domain.model.order.OrderStatus;
-import com.gtech.algashop.domain.model.entity.VO.id.OrderId;
 
-import static com.gtech.algashop.domain.model.exceptions.ErrorMessages.ERROR_ORDER_STATUS_CANNOT_BE_CHANGED;
+import static com.gtech.algashop.domain.model.ErrorMessages.ERROR_ORDER_STATUS_CANNOT_BE_CHANGED;
 
 public class OrderStatusCannotBeChanged extends BusinessException {
 
