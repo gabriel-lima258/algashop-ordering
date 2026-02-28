@@ -32,6 +32,8 @@ public class CustomerPersistenceEntityAssembler {
 
         // Controle de concorrência otimista: o JPA usa o @Version para detectar conflitos de escrita simultânea
         customerPersistenceEntity.setVersion(customer.version());
+        // persiste os eventos disparados
+        customerPersistenceEntity.addEvents(customer.domainEvents());
 
         return customerPersistenceEntity;
     }

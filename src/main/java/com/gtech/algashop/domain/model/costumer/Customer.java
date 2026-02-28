@@ -1,5 +1,6 @@
 package com.gtech.algashop.domain.model.costumer;
 
+import com.gtech.algashop.domain.model.AbstractEventSourceEntity;
 import com.gtech.algashop.domain.model.AggregateRoot;
 import com.gtech.algashop.domain.model.commons.*;
 import lombok.Builder;
@@ -19,7 +20,9 @@ import static com.gtech.algashop.domain.model.ErrorMessages.VALIDATION_ERROR_FUL
  * dentro da entidade root! Somente se fizer parte de sua relação
  * Toda modificação passa por métodos de domínio do Customer.
  */
-public class Customer implements AggregateRoot<CustomerId> {
+public class Customer
+        extends AbstractEventSourceEntity
+        implements AggregateRoot<CustomerId> {
     private CustomerId id;                  // Identidade da entidade (Entity ID)
     private FullName fullName;              // Value Object (imutável)
     private BirthDate birthDate;            // Value Object
@@ -41,7 +44,7 @@ public class Customer implements AggregateRoot<CustomerId> {
     private static Customer createBrandNew(FullName fullName, BirthDate birthDate, Email email,
                                           Phone phone, Document document, Boolean promotionNotificationsAllowed,
                                           Address address) {
-        return new Customer(new CustomerId(),
+        Customer customer = new Customer(new CustomerId(),
                 null,
                 fullName,
                 birthDate,
@@ -54,6 +57,15 @@ public class Customer implements AggregateRoot<CustomerId> {
                 null,
                 LoyaltyPoints.ZERO,
                 address);
+
+        customer.publishDomainEvent(new
+                CustomerRegisteredEvent(
+                        customer.id(),
+                        customer.registeredAt(),
+                        customer.fullName(),
+                        customer.email()));
+
+        return customer;
     }
 
     @Builder(builderClassName = "ExistingCustomerBuild", builderMethodName = "existing")
@@ -102,6 +114,8 @@ public class Customer implements AggregateRoot<CustomerId> {
                 .number("Anonymized")
                 .complement(null)
                 .build());
+
+        this.publishDomainEvent(new CustomerArchivedEvent(this.id(), this.archivedAt()));
     }
 
     public void enablePromotionNotifications() {

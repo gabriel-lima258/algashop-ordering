@@ -110,6 +110,8 @@ public class OrderPersistenceProvider implements Orders {
                         persistenceEntity -> update(aggregateRoot, persistenceEntity),
                         () -> insert(aggregateRoot)
                 );
+        // sempre que persiste o aggregate limpamos os eventos
+        aggregateRoot.clearDomainEvents();
     }
 
     /**

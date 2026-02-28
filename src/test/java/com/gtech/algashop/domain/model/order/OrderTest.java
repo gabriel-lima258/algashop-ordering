@@ -2,7 +2,11 @@ package com.gtech.algashop.domain.model.order;
 
 import com.gtech.algashop.domain.model.commons.Money;
 import com.gtech.algashop.domain.model.commons.Quantity;
+import com.gtech.algashop.domain.model.costumer.Customer;
+import com.gtech.algashop.domain.model.costumer.CustomerArchivedEvent;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
+import com.gtech.algashop.domain.model.costumer.CustomerRegisteredEvent;
+import com.gtech.algashop.domain.model.customer.CustomerTestDataBuilder;
 import com.gtech.algashop.domain.model.product.ProductId;
 import com.gtech.algashop.domain.model.product.ProductTestDataBuilder;
 import com.gtech.algashop.domain.model.product.Product;
@@ -363,4 +367,61 @@ class OrderTest {
         Assertions.assertThatExceptionOfType(ProductOutOfStockException.class)
                 .isThrownBy(addItemTask);
     }
+
+    @Test
+    void whenOrderIsPlacedShouldGenerateEvent() {
+        Customer customer = CustomerTestDataBuilder.brandNewCustomer().build();
+        Order order = OrderTestDataBuilder.anOrder().customerId(customer.id()).status(OrderStatus.DRAFT).build();
+        order.markAsPlaced();
+
+        OrderPlacedEvent event = new OrderPlacedEvent(
+                order.id(),
+                customer.id(),
+                order.placedAt()
+        );
+        Assertions.assertThat(order.domainEvents()).contains(event);
+    }
+
+    @Test
+    void whenOrderIsPaidShouldGenerateEvent() {
+        Customer customer = CustomerTestDataBuilder.brandNewCustomer().build();
+        Order order = OrderTestDataBuilder.anOrder().customerId(customer.id()).status(OrderStatus.PLACED).build();
+        order.markAsPaid();
+
+        OrderPaidEvent event = new OrderPaidEvent(
+                order.id(),
+                customer.id(),
+                order.paidAt()
+        );
+        Assertions.assertThat(order.domainEvents()).contains(event);
+    }
+
+    @Test
+    void whenOrderIsReadyShouldGenerateEvent() {
+        Customer customer = CustomerTestDataBuilder.brandNewCustomer().build();
+        Order order = OrderTestDataBuilder.anOrder().customerId(customer.id()).status(OrderStatus.PAID).build();
+        order.markAsReady();
+
+        OrderReadyEvent event = new OrderReadyEvent(
+                order.id(),
+                customer.id(),
+                order.readyAt()
+        );
+        Assertions.assertThat(order.domainEvents()).contains(event);
+    }
+
+    @Test
+    void whenOrderIsCanceledShouldGenerateEvent() {
+        Customer customer = CustomerTestDataBuilder.brandNewCustomer().build();
+        Order order = OrderTestDataBuilder.anOrder().customerId(customer.id()).status(OrderStatus.READY).build();
+        order.markAsCanceled();
+
+        OrderCanceledEvent event = new OrderCanceledEvent(
+                order.id(),
+                customer.id(),
+                order.canceledAt()
+        );
+        Assertions.assertThat(order.domainEvents()).contains(event);
+    }
+
 }

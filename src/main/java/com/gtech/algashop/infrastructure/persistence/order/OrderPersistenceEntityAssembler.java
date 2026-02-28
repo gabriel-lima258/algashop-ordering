@@ -104,6 +104,8 @@ public class OrderPersistenceEntityAssembler {
         var customerReference = customerJpaEntityRepository.getReferenceById(order.customerId().value());
         orderPersistenceEntity.setCustomer(customerReference);
 
+        orderPersistenceEntity.addEvents(order.domainEvents());
+
         return orderPersistenceEntity;
     }
 

@@ -6,12 +6,15 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.UUID;
 
+// AbstractAggregateRoot provem os eventos e limpeza
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,9 +23,10 @@ import java.util.UUID;
 @Setter
 @ToString(of = "id")
 @Table(name = "\"customer\"")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false) // chama somente id classe ao inves do event
 @EntityListeners(AuditingEntityListener.class)
-public class CustomerPersistenceEntity {
+public class CustomerPersistenceEntity
+        extends AbstractAggregateRoot<CustomerPersistenceEntity> {
 
     @Id
     @EqualsAndHashCode.Include
@@ -61,5 +65,18 @@ public class CustomerPersistenceEntity {
     @Version
     private Long version;
 
+    public Collection<Object> getEvents() {
+        return super.domainEvents();
+    }
+
+    // Ele permite:
+    // - copiar os eventos do Aggregate de domínio para a entidade de persistência
+    public void addEvents(Collection<Object> events) {
+        if (events != null) {
+            for (Object event: events) {
+                this.registerEvent(event);
+            }
+        }
+    }
 
 }

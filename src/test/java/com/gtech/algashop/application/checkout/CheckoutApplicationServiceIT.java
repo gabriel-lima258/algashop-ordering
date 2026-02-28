@@ -6,8 +6,10 @@ import com.gtech.algashop.domain.model.costumer.CustomerId;
 import com.gtech.algashop.domain.model.costumer.Customers;
 import com.gtech.algashop.domain.model.customer.CustomerTestDataBuilder;
 import com.gtech.algashop.domain.model.order.OrderId;
+import com.gtech.algashop.domain.model.order.OrderPlacedEvent;
 import com.gtech.algashop.domain.model.order.Orders;
 import com.gtech.algashop.domain.model.order.shipping.ShippingCostService;
+import com.gtech.algashop.infrastructure.listerner.order.OrderEventListener;
 import com.gtech.algashop.domain.model.product.ProductCatalogService;
 import com.gtech.algashop.domain.model.product.ProductId;
 import com.gtech.algashop.domain.model.product.ProductName;
@@ -26,6 +28,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -56,6 +59,9 @@ class CheckoutApplicationServiceIT {
     @MockitoBean
     private ShippingCostService shippingCostService;
 
+    @MockitoSpyBean
+    private OrderEventListener orderEventListener;
+
     @BeforeEach
     void setUp() {
         Mockito.when(shippingCostService.calculate(Mockito.any(ShippingCostService.CalculationRequest.class)))
@@ -82,6 +88,9 @@ class CheckoutApplicationServiceIT {
         Assertions.assertThat(orders.exists(new OrderId(orderId))).isTrue();
         ShoppingCart updatedCart = shoppingCarts.ofId(cart.id()).orElseThrow();
         Assertions.assertThat(updatedCart.isEmpty()).isTrue();
+
+        Mockito.verify(orderEventListener, Mockito.times(1))
+                .listen(Mockito.any(OrderPlacedEvent.class));
     }
 
     @Test

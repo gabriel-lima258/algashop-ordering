@@ -1,5 +1,6 @@
 package com.gtech.algashop.domain.model.order;
 
+import com.gtech.algashop.domain.model.AbstractEventSourceEntity;
 import com.gtech.algashop.domain.model.AggregateRoot;
 import com.gtech.algashop.domain.model.commons.Money;
 import com.gtech.algashop.domain.model.commons.Quantity;
@@ -15,7 +16,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class Order implements AggregateRoot<OrderId> {
+public class Order
+        extends AbstractEventSourceEntity
+        implements AggregateRoot<OrderId> {
 
     private OrderId id;
     private CustomerId customerId;
@@ -156,21 +159,25 @@ public class Order implements AggregateRoot<OrderId> {
         this.verififyCanChangeToPlace();
         this.changedStatus(OrderStatus.PLACED);
         this.setPlacedAt(OffsetDateTime.now());
+        this.publishDomainEvent(new OrderPlacedEvent(this.id(), this.customerId(), this.placedAt()));
     }
 
     public void markAsPaid() {
         this.changedStatus(OrderStatus.PAID);
         this.setPaidAt(OffsetDateTime.now());
+        this.publishDomainEvent(new OrderPaidEvent(this.id(), this.customerId(), this.paidAt()));
     }
 
     public void markAsReady() {
         this.changedStatus(OrderStatus.READY);
         this.setReadyAt(OffsetDateTime.now());
+        this.publishDomainEvent(new OrderReadyEvent(this.id(), this.customerId(), this.readyAt()));
     }
 
     public void markAsCanceled() {
         this.changedStatus(OrderStatus.CANCELED);
         this.setCanceledAt(OffsetDateTime.now());
+        this.publishDomainEvent(new OrderCanceledEvent(this.id(), this.customerId(), this.canceledAt()));
     }
 
     public boolean isDraft() {

@@ -1,14 +1,16 @@
 package com.gtech.algashop.application.customer.management;
 
-import com.gtech.algashop.domain.model.costumer.CustomerArchivedException;
-import com.gtech.algashop.domain.model.costumer.CustomerEmailInUseException;
-import com.gtech.algashop.domain.model.costumer.CustomerNotFoundException;
+import com.gtech.algashop.application.customer.notifications.CustomerNotificationApplicationService;
+import com.gtech.algashop.domain.model.costumer.*;
 import com.gtech.algashop.domain.model.product.ProductCatalogService;
+import com.gtech.algashop.infrastructure.listerner.customer.CustomerEventListener;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -23,6 +25,13 @@ class CustomerManagementApplicationServiceIT {
 
     @MockitoBean
     private ProductCatalogService productCatalogService;
+
+    // verifica se esta sendo chamado
+    @MockitoSpyBean
+    private CustomerEventListener customerEventListener;
+
+    @MockitoSpyBean
+    private CustomerNotificationApplicationService customerNotificationApplicationService;
 
     @Test
     void shouldRegister() {
@@ -55,6 +64,15 @@ class CustomerManagementApplicationServiceIT {
 
         Assertions.assertThat(customerOutput.getRegisteredAt()).isNotNull();
         Assertions.assertThat(customerOutput.getAddress()).isNotNull();
+
+        Mockito.verify(customerEventListener)
+                .listen(Mockito.any(CustomerRegisteredEvent.class));
+
+        // verifica os colaterais do evento disparado
+        Mockito.verify(customerNotificationApplicationService)
+                .notificateNewRegistration(Mockito.any(
+                        CustomerNotificationApplicationService.NotifyNewRegistrationInput.class
+                ));
     }
 
     @Test
@@ -105,6 +123,9 @@ class CustomerManagementApplicationServiceIT {
         Assertions.assertThat(customerOutput.getPromotionNotificationsAllowed()).isFalse();
         Assertions.assertThat(customerOutput.getAddress().getNumber()).isEqualTo("Anonymized");
         Assertions.assertThat(customerOutput.getAddress().getComplement()).isNull();
+
+        Mockito.verify(customerEventListener)
+                .listen(Mockito.any(CustomerArchivedEvent.class));
     }
 
     @Test

@@ -4,8 +4,6 @@ import com.gtech.algashop.domain.model.order.Order;
 import com.gtech.algashop.domain.model.order.OrderId;
 import com.gtech.algashop.domain.model.order.OrderNotFoundException;
 import com.gtech.algashop.domain.model.order.Orders;
-import com.gtech.algashop.domain.model.product.ProductCatalogService;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

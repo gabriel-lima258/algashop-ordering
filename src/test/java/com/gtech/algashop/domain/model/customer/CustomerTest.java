@@ -1,10 +1,7 @@
 package com.gtech.algashop.domain.model.customer;
 
 import com.gtech.algashop.domain.model.commons.*;
-import com.gtech.algashop.domain.model.costumer.Customer;
-import com.gtech.algashop.domain.model.costumer.LoyaltyPoints;
-import com.gtech.algashop.domain.model.costumer.CustomerArchivedException;
-import com.gtech.algashop.domain.model.costumer.LoyaltyValueException;
+import com.gtech.algashop.domain.model.costumer.*;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -99,5 +96,24 @@ class CustomerTest {
                 .isThrownBy(() -> customer.addLoyaltyPoints(new LoyaltyPoints(-10)));
     }
 
+    @Test
+    void whenCreateNewCostumerShouldGenerateCustomerRegisteredEvent() {
+        Customer customer = CustomerTestDataBuilder.brandNewCustomer().build();
+        CustomerRegisteredEvent event = new CustomerRegisteredEvent(
+                customer.id(),
+                customer.registeredAt(),
+                customer.fullName(),
+                customer.email()
+        );
+        Assertions.assertThat(customer.domainEvents()).contains(event);
+    }
+
+    @Test
+    void whenArchivedCustomerShouldGenerateArchivedCustomerEvent() {
+        Customer customer = CustomerTestDataBuilder.existingCustomer().archived(false).build();
+        customer.archive();
+        CustomerArchivedEvent event = new CustomerArchivedEvent(customer.id(), customer.archivedAt());
+        Assertions.assertThat(customer.domainEvents()).contains(event);
+    }
 
 }

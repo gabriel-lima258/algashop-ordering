@@ -1,22 +1,26 @@
 package com.gtech.algashop.application.order.management;
 
+import com.gtech.algashop.application.customer.loyaltypoints.CustomerLoyaltyPointsApplicationService;
+import com.gtech.algashop.domain.model.costumer.CustomerRegisteredEvent;
 import com.gtech.algashop.domain.model.costumer.Customers;
 import com.gtech.algashop.domain.model.customer.CustomerTestDataBuilder;
-import com.gtech.algashop.domain.model.order.Order;
-import com.gtech.algashop.domain.model.order.OrderId;
-import com.gtech.algashop.domain.model.order.OrderNotFoundException;
-import com.gtech.algashop.domain.model.order.OrderStatus;
-import com.gtech.algashop.domain.model.order.OrderStatusCannotBeChanged;
-import com.gtech.algashop.domain.model.order.OrderTestDataBuilder;
-import com.gtech.algashop.domain.model.order.Orders;
+import com.gtech.algashop.domain.model.order.*;
 import com.gtech.algashop.domain.model.product.ProductCatalogService;
+import com.gtech.algashop.infrastructure.listerner.customer.CustomerEventListener;
+import com.gtech.algashop.infrastructure.listerner.order.OrderEventListener;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBeans;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBeans;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @SpringBootTest
 @Transactional
@@ -33,6 +37,14 @@ class OrderManagementApplicationServiceIT {
 
     @MockitoBean
     private ProductCatalogService productCatalogService;
+
+    // verifica se esta sendo chamado
+    @MockitoSpyBean
+    private OrderEventListener orderEventListener;
+
+    @MockitoSpyBean
+    private CustomerLoyaltyPointsApplicationService loyaltyPointsApplicationService;
+
 
     @BeforeEach
     void setUp() {
@@ -54,6 +66,9 @@ class OrderManagementApplicationServiceIT {
         Order updated = orders.ofId(order.id()).orElseThrow();
         Assertions.assertThat(updated.status()).isEqualTo(OrderStatus.CANCELED);
         Assertions.assertThat(updated.canceledAt()).isNotNull();
+
+        Mockito.verify(orderEventListener, Mockito.times(1))
+                .listen(Mockito.any(OrderCanceledEvent.class));
     }
 
     @Test
@@ -85,6 +100,9 @@ class OrderManagementApplicationServiceIT {
         Order updated = orders.ofId(order.id()).orElseThrow();
         Assertions.assertThat(updated.status()).isEqualTo(OrderStatus.PAID);
         Assertions.assertThat(updated.paidAt()).isNotNull();
+
+        Mockito.verify(orderEventListener, Mockito.times(1))
+                .listen(Mockito.any(OrderPaidEvent.class));
     }
 
     @Test
@@ -117,6 +135,14 @@ class OrderManagementApplicationServiceIT {
         Order updated = orders.ofId(order.id()).orElseThrow();
         Assertions.assertThat(updated.status()).isEqualTo(OrderStatus.READY);
         Assertions.assertThat(updated.readyAt()).isNotNull();
+
+        Mockito.verify(orderEventListener, Mockito.times(1))
+                .listen(Mockito.any(OrderReadyEvent.class));
+        Mockito.verify(loyaltyPointsApplicationService, Mockito.times(1))
+                .addLoyaltyPoints(
+                        Mockito.any(UUID.class),
+                        Mockito.any(String.class)
+                );
     }
 
     @Test
