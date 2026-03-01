@@ -17,6 +17,7 @@ import com.gtech.algashop.domain.model.order.OrderStatus;
 import com.gtech.algashop.domain.model.order.OrderTestDataBuilder;
 import com.gtech.algashop.domain.model.order.Orders;
 import com.gtech.algashop.domain.model.product.ProductCatalogService;
+import com.gtech.algashop.infrastructure.listerner.customer.CustomerEventListener;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,9 @@ class CustomerLoyaltyPointsApplicationServiceIT {
 
     @MockitoBean
     private ProductCatalogService productCatalogService;
+
+    @MockitoBean
+    private CustomerEventListener customerEventListener;
 
     /**
      * Default READY order total:

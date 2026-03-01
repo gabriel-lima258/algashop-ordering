@@ -2,7 +2,10 @@ package com.gtech.algashop.application.checkout;
 
 import com.gtech.algashop.domain.model.commons.Quantity;
 import com.gtech.algashop.domain.model.commons.ZipCode;
+import com.gtech.algashop.domain.model.costumer.Customer;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
+import com.gtech.algashop.domain.model.costumer.CustomerNotFoundException;
+import com.gtech.algashop.domain.model.costumer.Customers;
 import com.gtech.algashop.domain.model.order.*;
 import com.gtech.algashop.domain.model.order.shipping.OriginAddressService;
 import com.gtech.algashop.domain.model.order.shipping.ShippingCostService;
@@ -28,6 +31,7 @@ public class BuyNowApplicationService {
 
     // Repositório
     private final Orders orders;
+    private final Customers customers;
 
     // Disassemblers
     private final ShippingInputDisassembler shippingInputDisassembler;
@@ -42,6 +46,7 @@ public class BuyNowApplicationService {
         CustomerId customerId = new CustomerId(input.getCustomerId());
         Quantity quantity = new Quantity(input.getQuantity());
 
+        Customer customer = customers.ofId(customerId).orElseThrow(CustomerNotFoundException::new);
         // procura o produto
         Product product = findProduct(new ProductId(input.getProductId()));
 
@@ -55,7 +60,7 @@ public class BuyNowApplicationService {
 
         // construindo pedido instantâneo
         Order order = buyNowService.buyNow(
-                product, customerId, billing, shipping, quantity, paymentMethod
+                product, customer, billing, shipping, quantity, paymentMethod
         );
 
         // persistindo order

@@ -3,6 +3,7 @@ package com.gtech.algashop.domain.model.shoppingcart;
 import com.gtech.algashop.domain.model.AbstractEventSourceEntity;
 import com.gtech.algashop.domain.model.AggregateRoot;
 import com.gtech.algashop.domain.model.commons.Money;
+import com.gtech.algashop.domain.model.costumer.CustomerArchivedEvent;
 import com.gtech.algashop.domain.model.product.Product;
 import com.gtech.algashop.domain.model.commons.Quantity;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
@@ -41,7 +42,7 @@ public class ShoppingCart
     }
 
     public static ShoppingCart startShopping(CustomerId customerId) {
-        return new ShoppingCart(
+        ShoppingCart shoppingCart = new ShoppingCart(
                 new ShoppingCartId(),
                 null,
                 customerId,
@@ -50,6 +51,14 @@ public class ShoppingCart
                 OffsetDateTime.now(),
                 new HashSet<>()
         );
+
+        shoppingCart.publishDomainEvent(new ShoppingCartCreatedEvent(
+                shoppingCart.id(),
+                shoppingCart.customerId(),
+                OffsetDateTime.now()
+        ));
+
+        return shoppingCart;
     }
 
     /////////////////////////////////////
@@ -60,6 +69,11 @@ public class ShoppingCart
         this.items.clear();
         this.setTotalAmount(Money.ZERO);
         this.setTotalItems(Quantity.ZERO);
+        this.publishDomainEvent(new ShoppingCartEmptiedEvent(
+                this.id(),
+                this.customerId(),
+                OffsetDateTime.now()
+        ));
     }
 
     public void addItem(Product product, Quantity quantity) {
@@ -82,12 +96,25 @@ public class ShoppingCart
                         () -> insertItem(shoppingCartItem));
 
         this.recalculateTotals();
+
+        this.publishDomainEvent(new ShoppingCartItemAddedEvent(
+                this.id(),
+                this.customerId(),
+                shoppingCartItem.productId(),
+                OffsetDateTime.now()
+        ));
     }
 
     public void removeItem(ShoppingCartItemId shoppingCartItemId) {
         ShoppingCartItem itemToRemove = this.findItem(shoppingCartItemId);
         this.items.remove(itemToRemove);
         this.recalculateTotals();
+        this.publishDomainEvent(new ShoppingCartItemRemovedEvent(
+                this.id(),
+                this.customerId(),
+                itemToRemove.productId(),
+                OffsetDateTime.now()
+        ));
     }
 
     public void refreshItem(Product productItem) {

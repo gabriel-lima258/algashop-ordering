@@ -89,6 +89,8 @@ public class ShoppingCartPersistenceEntityAssembler {
         var customerReference = customerJpaEntityRepository.getReferenceById(shoppingCart.customerId().value());
         shoppingPersistenceEntity.setCustomer(customerReference);
 
+        shoppingPersistenceEntity.addEvents(shoppingCart.domainEvents());
+
         return shoppingPersistenceEntity;
     }
 

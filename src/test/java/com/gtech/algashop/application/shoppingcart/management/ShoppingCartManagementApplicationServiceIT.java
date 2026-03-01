@@ -5,25 +5,22 @@ import com.gtech.algashop.domain.model.costumer.CustomerNotFoundException;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
 import com.gtech.algashop.domain.model.costumer.Customers;
 import com.gtech.algashop.domain.model.customer.CustomerTestDataBuilder;
+import com.gtech.algashop.domain.model.order.OrderCanceledEvent;
 import com.gtech.algashop.domain.model.product.Product;
 import com.gtech.algashop.domain.model.product.ProductCatalogService;
 import com.gtech.algashop.domain.model.product.ProductNotFoundException;
 import com.gtech.algashop.domain.model.product.ProductOutOfStockException;
 import com.gtech.algashop.domain.model.product.ProductTestDataBuilder;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCart;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartDoesNotContainItemException;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartId;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartItem;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartItemId;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartNotFound;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartTestDataBuilder;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCarts;
+import com.gtech.algashop.domain.model.shoppingcart.*;
+import com.gtech.algashop.infrastructure.listerner.order.OrderEventListener;
+import com.gtech.algashop.infrastructure.listerner.shoppingcart.ShoppingCartEventListener;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -44,6 +41,9 @@ class ShoppingCartManagementApplicationServiceIT {
 
     @MockitoBean
     private ProductCatalogService productCatalogService;
+
+    @MockitoSpyBean
+    private ShoppingCartEventListener shoppingCartEventListener;
 
     // =========================================================
     // addItem
@@ -67,6 +67,9 @@ class ShoppingCartManagementApplicationServiceIT {
         ShoppingCart updated = shoppingCarts.ofId(cart.id()).orElseThrow();
         Assertions.assertThat(updated.items()).hasSize(1);
         Assertions.assertThat(updated.totalItems().quantity()).isEqualTo(2);
+
+        Mockito.verify(shoppingCartEventListener, Mockito.times(1))
+                .listen(Mockito.any(ShoppingCartItemAddedEvent.class));
     }
 
     @Test
@@ -126,6 +129,9 @@ class ShoppingCartManagementApplicationServiceIT {
 
         Assertions.assertThat(cartId).isNotNull();
         Assertions.assertThat(shoppingCarts.ofId(new ShoppingCartId(cartId))).isPresent();
+
+        Mockito.verify(shoppingCartEventListener, Mockito.times(1))
+                .listen(Mockito.any(ShoppingCartCreatedEvent.class));
     }
 
     @Test
@@ -160,6 +166,9 @@ class ShoppingCartManagementApplicationServiceIT {
 
         ShoppingCart updated = shoppingCarts.ofId(cart.id()).orElseThrow();
         Assertions.assertThat(updated.items()).hasSize(initialItemCount - 1);
+
+        Mockito.verify(shoppingCartEventListener, Mockito.times(1))
+                .listen(Mockito.any(ShoppingCartItemRemovedEvent.class));
     }
 
     @Test
@@ -197,6 +206,9 @@ class ShoppingCartManagementApplicationServiceIT {
         ShoppingCart updated = shoppingCarts.ofId(cart.id()).orElseThrow();
         Assertions.assertThat(updated.items()).isEmpty();
         Assertions.assertThat(updated.totalItems().quantity()).isZero();
+
+        Mockito.verify(shoppingCartEventListener, Mockito.times(1))
+                .listen(Mockito.any(ShoppingCartEmptiedEvent.class));
     }
 
     @Test
