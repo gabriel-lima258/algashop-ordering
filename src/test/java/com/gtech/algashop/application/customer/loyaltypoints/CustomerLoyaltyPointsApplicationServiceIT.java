@@ -2,13 +2,13 @@ package com.gtech.algashop.application.customer.loyaltypoints;
 
 import com.gtech.algashop.application.customer.management.CustomerInputTestDataBuilder;
 import com.gtech.algashop.application.customer.management.CustomerManagementApplicationService;
-import com.gtech.algashop.application.customer.management.CustomerOutput;
+import com.gtech.algashop.application.customer.query.CustomerOutput;
+import com.gtech.algashop.application.customer.query.CustomerQueryService;
 import com.gtech.algashop.domain.model.costumer.CanAddLoyaltyPointsOrderIsNotReadyException;
 import com.gtech.algashop.domain.model.costumer.CustomerArchivedException;
 import com.gtech.algashop.domain.model.costumer.CustomerNotFoundException;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
 import com.gtech.algashop.domain.model.costumer.Customers;
-import com.gtech.algashop.domain.model.customer.CustomerTestDataBuilder;
 import com.gtech.algashop.domain.model.order.Order;
 import com.gtech.algashop.domain.model.order.OrderId;
 import com.gtech.algashop.domain.model.order.OrderNotBelongsToCustomerException;
@@ -43,6 +43,9 @@ class CustomerLoyaltyPointsApplicationServiceIT {
     @Autowired
     private Orders orders;
 
+    @Autowired
+    private CustomerQueryService customerQueryService;
+
     @MockitoBean
     private ProductCatalogService productCatalogService;
 
@@ -67,7 +70,7 @@ class CustomerLoyaltyPointsApplicationServiceIT {
 
         loyaltyPointsApplicationService.addLoyaltyPoints(customerId, order.id().toString());
 
-        CustomerOutput output = customerManagementApplicationService.findById(customerId);
+        CustomerOutput output = customerQueryService.findById(customerId);
         Assertions.assertThat(output.getLoyaltyPoints()).isEqualTo(20);
     }
 
@@ -174,7 +177,7 @@ class CustomerLoyaltyPointsApplicationServiceIT {
 
         loyaltyPointsApplicationService.addLoyaltyPoints(customerId, order.id().toString());
 
-        CustomerOutput output = customerManagementApplicationService.findById(customerId);
+        CustomerOutput output = customerQueryService.findById(customerId);
         Assertions.assertThat(output.getLoyaltyPoints()).isZero();
     }
 }

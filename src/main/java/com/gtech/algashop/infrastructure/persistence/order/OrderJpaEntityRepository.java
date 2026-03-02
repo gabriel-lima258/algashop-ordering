@@ -1,11 +1,13 @@
 package com.gtech.algashop.infrastructure.persistence.order;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -59,4 +61,8 @@ public interface OrderJpaEntityRepository extends JpaRepository<OrderPersistence
         AND o.paidAt IS NOT NULL
     """)
     BigDecimal totalSoldForCustomer(@Param("customerId") UUID customerId);
+
+    @Override
+    @EntityGraph(attributePaths = {"customer", "items"}) // consulta graph ja traz os dois atributos, evita o lazy
+    Optional<OrderPersistenceEntity> findById(Long id);
 }

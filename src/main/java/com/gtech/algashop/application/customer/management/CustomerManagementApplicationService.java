@@ -24,8 +24,6 @@ public class CustomerManagementApplicationService {
     // repositorios
     private final Customers customers;
 
-    private final Mapper mapper;
-
     @Transactional
     public UUID create(CustomerInput input) {
         // valida null
@@ -56,17 +54,6 @@ public class CustomerManagementApplicationService {
 
         // retorna o ID do customer persistido
         return customer.id().value();
-    }
-
-    @Transactional(readOnly = true)
-    public CustomerOutput findById(UUID customerId) {
-        Objects.requireNonNull(customerId);
-
-        Customer customer = customers.ofId(new CustomerId(customerId))
-                .orElseThrow(CustomerNotFoundException::new);
-
-        // mapeia automaticamente de customer para customerDto
-        return mapper.convert(customer, CustomerOutput.class);
     }
 
     @Transactional

@@ -1,10 +1,15 @@
 package com.gtech.algashop.infrastructure.util;
 
-import com.gtech.algashop.application.customer.management.CustomerOutput;
+import com.gtech.algashop.application.customer.query.CustomerOutput;
+import com.gtech.algashop.application.order.query.OrderDetailOutput;
+import com.gtech.algashop.application.order.query.OrderItemOutput;
 import com.gtech.algashop.application.util.Mapper;
 import com.gtech.algashop.domain.model.commons.FullName;
 import com.gtech.algashop.domain.model.costumer.BirthDate;
 import com.gtech.algashop.domain.model.costumer.Customer;
+import com.gtech.algashop.infrastructure.persistence.order.OrderItemPersistenceEntity;
+import com.gtech.algashop.infrastructure.persistence.order.OrderPersistenceEntity;
+import io.hypersistence.tsid.TSID;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -45,6 +50,15 @@ public class ModelMapperConfig {
                 return birthDate.birthDate();
             };
 
+    private static final Converter<Long, String> longToStringTSIDConverter =
+            mappingContext -> {
+                Long longTSID = mappingContext.getSource();
+                if (longTSID == null) {
+                    return null;
+                }
+                return new TSID(longTSID).toString();
+            };
+
     // instanciamos a implementação da interface Mapper na camada do infra
     @Bean
     public Mapper mapper() {
@@ -77,5 +91,20 @@ public class ModelMapperConfig {
                         mapping.using(fullNameToLastNameConverter).map(Customer::fullName, CustomerOutput::setLastName))
                 .addMappings(mapping ->
                         mapping.using(birthDateToLocalDateConverter).map(Customer::birthDate, CustomerOutput::setBirthDate));
+
+        // mapper para mapear order id de Long de TSID para String
+        modelMapper.createTypeMap(OrderPersistenceEntity.class, OrderDetailOutput.class)
+                .addMappings(mapping ->
+                        mapping.using(longToStringTSIDConverter).map(OrderPersistenceEntity::getId, OrderDetailOutput::setId)
+                );
+
+        // mapper para mapear o order item de Long de TSID para String
+        modelMapper.createTypeMap(OrderItemPersistenceEntity.class, OrderItemOutput.class)
+                .addMappings(mapping ->
+                        mapping.using(longToStringTSIDConverter).map(OrderItemPersistenceEntity::getId, OrderItemOutput::setId)
+                )
+                .addMappings(mapping ->
+                        mapping.using(longToStringTSIDConverter).map(OrderItemPersistenceEntity::getOrderId, OrderItemOutput::setOrderId)
+                );
     }
 }

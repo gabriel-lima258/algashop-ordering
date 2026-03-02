@@ -2,6 +2,9 @@ package com.gtech.algashop.domain.model.order;
 
 import com.gtech.algashop.domain.model.commons.Money;
 import com.gtech.algashop.domain.model.commons.Quantity;
+import com.gtech.algashop.domain.model.costumer.Customer;
+import com.gtech.algashop.domain.model.costumer.LoyaltyPoints;
+import com.gtech.algashop.domain.model.customer.CustomerTestDataBuilder;
 import com.gtech.algashop.domain.model.shoppingcart.ShoppingCart;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
 import com.gtech.algashop.domain.model.product.ProductId;
@@ -12,6 +15,9 @@ import com.gtech.algashop.domain.model.product.Product;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,15 +35,24 @@ import java.util.stream.Collectors;
  *   3. Criar um Order em estado PLACED com todos os dados do carrinho
  *   4. Esvaziar o carrinho após o checkout bem-sucedido
  */
+@ExtendWith(MockitoExtension.class)
 class CheckoutServiceTest {
 
     private CheckoutService checkoutService;
 
+    // injeta a dependencia em service
+    @Mock
+    private Orders orders;
+
     @BeforeEach
     void setUp() {
-        // CheckoutService não possui dependências externas (repositórios, adapters etc.),
-        // portanto é instanciado diretamente — sem @InjectMocks ou contexto Spring.
-        checkoutService = new CheckoutService();
+        var specification = new CustomerHaveFreeShippingSpecification(
+                orders,
+                new LoyaltyPoints(100),
+                2L,
+                new LoyaltyPoints(2000)
+        );
+        checkoutService = new CheckoutService(specification);
     }
 
     /**
@@ -57,9 +72,11 @@ class CheckoutServiceTest {
      */
     @Test
     void shouldCheckoutValidCart() {
+        Customer customer = CustomerTestDataBuilder.existingCustomer().build();
         // Arrange — monta carrinho sem itens pré-carregados e adiciona produtos manualmente
         // para termos controle total sobre preços e quantidades nas asserções
-        ShoppingCart cart = ShoppingCartTestDataBuilder.aShoppingCart().withItems(false).build();
+        ShoppingCart cart = ShoppingCartTestDataBuilder.aShoppingCart().customerId(customer.id())
+                .withItems(false).build();
 
         Product notebook = ProductTestDataBuilder.aProduct().price(new Money("4500")).build();
         Product mousepad = ProductTestDataBuilder.aProductMousePad().price(new Money("120")).build();
@@ -79,7 +96,7 @@ class CheckoutServiceTest {
         PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
 
         // Act
-        Order order = checkoutService.checkout(cart, billing, shipping, paymentMethod);
+        Order order = checkoutService.checkout(customer, cart, billing, shipping, paymentMethod);
 
         // Assert — metadados do pedido
         Assertions.assertThat(order).isNotNull();
@@ -149,8 +166,11 @@ class CheckoutServiceTest {
      */
     @Test
     void shouldThrowExceptionWhenCartHasUnavailableItems() {
-        // Arrange — dois itens disponíveis adicionados ao carrinho
-        ShoppingCart cart = ShoppingCartTestDataBuilder.aShoppingCart().withItems(false).build();
+        Customer customer = CustomerTestDataBuilder.existingCustomer().build();
+        // Arrange — monta carrinho sem itens pré-carregados e adiciona produtos manualmente
+        // para termos controle total sobre preços e quantidades nas asserções
+        ShoppingCart cart = ShoppingCartTestDataBuilder.aShoppingCart().customerId(customer.id())
+                .withItems(false).build();
 
         Product notebook = ProductTestDataBuilder.aProduct().inStock(true).build();
         Product mousepad = ProductTestDataBuilder.aProductMousePad().inStock(true).build();
@@ -174,7 +194,7 @@ class CheckoutServiceTest {
 
         // Act + Assert — a exceção deve ser lançada antes de qualquer modificação no carrinho
         Assertions.assertThatExceptionOfType(ShoppingCartCantProceedToCheckoutException.class)
-                .isThrownBy(() -> checkoutService.checkout(cart, billing, shipping, PaymentMethod.GATEWAY_BALANCE));
+                .isThrownBy(() -> checkoutService.checkout(customer, cart, billing, shipping, PaymentMethod.GATEWAY_BALANCE));
 
         // O carrinho deve permanecer com seus itens — cart.empty() NÃO foi chamado
         Assertions.assertThat(cart.isEmpty()).isFalse();
@@ -193,19 +213,104 @@ class CheckoutServiceTest {
      */
     @Test
     void shouldThrowExceptionWhenCartIsEmpty() {
-        // Arrange — carrinho criado sem itens (withItems(false))
-        ShoppingCart cart = ShoppingCartTestDataBuilder.aShoppingCart().withItems(false).build();
+        Customer customer = CustomerTestDataBuilder.existingCustomer().build();
+        // Arrange — monta carrinho sem itens pré-carregados e adiciona produtos manualmente
+        // para termos controle total sobre preços e quantidades nas asserções
+        ShoppingCart cart = ShoppingCartTestDataBuilder.aShoppingCart().customerId(customer.id())
+                .withItems(false).build();
 
         Billing billing = OrderTestDataBuilder.aBilling();
         Shipping shipping = OrderTestDataBuilder.aShipping();
 
         // Act + Assert
         Assertions.assertThatExceptionOfType(ShoppingCartCantProceedToCheckoutException.class)
-                .isThrownBy(() -> checkoutService.checkout(cart, billing, shipping, PaymentMethod.GATEWAY_BALANCE));
+                .isThrownBy(() -> checkoutService.checkout(customer, cart, billing, shipping, PaymentMethod.GATEWAY_BALANCE));
 
         // O carrinho já estava vazio e deve continuar vazio — nenhuma alteração de estado
         Assertions.assertThat(cart.isEmpty()).isTrue();
         Assertions.assertThat(cart.totalItems()).isEqualTo(Quantity.ZERO);
         Assertions.assertThat(cart.totalAmount()).isEqualTo(Money.ZERO);
     }
+
+    @Test
+    void givenShoppingCartAndCustomerWithFreeShippingWhenCheckoutShouldReturnFreeOrderShipping() {
+        Customer customer = CustomerTestDataBuilder.existingCustomer().loyaltyPoints(new LoyaltyPoints(3000)).build();
+        // Arrange — monta carrinho sem itens pré-carregados e adiciona produtos manualmente
+        // para termos controle total sobre preços e quantidades nas asserções
+        ShoppingCart cart = ShoppingCartTestDataBuilder.aShoppingCart().customerId(customer.id())
+                .withItems(false).build();
+
+        Product notebook = ProductTestDataBuilder.aProduct().price(new Money("4500")).build();
+        Product mousepad = ProductTestDataBuilder.aProductMousePad().price(new Money("120")).build();
+
+        cart.addItem(notebook, new Quantity(2));
+        cart.addItem(mousepad, new Quantity(1));
+
+        // Salva o estado do carrinho ANTES do checkout, pois cart.empty() será chamado
+        // internamente pelo serviço e perdemos acesso ao customerId via cart.items() depois
+        CustomerId cartCustomerId = cart.customerId();
+        Set<ProductId> cartProductIds = cart.items().stream()
+                .map(i -> i.productId())
+                .collect(Collectors.toSet());
+
+        Billing billing = OrderTestDataBuilder.aBilling();
+        Shipping shipping = OrderTestDataBuilder.aShipping();
+        PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
+
+        // Act
+        Order order = checkoutService.checkout(customer, cart, billing, shipping, paymentMethod);
+
+        // Assert — metadados do pedido
+        Assertions.assertThat(order).isNotNull();
+        Assertions.assertThat(order.id()).isNotNull();
+
+        // O pedido deve pertencer ao mesmo cliente do carrinho
+        Assertions.assertThat(order.customerId()).isEqualTo(cartCustomerId);
+
+        // O pedido deve carregar exatamente o billing e shipping fornecidos
+        Assertions.assertThat(order.billing()).isEqualTo(billing);
+        // definindo frete gratis pois temos 3000 pontos
+        Assertions.assertThat(order.shipping()).isEqualTo(shipping.toBuilder().cost(Money.ZERO).build());
+
+        // O método de pagamento deve ser preservado
+        Assertions.assertThat(order.paymentMethod()).isEqualTo(paymentMethod);
+
+        // O pedido deve sair do checkout já no estado PLACED
+        Assertions.assertThat(order.isPlaced()).isTrue();
+
+        // Assert — itens transferidos do carrinho para o pedido
+        // A quantidade de OrderItems deve corresponder à quantidade de ShoppingCartItems
+        Assertions.assertThat(order.items()).hasSize(2);
+
+        // totalQuantity = soma das quantidades de todos os itens (2 notebooks + 1 mousepad)
+        Assertions.assertThat(order.totalQuantity()).isEqualTo(new Quantity(3));
+
+        // Os IDs dos produtos nos itens do pedido devem ser os mesmos do carrinho
+        Set<ProductId> orderProductIds = order.items().stream()
+                .map(OrderItem::productId)
+                .collect(Collectors.toSet());
+        Assertions.assertThat(orderProductIds).isEqualTo(cartProductIds);
+
+        // Verifica preço unitário, quantidade e total do item notebook individualmente
+        // (garante que a transferência de dados foi item a item, não apenas os totais)
+        OrderItem notebookOrderItem = order.items().stream()
+                .filter(i -> i.productId().equals(notebook.id()))
+                .findFirst()
+                .orElseThrow();
+        Assertions.assertThat(notebookOrderItem.price()).isEqualTo(new Money("4500"));
+        Assertions.assertThat(notebookOrderItem.quantity()).isEqualTo(new Quantity(2));
+        Assertions.assertThat(notebookOrderItem.totalAmount()).isEqualTo(new Money("4500").multiply(new Quantity(2)));
+
+        // Assert — total do pedido usando Money para evitar comparações com BigDecimal bruto
+        // total = (R$4500 x 2) + R$120 = R$9120
+        Money expectedTotal = new Money("4500").multiply(new Quantity(2))
+                .add(new Money("120"));
+        Assertions.assertThat(order.totalAmount()).isEqualTo(expectedTotal);
+
+        // Assert — carrinho deve estar completamente vazio após o checkout bem-sucedido
+        Assertions.assertThat(cart.isEmpty()).isTrue();
+        Assertions.assertThat(cart.totalItems()).isEqualTo(Quantity.ZERO);
+        Assertions.assertThat(cart.totalAmount()).isEqualTo(Money.ZERO);
+    }
+
 }

@@ -4,6 +4,7 @@ import com.gtech.algashop.domain.model.commons.ZipCode;
 import com.gtech.algashop.domain.model.costumer.Customer;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
 import com.gtech.algashop.domain.model.costumer.CustomerNotFoundException;
+import com.gtech.algashop.domain.model.costumer.Customers;
 import com.gtech.algashop.domain.model.order.*;
 import com.gtech.algashop.domain.model.order.shipping.OriginAddressService;
 import com.gtech.algashop.domain.model.order.shipping.ShippingCostService;
@@ -33,6 +34,7 @@ public class CheckoutApplicationService {
     // Repositório
     private final Orders orders;
     private final ShoppingCarts shoppingCarts;
+    private final Customers customers;
 
     // Disassemblers
     private final ShippingInputDisassembler shippingInputDisassembler;
@@ -48,6 +50,8 @@ public class CheckoutApplicationService {
         ShoppingCartId shoppingCartId = new ShoppingCartId(input.getShoppingCartId());
         ShoppingCart shoppingCart = shoppingCarts.ofId(shoppingCartId)
                 .orElseThrow(ShoppingCartNotFound::new);
+        Customer customer = customers.ofId(shoppingCart.customerId())
+                .orElseThrow(CustomerNotFoundException::new);
 
         // calcula frete
         var shippingCalculateResult = calculateShippingCost(input.getShipping());
@@ -58,7 +62,7 @@ public class CheckoutApplicationService {
         Billing billing = billingInputDisassembler.toDomainModel(input.getBilling());
 
         // fazer checkout do shoppingCart
-        Order checkout = checkoutService.checkout(shoppingCart, billing, shipping, paymentMethod);
+        Order checkout = checkoutService.checkout(customer, shoppingCart, billing, shipping, paymentMethod);
 
         // persistir o checkout em order e seu shoppingCart
         orders.add(checkout);
