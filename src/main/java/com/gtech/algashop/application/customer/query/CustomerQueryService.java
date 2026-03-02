@@ -1,5 +1,7 @@
 package com.gtech.algashop.application.customer.query;
 
+import org.springframework.data.domain.Page;
+
 import java.util.UUID;
 
 // CQRS - Query Side (Read Model)
@@ -19,4 +21,5 @@ import java.util.UUID;
 //      de um cache, ou até de um banco de leitura separado no futuro.
 public interface CustomerQueryService {
     CustomerOutput findById(UUID customerId);
+    Page<CustomerSummaryOutput> filter(CustomerFilter filter);
 }

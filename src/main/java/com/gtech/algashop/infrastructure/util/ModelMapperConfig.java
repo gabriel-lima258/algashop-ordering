@@ -3,12 +3,14 @@ package com.gtech.algashop.infrastructure.util;
 import com.gtech.algashop.application.customer.query.CustomerOutput;
 import com.gtech.algashop.application.order.query.OrderDetailOutput;
 import com.gtech.algashop.application.order.query.OrderItemOutput;
+import com.gtech.algashop.application.shoppingcart.query.ShoppingCartItemOutput;
 import com.gtech.algashop.application.util.Mapper;
 import com.gtech.algashop.domain.model.commons.FullName;
 import com.gtech.algashop.domain.model.costumer.BirthDate;
 import com.gtech.algashop.domain.model.costumer.Customer;
 import com.gtech.algashop.infrastructure.persistence.order.OrderItemPersistenceEntity;
 import com.gtech.algashop.infrastructure.persistence.order.OrderPersistenceEntity;
+import com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartItemPersistenceEntity;
 import io.hypersistence.tsid.TSID;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -105,6 +107,15 @@ public class ModelMapperConfig {
                 )
                 .addMappings(mapping ->
                         mapping.using(longToStringTSIDConverter).map(OrderItemPersistenceEntity::getOrderId, OrderItemOutput::setOrderId)
+                );
+
+        // mapper para mapear o shopping cart item de Long de TSID para String e productName para name
+        modelMapper.createTypeMap(ShoppingCartItemPersistenceEntity.class, ShoppingCartItemOutput.class)
+                .addMappings(mapping ->
+                        mapping.using(longToStringTSIDConverter).map(ShoppingCartItemPersistenceEntity::getId, ShoppingCartItemOutput::setId)
+                )
+                .addMappings(mapping ->
+                        mapping.map(ShoppingCartItemPersistenceEntity::getProductName, ShoppingCartItemOutput::setName)
                 );
     }
 }

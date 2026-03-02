@@ -15,7 +15,6 @@ import java.time.OffsetDateTime;
 @Builder
 public class OrderSummaryOutput {
     private String id;
-    private CustomerMinimalOutput customer;
     private Integer totalItems;
     private BigDecimal totalAmount;
     private OffsetDateTime placedAt;
@@ -24,12 +23,14 @@ public class OrderSummaryOutput {
     private OffsetDateTime canceledAt;
     private String status;
     private String paymentMethod;
+    private CustomerMinimalOutput customer;
 
     // conversor de TSID long para String do output usando construtor
 
-    public OrderSummaryOutput(Long id, CustomerMinimalOutput customer, Integer totalItems, BigDecimal totalAmount,
+    public OrderSummaryOutput(Long id, Integer totalItems, BigDecimal totalAmount,
                               OffsetDateTime placedAt, OffsetDateTime paidAt, OffsetDateTime readyAt,
-                              OffsetDateTime canceledAt, String status, String paymentMethod) {
+                              OffsetDateTime canceledAt, String status, String paymentMethod,
+                              CustomerMinimalOutput customer) {
         this.id = new OrderId(id).toString();
         this.customer = customer;
         this.totalItems = totalItems;

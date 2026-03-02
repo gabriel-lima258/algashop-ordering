@@ -7,5 +7,5 @@ import java.util.UUID;
 
 public interface OrderQueryService {
     OrderDetailOutput findById(String orderId);
-    Page<OrderSummaryOutput> filter(PageFilter filter);
+    Page<OrderSummaryOutput> filter(OrderFilter filter);
 }
