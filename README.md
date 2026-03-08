@@ -1,1 +1,3 @@
 # algashop-ordering
+
+# DDD purista

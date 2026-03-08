@@ -1,8 +1,8 @@
 spring:
   application:
-    name: algashop
+    name: ordering
   datasource:
-    url: jdbc:h2:mem:algashop-test;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;
+    url: jdbc:h2:mem:ordering-test;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;
     username: sa
     password: '123'
   h2:
