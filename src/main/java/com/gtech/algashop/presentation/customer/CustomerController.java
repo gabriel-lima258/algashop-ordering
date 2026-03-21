@@ -1,6 +1,5 @@
-package com.gtech.algashop.presentation;
+package com.gtech.algashop.presentation.customer;
 
-import com.gtech.algashop.application.commons.AddressData;
 import com.gtech.algashop.application.customer.management.CustomerInput;
 import com.gtech.algashop.application.customer.management.CustomerManagementApplicationService;
 import com.gtech.algashop.application.customer.management.CustomerUpdateInput;
@@ -8,16 +7,16 @@ import com.gtech.algashop.application.customer.query.CustomerFilter;
 import com.gtech.algashop.application.customer.query.CustomerOutput;
 import com.gtech.algashop.application.customer.query.CustomerQueryService;
 import com.gtech.algashop.application.customer.query.CustomerSummaryOutput;
+import com.gtech.algashop.application.shoppingcart.query.ShoppingCartOutput;
+import com.gtech.algashop.application.shoppingcart.query.ShoppingCartQueryService;
+import com.gtech.algashop.presentation.PageModel;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.fromMethodCall;
@@ -30,7 +29,7 @@ public class CustomerController {
 
     private final CustomerManagementApplicationService customerManagementApplicationService;
     private final CustomerQueryService customerQueryService;
-
+    private final ShoppingCartQueryService shoppingCartQueryService;
 
     @GetMapping
     public PageModel<CustomerSummaryOutput> findAll(CustomerFilter customerFilter) {
@@ -40,6 +39,11 @@ public class CustomerController {
     @GetMapping("/{customerId}")
     public CustomerOutput findById(@PathVariable UUID customerId) {
         return customerQueryService.findById(customerId);
+    }
+
+    @GetMapping("/{customerId}/shopping-cart")
+    public ShoppingCartOutput findShoppinCartByCustomerId(@PathVariable UUID customerId) {
+        return shoppingCartQueryService.findByCustomerId(customerId);
     }
 
     @PostMapping

@@ -35,8 +35,6 @@ class ShoppingCartQueryServiceIT {
     @Autowired
     private Customers customers;
 
-    @MockitoBean
-    private ProductCatalogService productCatalogService;
 
     // =====================================================
     //  findById — cenário de sucesso

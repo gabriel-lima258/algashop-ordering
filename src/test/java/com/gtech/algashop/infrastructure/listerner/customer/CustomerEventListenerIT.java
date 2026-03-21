@@ -32,9 +32,6 @@ class CustomerEventListenerIT {
     private CustomerEventListener customerEventListener;
 
     @MockitoBean
-    private ProductCatalogService productCatalogService;
-
-    @MockitoBean
     private CustomerLoyaltyPointsApplicationService customerLoyaltyPointsApplicationService;
 
     @MockitoBean

@@ -1,10 +1,11 @@
-package com.gtech.algashop.presentation;
+package com.gtech.algashop.presentation.customer;
 
 import com.gtech.algashop.application.commons.AddressData;
 import com.gtech.algashop.application.customer.management.CustomerInput;
 import com.gtech.algashop.application.customer.management.CustomerManagementApplicationService;
 import com.gtech.algashop.application.customer.management.CustomerUpdateInput;
 import com.gtech.algashop.application.customer.query.*;
+import com.gtech.algashop.application.shoppingcart.query.ShoppingCartQueryService;
 import com.gtech.algashop.domain.model.BusinessException;
 import com.gtech.algashop.domain.model.costumer.CustomerArchivedException;
 import com.gtech.algashop.domain.model.costumer.CustomerEmailInUseException;
@@ -40,6 +41,9 @@ class CustomerControllerContractTest {
 
     @MockitoBean
     private CustomerManagementApplicationService customerManagementApplicationService;
+
+    @MockitoBean
+    private ShoppingCartQueryService shoppingCartQueryService;
 
     @MockitoBean
     private CustomerQueryService customerQueryService;

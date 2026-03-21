@@ -30,9 +30,15 @@ public class ErrorMessages {
     public static final String ERROR_SHOPPING_CART_DOES_NOT_CONTAIN_ITEM = "Shopping cart %s does not contain item %s";
     public static final String ERROR_SHOPPING_CART_DOES_NOT_CONTAIN_PRODUCT
             = "Shopping cart %s does not contain product %s";
+    public static final String ERROR_CUSTOMER_ALREADY_HAVE_SHOPPING_CART = "Customer %s already have a shopping cart";
 
     public static final String ERROR_PRODUCT_IS_OUT_OF_STOCK = "Product %s is out of stock";
 
     public static final String ERROR_ORDER_CANNOT_BE_EDITED = "Order %s with status %s cannot be edited";
+
+    public static final String ERROR_CUSTOMER_NOT_FOUND = "Customer %s was not found";
+    public static final String ERROR_PRODUCT_NOT_FOUND = "Product %s was not found";
+    public static final String ERROR_SHOPPING_CART_NOT_FOUND = "Shopping cart %s was not found";
+    public static final String ERROR_CUSTOMER_EMAIL_IN_USE = "Customer %s email in use";
 
 }

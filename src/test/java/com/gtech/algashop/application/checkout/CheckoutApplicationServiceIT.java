@@ -54,9 +54,6 @@ class CheckoutApplicationServiceIT {
     private Customers customers;
 
     @MockitoBean
-    private ProductCatalogService productCatalogService;
-
-    @MockitoBean
     private ShippingCostService shippingCostService;
 
     @MockitoSpyBean

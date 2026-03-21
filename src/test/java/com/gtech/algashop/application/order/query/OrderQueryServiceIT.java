@@ -31,9 +31,6 @@ class OrderQueryServiceIT {
     @Autowired
     private Customers customers;
 
-    @MockitoBean
-    private ProductCatalogService productCatalogService;
-
     @Test
     void shouldFindById() {
         Customer customer = CustomerTestDataBuilder.existingCustomer().build();

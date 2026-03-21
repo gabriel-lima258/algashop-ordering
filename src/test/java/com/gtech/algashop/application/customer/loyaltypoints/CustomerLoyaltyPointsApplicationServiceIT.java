@@ -47,9 +47,6 @@ class CustomerLoyaltyPointsApplicationServiceIT {
     private CustomerQueryService customerQueryService;
 
     @MockitoBean
-    private ProductCatalogService productCatalogService;
-
-    @MockitoBean
     private CustomerEventListener customerEventListener;
 
     /**

@@ -51,7 +51,7 @@ public class CheckoutApplicationService {
         ShoppingCart shoppingCart = shoppingCarts.ofId(shoppingCartId)
                 .orElseThrow(ShoppingCartNotFound::new);
         Customer customer = customers.ofId(shoppingCart.customerId())
-                .orElseThrow(CustomerNotFoundException::new);
+                .orElseThrow(() -> new CustomerNotFoundException(shoppingCart.customerId()));
 
         // calcula frete
         var shippingCalculateResult = calculateShippingCost(input.getShipping());

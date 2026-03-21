@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.10'
 	id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.springframework.cloud.contract' version '4.3.0'
 }
 
 group = 'com.gtech'
@@ -25,6 +26,16 @@ repositories {
 	mavenCentral()
 }
 
+ext {
+    set('springCloudVersion', "2025.0.0")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.fasterxml.uuid:java-uuid-generator:5.1.0'
@@ -36,7 +47,9 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
     compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
+    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.assertj:assertj-core:3.27.3'
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation 'io.rest-assured:spring-mock-mvc'
@@ -44,9 +57,33 @@ dependencies {
     mockitoAgent('org.mockito:mockito-core:5.14.2') {transitive = false}
 }
 
+contracts {
+    packageWithBaseClasses = "com.gtech.algashop.contract.base"
+    baseClassMappings {
+        baseClassMapping("shoppingcart", "com.gtech.algashop.contract.base.ShoppingCartBase")
+        baseClassMapping("order", "com.gtech.algashop.contract.base.OrderBase")
+    }
+}
+
+//contracts {
+//    testFramework ='JUNIT5'
+//    testMode = 'MockMvc'
+//    contractsDslDir = project.file("${layout.projectDirectory}/src/contractTest/resources/contracts")
+//}
+
+// roda testes de contratos
+tasks.named('contractTest') {
+    useJUnitPlatform()
+}
+
 // roda JUNIT5 por padrão
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// check roda todos os tipos de testes
+tasks.named('check') {
+    dependsOn(test, contractTest, integrationTest)
 }
 
 // classe test não deve rodar testes de integração
@@ -55,11 +92,6 @@ test {
         excludeTestsMatching("*IT")
     }
     jvmArgs += "-javaagent:${configurations.mockitoAgent.asPath}"
-}
-
-// check roda ambos testes
-tasks.named('check') {
-    dependsOn(test, integrationTest)
 }
 
 // nova task de test focada em integração

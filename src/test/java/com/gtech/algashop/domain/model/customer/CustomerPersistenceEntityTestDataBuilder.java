@@ -23,6 +23,7 @@ public class CustomerPersistenceEntityTestDataBuilder {
                 .document("12345")
                 .promotionNotificationsAllowed(true)
                 .archived(false)
+                .archivedAt(null)
                 .loyaltyPoints(100)
                 .registeredAt(OffsetDateTime.now())
                 .address(anAddressEmbeddable());

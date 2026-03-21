@@ -25,9 +25,6 @@ class CustomerManagementApplicationServiceIT {
     @Autowired
     private CustomerManagementApplicationService customerManagementApplicationService;
 
-    @MockitoBean
-    private ProductCatalogService productCatalogService;
-
     // verifica se esta sendo chamado
     @MockitoSpyBean
     private CustomerEventListener customerEventListener;

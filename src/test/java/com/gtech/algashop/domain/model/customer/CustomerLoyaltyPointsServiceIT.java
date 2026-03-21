@@ -24,9 +24,6 @@ class CustomerLoyaltyPointsServiceIT {
     @Autowired
     private CustomerLoyaltyPointsService customerLoyaltyPointsService;
 
-    @MockitoBean
-    private ProductCatalogService productCatalogService;
-
     @Test
     void givenValidCustomerAndOrderWhenAddingPointsShouldAccumulate() {
         Customer customer = CustomerTestDataBuilder.existingCustomer().build();

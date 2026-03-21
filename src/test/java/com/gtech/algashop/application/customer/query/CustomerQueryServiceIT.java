@@ -30,9 +30,6 @@ class CustomerQueryServiceIT {
     @Autowired
     private Customers customers;
 
-    @MockitoBean
-    private ProductCatalogService productCatalogService;
-
     private Customer alice;
     private Customer bob;
     private Customer charlie;

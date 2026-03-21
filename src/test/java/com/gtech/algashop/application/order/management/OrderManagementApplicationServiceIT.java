@@ -35,9 +35,6 @@ class OrderManagementApplicationServiceIT {
     @Autowired
     private Customers customers;
 
-    @MockitoBean
-    private ProductCatalogService productCatalogService;
-
     // verifica se esta sendo chamado
     @MockitoSpyBean
     private OrderEventListener orderEventListener;

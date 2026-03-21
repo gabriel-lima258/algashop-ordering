@@ -20,9 +20,6 @@ class CustomerRegistrationServiceIT {
     @Autowired
     private CustomerRegistrationService customerRegistrationService;
 
-    @MockitoBean
-    private ProductCatalogService productCatalogService;
-
     @Test
     void shouldRegister() {
         Customer customer = customerRegistrationService.register(

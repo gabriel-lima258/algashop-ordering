@@ -1,5 +1,6 @@
 package com.gtech.algashop.application.shoppingcart.query;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ShoppingCartQueryService {
