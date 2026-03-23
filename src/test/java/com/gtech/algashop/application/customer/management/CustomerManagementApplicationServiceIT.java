@@ -61,7 +61,7 @@ class CustomerManagementApplicationServiceIT {
                                 LocalDate.of(1991, 7,5),
                                 "255-08-0578",
                                 "478-256-2604",
-                                "johndoe@email.com",
+                                input.getEmail(),
                                 false
                         );
 
@@ -194,14 +194,14 @@ class CustomerManagementApplicationServiceIT {
 
     @Test
     void shouldThrowCustomerEmailIsInUseExceptionWhenEmailAlreadyBelongsToAnotherCustomer() {
-        customerManagementApplicationService.create(
-                CustomerInputTestDataBuilder.aCustomer().build());
+        CustomerInput firstInput = CustomerInputTestDataBuilder.aCustomer().build();
+        customerManagementApplicationService.create(firstInput);
 
         UUID secondCustomerId = customerManagementApplicationService.create(
-                CustomerInputTestDataBuilder.aCustomer().email("janedoe@email.com").build());
+                CustomerInputTestDataBuilder.aCustomer().build());
 
         Assertions.assertThatThrownBy(() ->
-                customerManagementApplicationService.changeEmail(secondCustomerId, "johndoe@email.com"))
+                customerManagementApplicationService.changeEmail(secondCustomerId, firstInput.getEmail()))
                 .isInstanceOf(CustomerEmailInUseException.class);
     }
 

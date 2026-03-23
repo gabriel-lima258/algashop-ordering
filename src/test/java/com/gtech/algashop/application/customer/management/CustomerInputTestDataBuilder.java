@@ -3,6 +3,7 @@ package com.gtech.algashop.application.customer.management;
 import com.gtech.algashop.application.commons.AddressData;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public class CustomerInputTestDataBuilder {
 
@@ -13,7 +14,7 @@ public class CustomerInputTestDataBuilder {
                 .birthDate(LocalDate.of(1991, 7,5))
                 .document("255-08-0578")
                 .phone("478-256-2604")
-                .email("johndoe@email.com")
+                .email("johndoe_" + UUID.randomUUID() + "@email.com")
                 .promotionNotificationsAllowed(false)
                 .address(AddressData.builder()
                         .street("Bourbon Street")

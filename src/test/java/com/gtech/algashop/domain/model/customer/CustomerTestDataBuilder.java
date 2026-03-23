@@ -8,11 +8,12 @@ import com.gtech.algashop.domain.model.costumer.CustomerId;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 // classe factory
 public class CustomerTestDataBuilder {
 
-    public static final CustomerId DEFAULT_CUSTOMER_ID = new CustomerId();
+    public static final CustomerId DEFAULT_CUSTOMER_ID = new CustomerId(UUID.fromString("6e148bd5-47f6-4022-b9da-07cfaa294f7a"));
 
     private CustomerTestDataBuilder() {
     }
@@ -21,7 +22,7 @@ public class CustomerTestDataBuilder {
         return Customer.brandNew()
                 .fullName(new FullName("John","Doe"))
                 .birthDate(new BirthDate(LocalDate.of(1991, 7,5)))
-                .email(new Email("johndoe@email.com"))
+                .email(new Email("johndoe_"+UUID.randomUUID()+"@email.com"))
                 .phone(new Phone("478-256-2604"))
                 .document(new Document("255-08-0578"))
                 .promotionNotificationsAllowed(true)
@@ -45,7 +46,7 @@ public class CustomerTestDataBuilder {
                 .archivedAt(null)
                 .fullName(new FullName("John","Doe"))
                 .birthDate(new BirthDate(LocalDate.of(1991, 7,5)))
-                .email(new Email("johndoe@email.com"))
+                .email(new Email("johndoe_"+UUID.randomUUID()+"@email.com"))
                 .phone(new Phone("478-256-2604"))
                 .document(new Document("255-08-0578"))
                 .promotionNotificationsAllowed(true)

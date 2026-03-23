@@ -14,6 +14,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -48,6 +49,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * adapter que implementa a interface Orders usando JPA.
  * O Spring então consegue injetar Orders via construtor, pois OrderPersistenceProvider
  * é o único bean que implementa a interface Orders no contexto de teste.
+ *
+ * @AutoConfigureTestDatabase(replace = NONE) garante que roda contra o banco real, não um H2 embutido.
  */
 @DataJpaTest
 @Import({
@@ -58,6 +61,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         CustomerPersistenceEntityAssembler.class,
         CustomerPersistenceEntityDisassembler.class
 })
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class OrdersIT {
 
     // Injetado como Orders (interface de domínio), não como OrderPersistenceProvider.

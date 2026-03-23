@@ -18,9 +18,10 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,8 +42,8 @@ import org.springframework.transaction.annotation.Transactional;
  * Os providers, assemblers, disassemblers e a configuração de auditoria precisam ser
  * importados explicitamente para que o contexto consiga injetar todas as dependências.
  *
- * --- Por que @DirtiesContext? ---
- * Garante que o contexto Spring (e o banco H2 em memória) seja completamente
+ * --- Por que @Sql? ---
+ * Garante que o contexto Spring seja completamente
  * reiniciado após cada método de teste. Sem isso, dados persistidos em um teste
  * poderiam vazar para o próximo, tornando os testes dependentes entre si.
  */
@@ -57,7 +58,8 @@ import org.springframework.transaction.annotation.Transactional;
         CustomerPersistenceEntityDisassembler.class,
         SpringDataAuditingConfig.class
 })
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Sql(scripts = "classpath:db/clean/afterMigrate.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ShoppingCartUpdateProviderIT {
 
     // ID fixo reutilizado em todos os testes para garantir consistência na FK de cliente.
@@ -87,7 +89,7 @@ class ShoppingCartUpdateProviderIT {
      * Portanto, o cliente precisa existir no banco antes de qualquer carrinho ser persistido.
      *
      * A verificação com exists() evita violação de chave única caso o contexto não tenha
-     * sido completamente limpo antes da execução (embora @DirtiesContext já cuide disso).
+     * sido completamente limpo antes da execução (embora @sql já cuide disso).
      */
     @BeforeEach
     void setUp() {

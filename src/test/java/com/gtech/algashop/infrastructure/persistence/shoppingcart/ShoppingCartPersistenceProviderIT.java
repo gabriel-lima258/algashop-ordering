@@ -14,8 +14,10 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,30 +31,20 @@ import org.springframework.transaction.annotation.Transactional;
         CustomerPersistenceEntityDisassembler.class,
         SpringDataAuditingConfig.class
 })
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")
 class ShoppingCartPersistenceProviderIT {
 
     private static final CustomerId CUSTOMER_ID = CustomerTestDataBuilder.DEFAULT_CUSTOMER_ID;
 
     private final ShoppingCartPersistenceProvider shoppingCartProvider;
-    private final CustomersPersistenceProvider customersPersistenceProvider;
     private final ShoppingCartJpaEntityRepository jpaEntityRepository;
 
     @Autowired
     public ShoppingCartPersistenceProviderIT(ShoppingCartPersistenceProvider shoppingCartProvider,
-                                             CustomersPersistenceProvider customersPersistenceProvider,
                                              ShoppingCartJpaEntityRepository jpaEntityRepository) {
         this.shoppingCartProvider = shoppingCartProvider;
-        this.customersPersistenceProvider = customersPersistenceProvider;
         this.jpaEntityRepository = jpaEntityRepository;
-    }
-
-    @BeforeEach
-    void setUp() {
-        if (!customersPersistenceProvider.exists(CUSTOMER_ID)) {
-            customersPersistenceProvider.add(
-                    CustomerTestDataBuilder.existingCustomer().build()
-            );
-        }
     }
 
     private ShoppingCart newCart() {

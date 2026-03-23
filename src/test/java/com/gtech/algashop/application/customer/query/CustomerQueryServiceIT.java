@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -20,7 +22,27 @@ import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// =====================================================================================
+// Teste de integração do CustomerQueryService
+// =====================================================================================
+//
+// ISOLAMENTO DE DADOS NOS TESTES:
+//   Em dev/produção, o Flyway usa o location "classpath:db/testdata", que contém um
+//   afterMigrate.sql com INSERT de seed data (customers, orders, etc).
+//
+//   Nos testes, o profile "test" (application-test.yaml) sobrescreve o location para
+//   "classpath:db/clean", onde o afterMigrate.sql executa TRUNCATE CASCADE em todas
+//   as tabelas. Isso garante que o seed data NUNCA seja inserido no banco de testes.
+//
+//   Com o banco limpo desde a inicialização, basta @Transactional para manter o
+//   isolamento entre testes — cada teste insere seus dados no @BeforeEach, e o
+//   Spring faz rollback automático ao final. Zero overhead de limpeza por teste.
+//
+//   Ver: src/test/resources/db/clean/afterMigrate.sql (documentação completa da abordagem)
+// =====================================================================================
 @SpringBootTest
+//@Sql(scripts = "classpath:sql/clean-database.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+//@Sql(scripts = "classpath:sql/clean-database.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 @Transactional
 class CustomerQueryServiceIT {
 
@@ -83,7 +105,7 @@ class CustomerQueryServiceIT {
                         customer.birthDate().birthDate(),
                         customer.isPromotionNotificationsAllowed(),
                         customer.loyaltyPoints().point(),
-                        customer.registeredAt(),
+                        customer.registeredAt().withOffsetSameInstant(java.time.ZoneOffset.UTC),
                         customer.archivedAt(),
                         customer.isArchived()
                 );

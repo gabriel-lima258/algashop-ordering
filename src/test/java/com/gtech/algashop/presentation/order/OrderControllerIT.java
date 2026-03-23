@@ -28,16 +28,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static io.restassured.config.JsonConfig.*;
-// dirties limpa o banco a cada teste
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 //@AutoConfigureStubRunner(stubsMode = StubRunnerProperties.StubsMode.LOCAL, ids = "com.algaworks.algashop:product-catalog:0.0.1-SNAPSHOT:8781")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+// crie dados antes do teste
+@Sql(scripts = "classpath:db/testdata/afterMigrate.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+// limpa o banco apos o teste
+@Sql(scripts = "classpath:db/clean/afterMigrate.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 class OrderControllerIT {
 
     @LocalServerPort
@@ -66,8 +68,6 @@ class OrderControllerIT {
         RestAssured.config().jsonConfig(jsonConfig()
                 .numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL));
 
-        initDatabase();
-
         // setando o wiremock dentro do java
 
         wireMockRapidex = new WireMockServer(options()
@@ -89,12 +89,6 @@ class OrderControllerIT {
     void after() {
         wireMockRapidex.stop();
         wireMockProductCatalog.stop();
-    }
-
-    private void initDatabase() {
-        customerJpaEntityRepository.saveAndFlush(
-                CustomerPersistenceEntityTestDataBuilder.existingCustomer().id(validCustomerId).build()
-        );
     }
 
     @Test

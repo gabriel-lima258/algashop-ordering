@@ -4,7 +4,6 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.gtech.algashop.application.shoppingcart.management.ShoppingCartInput;
 import com.gtech.algashop.application.shoppingcart.management.ShoppingCartItemInput;
-import com.gtech.algashop.domain.model.customer.CustomerPersistenceEntityTestDataBuilder;
 import com.gtech.algashop.infrastructure.persistence.customer.CustomerJpaEntityRepository;
 import com.gtech.algashop.infrastructure.persistence.shoppingcart.ShoppingCartJpaEntityRepository;
 import io.restassured.RestAssured;
@@ -17,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.util.UUID;
 
@@ -28,7 +27,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+// crie dados antes do teste
+@Sql(scripts = "classpath:db/testdata/afterMigrate.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+// limpa o banco apos o teste
+@Sql(scripts = "classpath:db/clean/afterMigrate.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 class ShoppingCartControllerIT {
 
     @LocalServerPort
@@ -43,7 +45,8 @@ class ShoppingCartControllerIT {
     private WireMockServer wireMockProductCatalog;
     private WireMockServer wireMockRapidex;
 
-    private static final UUID validCustomerId = UUID.fromString("6e148bd5-47f6-4022-b9da-07cfaa294f7a");
+    private static final UUID customerIdForCreateCart = UUID.fromString("3a4b5c6d-7e8f-9a0b-1c2d-3e4f5a6b7c8d");
+    private static final UUID customerIdForAddItem = UUID.fromString("5f6b7d8e-9c0a-1b2d-3c4a-5f6b7d8e9c0a");
     private static final UUID validProductId = UUID.fromString("fffe6ec2-7103-48b3-8e4f-3b58e43fb75a");
 
     @BeforeEach
@@ -53,8 +56,6 @@ class ShoppingCartControllerIT {
 
         RestAssured.config().jsonConfig(jsonConfig()
                 .numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL));
-
-        initDatabase();
 
         wireMockRapidex = new WireMockServer(options()
                 .port(8780)
@@ -76,16 +77,10 @@ class ShoppingCartControllerIT {
         wireMockProductCatalog.stop();
     }
 
-    private void initDatabase() {
-        customerJpaEntityRepository.saveAndFlush(
-                CustomerPersistenceEntityTestDataBuilder.existingCustomer().id(validCustomerId).build()
-        );
-    }
-
     @Test
     void shouldCreateAShoppingCart() {
         ShoppingCartInput input = ShoppingCartInput.builder()
-                .customerId(validCustomerId)
+                .customerId(customerIdForCreateCart)
                 .build();
 
         String shoppingCartCreatedId = RestAssured
@@ -100,7 +95,7 @@ class ShoppingCartControllerIT {
                     .contentType(APPLICATION_JSON_VALUE)
                     .statusCode(HttpStatus.CREATED.value())
                     .body("id", Matchers.not(Matchers.emptyString()),
-                            "customerId", Matchers.is(validCustomerId.toString()))
+                            "customerId", Matchers.is(customerIdForCreateCart.toString()))
                     .extract().jsonPath().getString("id");
 
         boolean shoppingCartExists = shoppingCartJpaEntityRepository
@@ -129,7 +124,7 @@ class ShoppingCartControllerIT {
     @Test
     void shouldAddItemToShoppingCart() {
         ShoppingCartInput cartInput = ShoppingCartInput.builder()
-                .customerId(validCustomerId)
+                .customerId(customerIdForAddItem)
                 .build();
 
         String shoppingCartId = RestAssured

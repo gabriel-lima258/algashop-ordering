@@ -7,12 +7,14 @@ import com.gtech.algashop.infrastructure.persistence.SpringDataAuditingConfig;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 @Import({
         CustomersPersistenceProvider.class,
@@ -42,7 +44,7 @@ class CustomersPersistenceProviderIT {
         Assertions.assertThat(entity.getId()).isEqualTo(customer.id().value());
         Assertions.assertThat(entity.getFirstName()).isEqualTo("John");
         Assertions.assertThat(entity.getLastName()).isEqualTo("Doe");
-        Assertions.assertThat(entity.getEmail()).isEqualTo("johndoe@email.com");
+        Assertions.assertThat(entity.getEmail()).isEqualTo(customer.email().email());
         Assertions.assertThat(entity.getPhone()).isEqualTo("478-256-2604");
         Assertions.assertThat(entity.getDocument()).isEqualTo("255-08-0578");
         Assertions.assertThat(entity.getPromotionNotificationsAllowed()).isTrue();
@@ -69,7 +71,7 @@ class CustomersPersistenceProviderIT {
         Assertions.assertThat(found.id()).isEqualTo(customer.id());
         Assertions.assertThat(found.fullName().firstName()).isEqualTo("John");
         Assertions.assertThat(found.fullName().lastName()).isEqualTo("Doe");
-        Assertions.assertThat(found.email().email()).isEqualTo("johndoe@email.com");
+        Assertions.assertThat(found.email().email()).isEqualTo(customer.email().email());
         Assertions.assertThat(found.phone().phone()).isEqualTo("478-256-2604");
         Assertions.assertThat(found.document().document()).isEqualTo("255-08-0578");
         Assertions.assertThat(found.isPromotionNotificationsAllowed()).isTrue();

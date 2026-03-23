@@ -5,8 +5,7 @@ import com.gtech.algashop.infrastructure.persistence.customer.CustomerPersistenc
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-
-import static com.gtech.algashop.domain.model.customer.CustomerTestDataBuilder.DEFAULT_CUSTOMER_ID;
+import java.util.UUID;
 
 public class CustomerPersistenceEntityTestDataBuilder {
 
@@ -14,7 +13,7 @@ public class CustomerPersistenceEntityTestDataBuilder {
 
     public static CustomerPersistenceEntity.CustomerPersistenceEntityBuilder existingCustomer() {
         return CustomerPersistenceEntity.builder()
-                .id(DEFAULT_CUSTOMER_ID.value())
+                .id(UUID.randomUUID())
                 .firstName("John")
                 .lastName("Doe")
                 .birthDate(LocalDate.of(1991, 7,5))

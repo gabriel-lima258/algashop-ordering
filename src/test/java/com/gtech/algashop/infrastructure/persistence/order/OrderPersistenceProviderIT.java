@@ -12,8 +12,10 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,29 +29,20 @@ import org.springframework.transaction.annotation.Transactional;
         CustomerPersistenceEntityDisassembler.class,
         SpringDataAuditingConfig.class
 })
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/testdata")
 class OrderPersistenceProviderIT {
 
     private OrderPersistenceProvider persistenceProvider;
-    private CustomersPersistenceProvider customersPersistenceProvider;
     private OrderJpaEntityRepository entityRepository;
 
     @Autowired
     public OrderPersistenceProviderIT(OrderPersistenceProvider persistenceProvider,
-                                      OrderJpaEntityRepository entityRepository,
-                                      CustomersPersistenceProvider customersPersistenceProvider) {
+                                      OrderJpaEntityRepository entityRepository) {
         this.persistenceProvider = persistenceProvider;
         this.entityRepository = entityRepository;
-        this.customersPersistenceProvider = customersPersistenceProvider;
     }
 
-    @BeforeEach
-    void setUp() {
-        if (!customersPersistenceProvider.exists(CustomerTestDataBuilder.DEFAULT_CUSTOMER_ID)) {
-            customersPersistenceProvider.add(
-                    CustomerTestDataBuilder.existingCustomer().build()
-            );
-        }
-    }
 
     @Test
     void shouldUpdateAndKeepPersistenceEntityState() {
