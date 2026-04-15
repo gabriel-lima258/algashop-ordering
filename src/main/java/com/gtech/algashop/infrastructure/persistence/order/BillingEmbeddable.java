@@ -16,9 +16,9 @@ import lombok.NoArgsConstructor;
 public class BillingEmbeddable {
     private String firstName;
     private String lastName;
-    private String email;
     private String document;
     private String phone;
+    private String email;
     @Embedded
     private AddressEmbeddable address;
 }

@@ -21,7 +21,7 @@ class OrderFactoryTest {
         CustomerId customerId = new CustomerId();
 
         Order order = OrderFactory.filled(
-                customerId, shipping, billing, paymentMethod, product, quantity
+                customerId, shipping, billing, paymentMethod, product, quantity, new CreditCardId()
         );
 
         Assertions.assertWith(order,

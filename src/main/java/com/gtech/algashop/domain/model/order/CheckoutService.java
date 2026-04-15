@@ -21,7 +21,8 @@ public class CheckoutService {
                           ShoppingCart shoppingCart,
                           Billing billing,
                           Shipping shipping,
-                          PaymentMethod paymentMethod) {
+                          PaymentMethod paymentMethod,
+                          CreditCardId creditCardId) {
         if (shoppingCart.containsUnavailableItems()) {
             throw new ShoppingCartCantProceedToCheckoutException();
         }
@@ -35,7 +36,7 @@ public class CheckoutService {
         Order order = Order.draft(shoppingCart.customerId());
         order.changeBilling(billing);
         order.changeShipping(shipping);
-        order.changePaymentMethod(paymentMethod);
+        order.changePaymentMethod(paymentMethod, creditCardId);
 
         for (ShoppingCartItem item: items) {
             order.addItem(new Product(

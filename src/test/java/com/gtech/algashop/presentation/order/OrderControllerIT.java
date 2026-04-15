@@ -116,9 +116,12 @@ class OrderControllerIT {
 
     @Test
     void shouldAndOrderUsingProductUsingDTO() {
+        UUID creditCardId = UUID.randomUUID();
+
         BuyNowInput input = BuyNowInputTestDataBuilder.aBuyNowInput()
                 .productId(validProductId)
                 .customerId(validCustomerId)
+                .creditCardId(creditCardId)
                 .build();
 
         OrderDetailOutput orderCreated = RestAssured
@@ -138,6 +141,8 @@ class OrderControllerIT {
                 .body().as(OrderDetailOutput.class);
 
         Assertions.assertThat(orderCreated.getCustomer().getId()).isEqualTo(validCustomerId);
+        Assertions.assertThat(orderCreated.getCreditCardId()).isEqualTo(creditCardId);
+
 
         boolean orderExists = orderJpaEntityRepository.existsById(new OrderId(orderCreated.getId()).value().toLong());
 

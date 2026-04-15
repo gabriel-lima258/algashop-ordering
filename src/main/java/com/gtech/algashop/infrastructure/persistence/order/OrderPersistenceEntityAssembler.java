@@ -97,6 +97,10 @@ public class OrderPersistenceEntityAssembler {
         // Controle de concorrência otimista: o JPA usa o @Version para detectar conflitos de escrita simultânea
         orderPersistenceEntity.setVersion(order.version());
 
+        if (order.creditCardId() != null) {
+            orderPersistenceEntity.setCreditCardId(order.creditCardId().id());
+        }
+
         // Itens são tratados separadamente pois exigem lógica de merge (criar novos ou atualizar existentes)
         Set<OrderItemPersistenceEntity> mergedItems = mergeItems(order, orderPersistenceEntity);
         orderPersistenceEntity.replaceItems(mergedItems);

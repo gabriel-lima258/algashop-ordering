@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 //   Em dev/produção, o Flyway usa o location "classpath:db/testdata", que contém um
 //   afterMigrate.sql com INSERT de seed data (customers, orders, etc).
 //
-//   Nos testes, o profile "test" (application-test.yaml) sobrescreve o location para
+//   Nos testes, o profile "test" (application-test-env.yaml) sobrescreve o location para
 //   "classpath:db/clean", onde o afterMigrate.sql executa TRUNCATE CASCADE em todas
 //   as tabelas. Isso garante que o seed data NUNCA seja inserido no banco de testes.
 //

@@ -263,7 +263,7 @@ class OrderTest {
     @Test
     void draftOrderWhenChangePaymentMethodShouldAllowChange() {
         Order order = Order.draft(new CustomerId());
-        order.changePaymentMethod(PaymentMethod.CREDIT_CARD);
+        order.changePaymentMethod(PaymentMethod.CREDIT_CARD, new CreditCardId());
         Assertions.assertWith(order.paymentMethod()).isEqualTo(PaymentMethod.CREDIT_CARD);
     }
 
@@ -271,7 +271,7 @@ class OrderTest {
     void shouldNotChangePaymentMethodWhenNotDraft() {
         Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.PLACED).build();
         Assertions.assertThatExceptionOfType(OrderCannotBeEditedException.class)
-                .isThrownBy(() -> order.changePaymentMethod(PaymentMethod.CREDIT_CARD));
+                .isThrownBy(() -> order.changePaymentMethod(PaymentMethod.CREDIT_CARD, new CreditCardId()));
     }
 
     @Test

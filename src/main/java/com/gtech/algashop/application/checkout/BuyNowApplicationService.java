@@ -1,5 +1,6 @@
 package com.gtech.algashop.application.checkout;
 
+import com.gtech.algashop.domain.model.BusinessException;
 import com.gtech.algashop.domain.model.commons.Quantity;
 import com.gtech.algashop.domain.model.commons.ZipCode;
 import com.gtech.algashop.domain.model.costumer.Customer;
@@ -45,6 +46,14 @@ public class BuyNowApplicationService {
         PaymentMethod paymentMethod = PaymentMethod.valueOf(input.getPaymentMethod());
         CustomerId customerId = new CustomerId(input.getCustomerId());
         Quantity quantity = new Quantity(input.getQuantity());
+        CreditCardId creditCardId = null;
+
+        if (paymentMethod.equals(PaymentMethod.CREDIT_CARD)) {
+            if (input.getCreditCardId() == null) {
+                throw new BusinessException("Credit card id is required");
+            }
+            creditCardId = new CreditCardId(input.getCreditCardId());
+        }
 
         Customer customer = customers.ofId(customerId)
                 .orElseThrow(() -> new CustomerNotFoundException(customerId));
@@ -61,7 +70,7 @@ public class BuyNowApplicationService {
 
         // construindo pedido instantâneo
         Order order = buyNowService.buyNow(
-                product, customer, billing, shipping, quantity, paymentMethod
+                product, customer, billing, shipping, quantity, paymentMethod, creditCardId
         );
 
         // persistindo order

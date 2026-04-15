@@ -86,7 +86,7 @@ class BuyNowServiceTest {
         PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
 
         // Act
-        Order order = buyNowService.buyNow(notebook, customer, billing, shipping, quantity, paymentMethod);
+        Order order = buyNowService.buyNow(notebook, customer, billing, shipping, quantity, paymentMethod, new CreditCardId());
 
         // Assert — metadados do pedido
         Assertions.assertThat(order).isNotNull();
@@ -136,7 +136,8 @@ class BuyNowServiceTest {
         Assertions.assertThatExceptionOfType(ProductOutOfStockException.class)
                 .isThrownBy(() -> buyNowService.buyNow(
                         unavailableProduct, customer, billing, shipping,
-                        new Quantity(1), PaymentMethod.GATEWAY_BALANCE
+                        new Quantity(1), PaymentMethod.GATEWAY_BALANCE,
+                        new CreditCardId()
                 ));
     }
 
@@ -160,7 +161,8 @@ class BuyNowServiceTest {
         Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> buyNowService.buyNow(
                         notebook, customer, billing, shipping,
-                        zeroQuantity, PaymentMethod.GATEWAY_BALANCE
+                        zeroQuantity, PaymentMethod.GATEWAY_BALANCE,
+                        new CreditCardId()
                 ));
     }
 
@@ -180,7 +182,7 @@ class BuyNowServiceTest {
         PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
 
         // Act
-        Order order = buyNowService.buyNow(notebook, customer, billing, shipping, quantity, paymentMethod);
+        Order order = buyNowService.buyNow(notebook, customer, billing, shipping, quantity, paymentMethod, new CreditCardId());
 
         // Assert — metadados do pedido
         Assertions.assertThat(order).isNotNull();

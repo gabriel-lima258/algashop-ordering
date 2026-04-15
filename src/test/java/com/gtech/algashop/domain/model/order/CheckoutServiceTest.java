@@ -96,7 +96,7 @@ class CheckoutServiceTest {
         PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
 
         // Act
-        Order order = checkoutService.checkout(customer, cart, billing, shipping, paymentMethod);
+        Order order = checkoutService.checkout(customer, cart, billing, shipping, paymentMethod, new CreditCardId());
 
         // Assert — metadados do pedido
         Assertions.assertThat(order).isNotNull();
@@ -194,7 +194,7 @@ class CheckoutServiceTest {
 
         // Act + Assert — a exceção deve ser lançada antes de qualquer modificação no carrinho
         Assertions.assertThatExceptionOfType(ShoppingCartCantProceedToCheckoutException.class)
-                .isThrownBy(() -> checkoutService.checkout(customer, cart, billing, shipping, PaymentMethod.GATEWAY_BALANCE));
+                .isThrownBy(() -> checkoutService.checkout(customer, cart, billing, shipping, PaymentMethod.GATEWAY_BALANCE, new CreditCardId()));
 
         // O carrinho deve permanecer com seus itens — cart.empty() NÃO foi chamado
         Assertions.assertThat(cart.isEmpty()).isFalse();
@@ -224,7 +224,7 @@ class CheckoutServiceTest {
 
         // Act + Assert
         Assertions.assertThatExceptionOfType(ShoppingCartCantProceedToCheckoutException.class)
-                .isThrownBy(() -> checkoutService.checkout(customer, cart, billing, shipping, PaymentMethod.GATEWAY_BALANCE));
+                .isThrownBy(() -> checkoutService.checkout(customer, cart, billing, shipping, PaymentMethod.GATEWAY_BALANCE, new CreditCardId()));
 
         // O carrinho já estava vazio e deve continuar vazio — nenhuma alteração de estado
         Assertions.assertThat(cart.isEmpty()).isTrue();
@@ -258,7 +258,7 @@ class CheckoutServiceTest {
         PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD;
 
         // Act
-        Order order = checkoutService.checkout(customer, cart, billing, shipping, paymentMethod);
+        Order order = checkoutService.checkout(customer, cart, billing, shipping, paymentMethod, new CreditCardId());
 
         // Assert — metadados do pedido
         Assertions.assertThat(order).isNotNull();

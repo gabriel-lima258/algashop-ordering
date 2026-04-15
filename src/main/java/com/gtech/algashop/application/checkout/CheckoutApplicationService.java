@@ -1,5 +1,6 @@
 package com.gtech.algashop.application.checkout;
 
+import com.gtech.algashop.domain.model.BusinessException;
 import com.gtech.algashop.domain.model.commons.ZipCode;
 import com.gtech.algashop.domain.model.costumer.Customer;
 import com.gtech.algashop.domain.model.costumer.CustomerId;
@@ -46,12 +47,21 @@ public class CheckoutApplicationService {
 
         // extraindo enum a partir do input String
         PaymentMethod paymentMethod = PaymentMethod.valueOf(input.getPaymentMethod());
+        CreditCardId creditCardId = null;
+
+        if (paymentMethod.equals(PaymentMethod.CREDIT_CARD)) {
+            if (input.getCreditCardId() == null) {
+                throw new BusinessException("Credit card id is required");
+            }
+            creditCardId = new CreditCardId(input.getCreditCardId());
+        }
 
         ShoppingCartId shoppingCartId = new ShoppingCartId(input.getShoppingCartId());
         ShoppingCart shoppingCart = shoppingCarts.ofId(shoppingCartId)
                 .orElseThrow(ShoppingCartNotFound::new);
         Customer customer = customers.ofId(shoppingCart.customerId())
                 .orElseThrow(() -> new CustomerNotFoundException(shoppingCart.customerId()));
+
 
         // calcula frete
         var shippingCalculateResult = calculateShippingCost(input.getShipping());
@@ -62,7 +72,7 @@ public class CheckoutApplicationService {
         Billing billing = billingInputDisassembler.toDomainModel(input.getBilling());
 
         // fazer checkout do shoppingCart
-        Order checkout = checkoutService.checkout(customer, shoppingCart, billing, shipping, paymentMethod);
+        Order checkout = checkoutService.checkout(customer, shoppingCart, billing, shipping, paymentMethod, creditCardId);
 
         // persistir o checkout em order e seu shoppingCart
         orders.add(checkout);
