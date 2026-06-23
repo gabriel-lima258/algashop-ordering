@@ -66,6 +66,13 @@ dependencies {
     testImplementation 'io.rest-assured:spring-mock-mvc'
     testRuntimeOnly 'com.h2database:h2'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Testcontainers é uma biblioteca Java que sobe containers Docker reais durante a execução dos testes,
+    // permitindo que você teste contra infraestrutura de verdade em vez de mocks ou bancos em memória.
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
+
     mockitoAgent('org.mockito:mockito-core:5.14.2') {transitive = false}
 }
 

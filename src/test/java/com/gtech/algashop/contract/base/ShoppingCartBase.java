@@ -1,11 +1,11 @@
 package com.gtech.algashop.contract.base;
 
-import com.gtech.algashop.application.shoppingcart.management.ShoppingCartItemInput;
-import com.gtech.algashop.application.shoppingcart.management.ShoppingCartManagementApplicationService;
-import com.gtech.algashop.application.shoppingcart.query.ShoppingCartOutputTestDataBuilder;
-import com.gtech.algashop.application.shoppingcart.query.ShoppingCartQueryService;
-import com.gtech.algashop.domain.model.shoppingcart.ShoppingCartNotFound;
-import com.gtech.algashop.presentation.shoppingcart.ShoppingCartController;
+import com.gtech.algashop.core.ports.in.shoppingcart.ShoppingCartItemInput;
+import com.gtech.algashop.core.application.shoppingcart.ShoppingCartManagementApplicationService;
+import com.gtech.algashop.core.application.shoppingcart.query.ShoppingCartOutputTestDataBuilder;
+import com.gtech.algashop.core.ports.in.shoppingcart.ForQueryShoppingCarts;
+import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCartNotFound;
+import com.gtech.algashop.infrastructure.adapters.in.web.shoppingcart.ShoppingCartController;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
@@ -28,7 +28,7 @@ public class ShoppingCartBase {
     private ShoppingCartManagementApplicationService managementService;
 
     @MockitoBean
-    private ShoppingCartQueryService queryService;
+    private ForQueryShoppingCarts queryService;
 
     public static final UUID validShoppingCartId = UUID.fromString("ad265aa3-c77d-46e9-9782-b70c487c1e17");
 

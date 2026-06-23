@@ -1,15 +1,15 @@
 package com.gtech.algashop.contract.base;
 
-import com.gtech.algashop.application.checkout.BuyNowApplicationService;
-import com.gtech.algashop.application.checkout.BuyNowInput;
-import com.gtech.algashop.application.checkout.CheckoutApplicationService;
-import com.gtech.algashop.application.checkout.CheckoutInput;
-import com.gtech.algashop.application.order.query.OrderDetailOutputTestDataBuilder;
-import com.gtech.algashop.application.order.query.OrderFilter;
-import com.gtech.algashop.application.order.query.OrderQueryService;
-import com.gtech.algashop.application.order.query.OrderSummaryOutputTestDataBuilder;
-import com.gtech.algashop.domain.model.order.OrderNotFoundException;
-import com.gtech.algashop.presentation.order.OrderController;
+import com.gtech.algashop.core.application.checkout.BuyNowApplicationService;
+import com.gtech.algashop.core.ports.in.checkout.BuyNowInput;
+import com.gtech.algashop.core.application.checkout.CheckoutApplicationService;
+import com.gtech.algashop.core.ports.in.checkout.CheckoutInput;
+import com.gtech.algashop.core.application.order.query.OrderDetailOutputTestDataBuilder;
+import com.gtech.algashop.core.ports.in.order.OrderFilter;
+import com.gtech.algashop.core.ports.in.order.ForQueryOrders;
+import com.gtech.algashop.core.application.order.query.OrderSummaryOutputTestDataBuilder;
+import com.gtech.algashop.core.domain.model.order.OrderNotFoundException;
+import com.gtech.algashop.infrastructure.adapters.in.web.order.OrderController;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
@@ -30,7 +30,7 @@ public class OrderBase {
     private WebApplicationContext context;
 
     @MockitoBean
-    private OrderQueryService orderQueryService;
+    private ForQueryOrders orderQueryService;
 
     @MockitoBean
     private BuyNowApplicationService buyNowApplicationService;
