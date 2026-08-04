@@ -25,7 +25,7 @@ public class ShoppingCartItemPersistenceEntity {
     private BigDecimal totalAmount;
     private Boolean available;
 
-    @JoinColumn
+    @JoinColumn(name = "shopping_cart_id")
     @ManyToOne(optional = false)
     private ShoppingCartPersistenceEntity shoppingCart;
 

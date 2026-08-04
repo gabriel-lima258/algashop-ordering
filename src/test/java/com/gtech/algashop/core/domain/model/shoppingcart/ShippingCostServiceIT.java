@@ -1,7 +1,6 @@
 package com.gtech.algashop.core.domain.model.shoppingcart;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.gtech.algashop.core.domain.model.AbstractDomainIT;
 import com.gtech.algashop.core.domain.model.commons.ZipCode;
 import com.gtech.algashop.core.domain.model.order.shipping.OriginAddressService;
@@ -38,7 +37,7 @@ class ShippingCostServiceIT extends AbstractDomainIT {
         wireMockRapidex = new WireMockServer(options()
                 .port(8780)
                 .usingFilesUnderDirectory("src/test/resources/wiremock/rapidex")
-                .extensions(new ResponseTemplateTransformer(true)));
+                .globalTemplating(true));
 
         wireMockRapidex.start();
     }

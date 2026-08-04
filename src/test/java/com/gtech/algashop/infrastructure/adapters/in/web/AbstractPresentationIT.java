@@ -1,7 +1,6 @@
 package com.gtech.algashop.infrastructure.adapters.in.web;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.gtech.algashop.infrastructure.adapters.in.web.utils.TestContainerPostgresSQLConfig;
 import io.restassured.RestAssured;
 import io.restassured.path.json.config.JsonPathConfig;
@@ -42,12 +41,12 @@ public class AbstractPresentationIT {
         wireMockRapidex = new WireMockServer(options()
                 .port(8780)
                 .usingFilesUnderDirectory("src/test/resources/wiremock/rapidex")
-                .extensions(new ResponseTemplateTransformer(true)));
+                .globalTemplating(true));
 
         wireMockProductCatalog = new WireMockServer(options()
                 .port(8781)
                 .usingFilesUnderDirectory("src/test/resources/wiremock/product-catalog")
-                .extensions(new ResponseTemplateTransformer(true)));
+                .globalTemplating(true));
 
         wireMockRapidex.start();
         wireMockProductCatalog.start();
