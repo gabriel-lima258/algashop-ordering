@@ -21,6 +21,7 @@ O caminho fácil é espalhar esses `if` pelos serviços de aplicação e torcer 
 | **Java** | 25 |
 | **Spring Boot** | 4.0.1 |
 | **Banco** | PostgreSQL 17 (`ordering`) |
+| **Cache** | Redis 8 (banco lógico 1) |
 | **Porta** | 8081 |
 | **Pacote raiz** | `com.gtech.algashop` |
 | **Schema** | Flyway — 5 migrations |
@@ -157,7 +158,25 @@ Duas chamadas de saída, ambas por interface declarativa (`@HttpExchange` sobre 
 
 Cada uma tem implementação **real e fake**, trocáveis por configuração (`algashop.integrations.shipping.provider` = `RAPIDEX` \| `FAKE`). É o que permite rodar a suíte sem nenhum serviço externo de pé.
 
-Em desenvolvimento as duas apontam para o **WireMock** (`localhost:8787`), que devolve respostas fixas.
+Em desenvolvimento o Rapidex aponta para o **WireMock** (`localhost:8787`); o `product-catalog` passou a apontar para o serviço real (`localhost:8083`).
+
+### Cache client-side
+
+A chamada ao catálogo é cacheada — no Redis, na **interface do client HTTP**:
+
+```java
+@Cacheable(cacheNames = "algashop:product-catalog-api:v1", key = "#productId")
+@GetExchange(value = "/api/v1/products/{productId}", accept = "application/json")
+ProductResponse getById(@PathVariable UUID productId);
+```
+
+Funciona porque o bean é um proxy JDK criado por `HttpServiceProxyFactory`, e o auto-proxy do `@EnableCaching` o envelopa lendo a anotação da interface. Ninguém que chama esse client precisa saber que existe cache no meio.
+
+> **Cachear dado dos outros só tem TTL como invalidação.** O produto é do catálogo, e este serviço **não fica sabendo quando ele muda** — não há evento, não há callback, não há `@CacheEvict` possível. O TTL curto não é escolha de performance: é a única ferramenta disponível.
+
+E o cache **não** reduz o acoplamento: um miss ainda depende do catálogo estar de pé. O que ele compra é fôlego, não independência.
+
+O `ResilienceCacheErrorHandler` faz *fail-open* — sem ele, uma queda do Redis derrubaria a criação de pedido **com o catálogo respondendo normalmente**, porque a exceção subiria do proxy de cache antes de a chamada HTTP ser sequer tentada.
 
 ---
 
@@ -169,7 +188,11 @@ Suba a infraestrutura a partir do repositório [`algashop-meta`](https://github.
 docker compose -f docker-compose.tools.yml up -d
 ```
 
-Isso dá PostgreSQL na **5433** (o deslocamento é proposital, para não colidir com uma instalação nativa na 5432) e WireMock na **8787**.
+Isso dá PostgreSQL na **5433** (o deslocamento é proposital, para não colidir com uma instalação nativa na 5432), WireMock na **8787** e Redis na **6379**.
+
+> ⚠️ O Redis precisa do `.env` na raiz do meta (`REDIS_PASSWORD=algashop`). Sem ele o Compose resolve a senha para string vazia e o cache nunca funciona — silenciosamente, porque o error handler engole a falha de conexão.
+
+Para exercitar o cache client-side é preciso o `product-catalog` de pé na **8083**, já que é a resposta dele que fica cacheada.
 
 ```bash
 ./gradlew bootRun
@@ -225,6 +248,8 @@ O projeto tem um caderno de estudos separado, em [`algashop-docs`](https://githu
 - [Ports & Adapters](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/ports-hexagonal.md) — por que `ports/in` e `ports/out` são separados
 - [Specification Pattern](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/specification.md) — regra de negócio como objeto combinável
 - [CQS e CQRS](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/cqrs.md) — separar comando de consulta
+- [Cache](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/cache.md) — client-side × server-side, e por que quem cacheia dado dos outros só tem TTL
+- [Redis na prática](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/redis.md) — eviction, TTL e a armadilha da senha vazia
 - [Contract tests](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/stubs-contract-tests.md) — testar integração sem subir o outro serviço
 - [Tratamento de erros](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/tratamento-erros-api.md) — `ProblemDetail` e quando usar 404, 422 ou 502
 - [Paginação](https://github.com/gabriel-lima258/algashop-docs/blob/main/02-persistencia/paginacao.md) · [Flyway](https://github.com/gabriel-lima258/algashop-docs/blob/main/02-persistencia/flyway.md) · [Ambiente local](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/ambiente-local.md)
