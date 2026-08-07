@@ -1,0 +1,20 @@
+{
+  "id" : "a1000000-0000-4000-8000-000000000002",
+  "request" : {
+    "url" : "/api/v1/products/22222222-2222-2222-2222-222222222222",
+    "method" : "GET",
+    "headers" : {
+      "Accept" : {
+        "matches" : "application/json.*"
+      }
+    }
+  },
+  "response" : {
+    "status" : 500,
+    "body" : "{\"type\":\"/errors/internal\",\"title\":\"Internal server error\"}",
+    "headers" : {
+      "Content-Type" : "application/problem+json"
+    }
+  },
+  "uuid" : "a1000000-0000-4000-8000-000000000002"
+}

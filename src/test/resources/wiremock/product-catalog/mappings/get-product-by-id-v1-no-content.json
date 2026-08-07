@@ -1,0 +1,16 @@
+{
+  "id" : "a1000000-0000-4000-8000-000000000003",
+  "request" : {
+    "url" : "/api/v1/products/33333333-3333-3333-3333-333333333333",
+    "method" : "GET",
+    "headers" : {
+      "Accept" : {
+        "matches" : "application/json.*"
+      }
+    }
+  },
+  "response" : {
+    "status" : 204
+  },
+  "uuid" : "a1000000-0000-4000-8000-000000000003"
+}

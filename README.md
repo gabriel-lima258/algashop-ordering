@@ -43,7 +43,7 @@ core/                              o que o negócio é
 
 infrastructure/                    como as coisas acontecem
 ├── adapters/in/                   web (controllers), listeners
-├── adapters/out/                  persistência, notificação
+├── adapters/out/                  persistência, notificação, clients HTTP
 └── config/
 ```
 
@@ -131,6 +131,14 @@ Combináveis por `and`, `or`, `not` e `andNot` — a última é a composição d
 
 > Os dois `POST` compartilham a mesma URL e são distinguidos pelo **content-type versionado**. São dois casos de uso diferentes — comprar agora × fechar o carrinho — que produzem o mesmo recurso, então ganham o mesmo endereço e corpos distintos. É também onde a versão da API vive, em vez de num `/v2` na URL.
 
+### Shipping — `/api/v1/shipping-cost-previews`
+
+| Verbo | Path | O que faz |
+|---|---|---|
+| `POST` | `/api/v1/shipping-cost-previews` | consulta frete por CEP, antes de existir pedido |
+
+Chama a Rapidex, e por isso é o endpoint onde o fallback aparece: se a transportadora estiver fora, a resposta vem estimada em vez de falhar.
+
 ### Shopping carts — `/api/v1/shopping-carts`
 
 | Verbo | Path | O que faz |
@@ -177,6 +185,29 @@ Funciona porque o bean é um proxy JDK criado por `HttpServiceProxyFactory`, e o
 E o cache **não** reduz o acoplamento: um miss ainda depende do catálogo estar de pé. O que ele compra é fôlego, não independência.
 
 O `ResilienceCacheErrorHandler` faz *fail-open* — sem ele, uma queda do Redis derrubaria a criação de pedido **com o catálogo respondendo normalmente**, porque a exceção subiria do proxy de cache antes de a chamada HTTP ser sequer tentada.
+
+### Resiliência
+
+As duas chamadas de saída são envolvidas por timeout, retry, bulkhead e circuit breaker:
+
+```
+@ConcurrencyLimit(10) → @Cacheable → circuitBreaker.run → retry → timeout 3s/7s → rede
+```
+
+A ordem é o que importa: **sem timeout o circuito nunca abre**, porque ele só reage a falhas que terminaram — uma chamada pendurada não é falha, é uma chamada em andamento.
+
+E os dois clients decidem **o oposto** sobre fallback, de propósito:
+
+| Dependência | Se cair |
+|---|---|
+| `product-catalog` | **falha** — 502 ou 504, o pedido não é criado |
+| Rapidex (frete) | **degrada** — devolve estimativa de R$ 20,00 em 10 dias |
+
+Não dá para inventar o preço de um produto; dá para estimar um frete. A pergunta que decide um fallback é *"existe resposta aproximada aceitável?"* — e ela é de negócio, não de engenharia.
+
+> O custo do fallback do frete, dito por inteiro: como ele existe, uma queda da transportadora **nunca vira erro**. O cliente recebe um valor que não veio de lugar nenhum, e só um `log.warn` registra isso.
+
+A biblioteca não é Resilience4j — é **Spring Cloud CircuitBreaker** com a implementação `framework-retry`, sobre o `org.springframework.core.retry` do Spring 7, mais `@ConcurrencyLimit` nativo.
 
 ---
 
@@ -249,6 +280,8 @@ O projeto tem um caderno de estudos separado, em [`algashop-docs`](https://githu
 - [Specification Pattern](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/specification.md) — regra de negócio como objeto combinável
 - [CQS e CQRS](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/cqrs.md) — separar comando de consulta
 - [Cache](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/cache.md) — client-side × server-side, e por que quem cacheia dado dos outros só tem TTL
+- [Resiliência](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/resiliencia.md) — os cinco padrões, a ordem em que se aninham e quando um fallback mente
+- [Resiliência na prática](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/resiliencia-config.md) — parâmetros, biblioteca e como testar retry
 - [Redis na prática](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/redis.md) — eviction, TTL e a armadilha da senha vazia
 - [Contract tests](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/stubs-contract-tests.md) — testar integração sem subir o outro serviço
 - [Tratamento de erros](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/tratamento-erros-api.md) — `ProblemDetail` e quando usar 404, 422 ou 502

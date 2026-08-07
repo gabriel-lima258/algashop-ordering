@@ -1,0 +1,20 @@
+{
+  "id" : "a1000000-0000-4000-8000-000000000001",
+  "request" : {
+    "url" : "/api/v1/products/11111111-1111-1111-1111-111111111111",
+    "method" : "GET",
+    "headers" : {
+      "Accept" : {
+        "matches" : "application/json.*"
+      }
+    }
+  },
+  "response" : {
+    "status" : 401,
+    "body" : "{\"type\":\"/errors/unauthorized\",\"title\":\"Unauthorized\"}",
+    "headers" : {
+      "Content-Type" : "application/problem+json"
+    }
+  },
+  "uuid" : "a1000000-0000-4000-8000-000000000001"
+}

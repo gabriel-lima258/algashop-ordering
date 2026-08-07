@@ -1,41 +1,32 @@
-package com.gtech.algashop.infrastructure.adapters.in.web.product.client.http;
+package com.gtech.algashop.infrastructure.adapters.out.web.product.client.http;
 
 import com.gtech.algashop.core.domain.model.commons.Money;
 import com.gtech.algashop.core.domain.model.product.Product;
 import com.gtech.algashop.core.domain.model.product.ProductCatalogService;
 import com.gtech.algashop.core.domain.model.product.ProductId;
 import com.gtech.algashop.core.domain.model.product.ProductName;
-import com.gtech.algashop.infrastructure.adapters.in.web.exceptionhandler.BadGatewayException;
-import com.gtech.algashop.infrastructure.adapters.in.web.exceptionhandler.GatewayTimeoutException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.ResourceAccessException;
 
 import java.util.Optional;
 
 // integracao real com o micro serviço de products
+//
+// O que sobrou e a unica coisa que era realmente dela: ADAPTAR. Ela implementa a porta
+// ProductCatalogService (do dominio) e traduz ProductResponse (DTO de infra) para
+// Product (agregado). O dominio nao sabe que existe HTTP, cache ou retry.
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ProductCatalogServiceHttpImpl implements ProductCatalogService {
 
-    private final ProductCatalogApiClient productCatalogApiClient;
+    // nao e mais a interface HTTP crua, e o decorator resiliente/cacheado
+    private final ResilientProductCatalogAPIClient productCatalogApiClient;
 
     @Override
     public Optional<Product> ofId(ProductId productId) {
-        ProductResponse productResponse;
-
-        try {
-            productResponse = productCatalogApiClient.getById(productId.value());
-        } catch (ResourceAccessException e) {
-            throw new GatewayTimeoutException("Product catalog API timeout", e);
-        } catch (HttpClientErrorException.NotFound e) {
-            return Optional.empty();
-        } catch (HttpClientErrorException e) {
-            throw new BadGatewayException("Product catalog API bad gateway", e);
-        }
-
-        return Optional.of(
+        return productCatalogApiClient.getById(productId.value()).map(productResponse ->
                 Product.builder()
                         .id(new ProductId(productResponse.getId()))
                         .productName(new ProductName(productResponse.getName()))

@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.adapters.in.web.shipping.client.http;
+package com.gtech.algashop.infrastructure.adapters.out.web.shipping.client.http;
 
 import com.gtech.algashop.core.domain.model.commons.Address;
 import com.gtech.algashop.core.domain.model.commons.ZipCode;

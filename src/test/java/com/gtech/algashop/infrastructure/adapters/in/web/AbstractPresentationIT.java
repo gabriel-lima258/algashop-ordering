@@ -4,6 +4,11 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.gtech.algashop.infrastructure.adapters.in.web.utils.TestContainerPostgresSQLConfig;
 import io.restassured.RestAssured;
 import io.restassured.path.json.config.JsonPathConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.circuitbreaker.retry.FrameworkRetryCircuitBreaker;
+import org.springframework.cloud.circuitbreaker.retry.FrameworkRetryConfig;
+import org.springframework.cloud.circuitbreaker.retry.FrameworkRetryConfigBuilder;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
@@ -28,10 +33,19 @@ public class AbstractPresentationIT {
     @LocalServerPort
     protected int port;
 
+    // O estado do circuito e um singleton do contexto, e o contexto e COMPARTILHADO por
+    // todas as classes que estendem esta - inclusive a OrderControllerWithoutProductIT, que
+    // derruba o WireMock de proposito para testar o 504. Aquela falha abre o circuito, e sem
+    // este reset a proxima classe recebe 504 sem nem chamar o catalogo (dentro do openTimeout).
+    @Autowired
+    private CircuitBreakerFactory<FrameworkRetryConfig, FrameworkRetryConfigBuilder> circuitBreakerFactory;
+
     protected static WireMockServer wireMockProductCatalog;
     protected static WireMockServer wireMockRapidex;
 
     protected void beforeEach() {
+        resetProductCatalogCircuitBreaker();
+
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.port = port;
 
@@ -55,6 +69,13 @@ public class AbstractPresentationIT {
     protected static void stopMock() {
         wireMockRapidex.stop();
         wireMockProductCatalog.stop();
+    }
+
+    private void resetProductCatalogCircuitBreaker() {
+        FrameworkRetryCircuitBreaker circuitBreaker =
+                (FrameworkRetryCircuitBreaker) circuitBreakerFactory.create("productCatalogCB");
+
+        circuitBreaker.getCircuitBreakerPolicy().reset();
     }
 
 }

@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.adapters.in.web.shipping.client.http;
+package com.gtech.algashop.infrastructure.adapters.out.web.shipping.client.http;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,5 @@
-package com.gtech.algashop.infrastructure.adapters.in.web.shipping.client.fake;
+package com.gtech.algashop.infrastructure.adapters.out.web.shipping.client.fake;
+
 
 import com.gtech.algashop.core.domain.model.commons.Money;
 import com.gtech.algashop.core.domain.model.order.shipping.ShippingCostService;
