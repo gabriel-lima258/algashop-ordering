@@ -1,6 +1,18 @@
 spring:
   application:
     name: ordering
+  # O spring-cloud-commons entra de carona no starter de circuit breaker e registra
+  # um health indicator de service discovery. Nao ha Eureka/Consul aqui - as chamadas
+  # de saida usam URL fixa - entao ele fica eternamente "Discovery Client not
+  # initialized" / UNKNOWN. E como o status.order abaixo poe UNKNOWN acima de UP, o
+  # status agregado do /actuator/health nunca sai de UNKNOWN: o endpoint para de
+  # distinguir servico saudavel de servico com problema. Desligar o indicador
+  # devolve o sinal.
+  cloud:
+    discovery:
+      client:
+        health-indicator:
+          enabled: false
   jpa:
     hibernate:
       ddl-auto: none
@@ -33,3 +45,28 @@ algashop:
       open-timeout: 5s
       # tempo sem nenhuma falha que zera o estado do circuito
       reset-timeout: 30s
+
+# readiness verifica se a aplicação está saudável para receber requisições
+# para verificar isso identificamos em group os serviços que são necessários para ser saudável
+# redis age como opcional para health up, aplicação funciona degradada
+management:
+  info:
+    env.enabled: true
+  health:
+    redis:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      group:
+        readiness:
+          include: db,readinessState
+      status:
+        order: "DOWN, OUT_OF_SERVICE, UNKNOWN, DEGRADED, UP"
+
+info:
+  app.name: Algashop Ordering API

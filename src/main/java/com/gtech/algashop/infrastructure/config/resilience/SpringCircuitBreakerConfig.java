@@ -27,6 +27,9 @@ import java.time.Duration;
 @Configuration
 public class SpringCircuitBreakerConfig {
 
+    public static final String productCatalogCBId = "productCatalogCB";
+    public static final String rapidexCBId = "rapidexAPICB";
+
     // Customizer<...Factory> e o gancho que o Spring Cloud chama uma unica vez, no
     // startup, entregando a fabrica de circuit breakers para configurarmos.
     @Bean
@@ -83,13 +86,13 @@ public class SpringCircuitBreakerConfig {
                     .retryPolicy(retryPolicy)
                     .openTimeout(openTimeout)
                     .resetTimeout(resetTimeout)
-                    .build(), "productCatalogCB");
+                    .build(), productCatalogCBId);
 
             factory.configure(builder -> builder
                     .retryPolicy(retryPolicy)
                     .openTimeout(openTimeout)
                     .resetTimeout(resetTimeout)
-                    .build(), "rapidexAPICB");
+                    .build(), rapidexCBId);
         };
     }
 }

@@ -16,6 +16,8 @@ import org.springframework.web.client.*;
 
 import java.net.SocketTimeoutException;
 
+import static com.gtech.algashop.infrastructure.config.resilience.SpringCircuitBreakerConfig.rapidexCBId;
+
 @Component
 @Slf4j
 public class ResilientShippingCostAPIClient {
@@ -26,7 +28,7 @@ public class ResilientShippingCostAPIClient {
     public ResilientShippingCostAPIClient(RapiDexAPICLient rapiDexAPICLient,
                                             CircuitBreakerFactory<FrameworkRetryConfig, FrameworkRetryConfigBuilder> circuitBreakerFactory) {
         this.rapiDexAPICLient = rapiDexAPICLient;
-        this.circuitBreaker = (FrameworkRetryCircuitBreaker) circuitBreakerFactory.create("rapidexAPICB");
+        this.circuitBreaker = (FrameworkRetryCircuitBreaker) circuitBreakerFactory.create(rapidexCBId);
     }
 
     @ConcurrencyLimit(15) // bulkhead: no maximo 15 threads aqui dentro; as demais BLOQUEIAM

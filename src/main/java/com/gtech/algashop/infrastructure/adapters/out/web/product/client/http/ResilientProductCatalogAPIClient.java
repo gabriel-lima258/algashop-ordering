@@ -21,6 +21,8 @@ import java.net.SocketTimeoutException;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.gtech.algashop.infrastructure.config.resilience.SpringCircuitBreakerConfig.productCatalogCBId;
+
 // Unica camada entre o dominio e o HTTP do product-catalog: cache + resiliencia + traducao
 // de erro. Devolve DTO de infra; quem traduz para o agregado e o ProductCatalogServiceHttpImpl.
 //
@@ -54,7 +56,7 @@ public class ResilientProductCatalogAPIClient {
     public ResilientProductCatalogAPIClient(ProductCatalogApiClient productCatalogApiClient,
         CircuitBreakerFactory<FrameworkRetryConfig, FrameworkRetryConfigBuilder> circuitBreakerFactory) {
         this.productCatalogApiClient = productCatalogApiClient;
-        this.circuitBreaker = (FrameworkRetryCircuitBreaker) circuitBreakerFactory.create("productCatalogCB");
+        this.circuitBreaker = (FrameworkRetryCircuitBreaker) circuitBreakerFactory.create(productCatalogCBId);
     }
 
     // NAO ha cache negativo: o Spring desembrulha o Optional antes de gravar, vira null, e o
