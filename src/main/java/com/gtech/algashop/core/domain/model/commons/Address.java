@@ -5,6 +5,7 @@ import lombok.Builder;
 
 import java.util.Objects;
 
+@Builder(toBuilder = true)
 public record Address(
         String street,
         String complement,
@@ -16,7 +17,6 @@ public record Address(
 ) {
 
     // cria um address ja populado
-    @Builder(toBuilder = true)
     public Address {
         FieldValidations.requiresNonBlank(street);
         FieldValidations.requiresNonBlank(neighborhood);

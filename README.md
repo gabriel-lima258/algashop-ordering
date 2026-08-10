@@ -283,6 +283,19 @@ O grupo `readiness` inclui **apenas o banco** — cache ou circuito fora do ar n
 
 Detalhes em [Health check e degradação](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/health-checks.md).
 
+
+### Teste de carga
+
+```bash
+k6 run etc/k6/buy-now.js                      # do repositório meta
+```
+
+O `POST /api/v1/orders` é o caminho mais caro do sistema: abre transação no Postgres, chama o **product-catalog** e a **Rapidex** por HTTP e só então grava — as duas chamadas de rede **dentro** da transação.
+
+No compose ele sobe com o Tomcat limitado a 10 threads, de propósito. Medido: **1156 req/s** sustentados, `p(95)` de 2,44s e zero erros — exatamente `10 threads ÷ 8,6ms`, a Lei de Little. Ligando threads virtuais a vazão **caiu para 127 req/s** e o serviço travou de vez, porque o teto do Tomcat era o único controle de admissão que existia.
+
+Detalhes em [Threads e concorrência](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/threads-e-concorrencia.md).
+
 ---
 
 ## Documentação
@@ -299,5 +312,6 @@ O projeto tem um caderno de estudos separado, em [`algashop-docs`](https://githu
 - [Redis na prática](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/redis.md) — eviction, TTL e a armadilha da senha vazia
 - [Contract tests](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/stubs-contract-tests.md) — testar integração sem subir o outro serviço
 - [Health check e degradação](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/health-checks.md) — liveness × readiness e o status DEGRADED
+- [Threads e concorrência](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/threads-e-concorrencia.md) — onde o serviço satura, medido sob carga
 - [Tratamento de erros](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/tratamento-erros-api.md) — `ProblemDetail` e quando usar 404, 422 ou 502
 - [Paginação](https://github.com/gabriel-lima258/algashop-docs/blob/main/02-persistencia/paginacao.md) · [Flyway](https://github.com/gabriel-lima258/algashop-docs/blob/main/02-persistencia/flyway.md) · [Ambiente local](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/ambiente-local.md)
