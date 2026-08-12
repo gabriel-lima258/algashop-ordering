@@ -22,6 +22,11 @@ spring:
       password: algashop
       database: 1       # database 1 diferente do catalog 0 para separar os banco lógicos
       timeout: 600
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://algashop-authorization-server:9000 # url de authorization server
 
 algashop:
   integrations:

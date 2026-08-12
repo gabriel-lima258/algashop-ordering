@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.adapters.in.web.utils;
+package com.gtech.algashop.utils;
 
 import org.springframework.util.ResourceUtils;
 

@@ -1,9 +1,12 @@
 package com.gtech.algashop.infrastructure.adapters.in.web;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.gtech.algashop.infrastructure.adapters.in.web.utils.TestContainerPostgresSQLConfig;
+import com.gtech.algashop.utils.MockJwtDecoderConfig;
+import com.gtech.algashop.utils.MockJwtDecoderFactory;
+import com.gtech.algashop.utils.TestContainerPostgresSQLConfig;
 import io.restassured.RestAssured;
 import io.restassured.path.json.config.JsonPathConfig;
+import io.restassured.specification.RequestSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.circuitbreaker.retry.FrameworkRetryCircuitBreaker;
 import org.springframework.cloud.circuitbreaker.retry.FrameworkRetryConfig;
@@ -22,7 +25,7 @@ import static io.restassured.config.JsonConfig.jsonConfig;
 @Sql(scripts = "classpath:db/testdata/afterMigrate.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 // limpa o banco apos o teste
 @Sql(scripts = "classpath:db/clean/afterMigrate.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
-@Import(TestContainerPostgresSQLConfig.class) // importando o gerenciamento de bean do postgres
+@Import({TestContainerPostgresSQLConfig.class, MockJwtDecoderConfig.class}) // importando o gerenciamento de bean do postgres
 public class AbstractPresentationIT {
 
 //    @Container
@@ -42,6 +45,23 @@ public class AbstractPresentationIT {
 
     protected static WireMockServer wireMockProductCatalog;
     protected static WireMockServer wireMockRapidex;
+
+    protected RequestSpecification givenAuthenticated(String tokenValue) {
+        return RestAssured.given()
+                .header("Authorization", "Bearer " + tokenValue);
+    }
+
+    protected RequestSpecification givenAuthenticated() {
+        return givenAuthenticated(MockJwtDecoderFactory.DEFAULT_TOKEN_VALUE);
+    }
+
+    protected RequestSpecification givenAuthenticatedWithExpiredToken() {
+        return givenAuthenticated(MockJwtDecoderFactory.EXPIRED_TOKEN_VALUE);
+    }
+
+    protected RequestSpecification givenAuthenticatedWithNoScopeToken() {
+        return givenAuthenticated(MockJwtDecoderFactory.NO_SCOPE_TOKEN_VALUE);
+    }
 
     protected void beforeEach() {
         resetProductCatalogCircuitBreaker();

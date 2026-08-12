@@ -10,6 +10,10 @@ import com.gtech.algashop.core.ports.in.customer.CustomerSummaryOutput;
 import com.gtech.algashop.core.ports.in.shoppingcart.ShoppingCartOutput;
 import com.gtech.algashop.core.ports.in.shoppingcart.ForQueryShoppingCarts;
 import com.gtech.algashop.infrastructure.adapters.in.web.PageModel;
+import com.gtech.algashop.infrastructure.config.security.SecurityAnnotations;
+import com.gtech.algashop.infrastructure.config.security.SecurityAnnotations.CanReadCustomers;
+import com.gtech.algashop.infrastructure.config.security.SecurityAnnotations.CanReadShoppingCart;
+import com.gtech.algashop.infrastructure.config.security.SecurityAnnotations.CanWriteCustomers;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,21 +35,25 @@ public class CustomerController {
     private final ForQueryCustomers forQueryCustomers;
     private final ForQueryShoppingCarts forQueryShoppingCarts;
 
+    @CanReadCustomers
     @GetMapping
     public PageModel<CustomerSummaryOutput> findAll(CustomerFilter customerFilter) {
         return PageModel.of(forQueryCustomers.filter(customerFilter));
     }
 
+    @CanReadCustomers
     @GetMapping("/{customerId}")
     public CustomerOutput findById(@PathVariable UUID customerId) {
         return forQueryCustomers.findById(customerId);
     }
 
+    @CanReadShoppingCart
     @GetMapping("/{customerId}/shopping-cart")
     public ShoppingCartOutput findShoppinCartByCustomerId(@PathVariable UUID customerId) {
         return forQueryShoppingCarts.findByCustomerId(customerId);
     }
 
+    @CanWriteCustomers
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CustomerOutput create(@RequestBody @Valid CustomerInput input, HttpServletResponse httpServletResponse) {
@@ -65,12 +73,14 @@ public class CustomerController {
         return forQueryCustomers.findById(customerId);
     }
 
+    @CanWriteCustomers
     @PutMapping("/{customerId}")
     public CustomerOutput update(@PathVariable UUID customerId, @RequestBody @Valid CustomerUpdateInput input) {
         forManagingCustomer.update(customerId, input);
         return forQueryCustomers.findById(customerId);
     }
 
+    @CanWriteCustomers
     @DeleteMapping("/{customerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void archiveCustomer(@PathVariable UUID customerId) {

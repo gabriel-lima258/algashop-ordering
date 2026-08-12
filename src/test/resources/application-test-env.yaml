@@ -19,6 +19,11 @@ spring:
     user: postgres
     password: postgres
     url: jdbc:postgresql://localhost:5433/ordering_test
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://algashop-authorization-server:9000
 
 algashop:
   integrations:

@@ -4,7 +4,7 @@ import com.gtech.algashop.infrastructure.adapters.out.persistence.customer.Custo
 import com.gtech.algashop.infrastructure.adapters.out.persistence.order.OrderJpaEntityRepository;
 import com.gtech.algashop.infrastructure.adapters.out.persistence.shoppingcart.ShoppingCartJpaEntityRepository;
 import com.gtech.algashop.infrastructure.adapters.in.web.AbstractPresentationIT;
-import com.gtech.algashop.infrastructure.adapters.in.web.utils.AlgaShopResourceUtils;
+import com.gtech.algashop.utils.AlgaShopResourceUtils;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,10 +38,10 @@ class OrderControllerWithoutProductIT extends AbstractPresentationIT {
     void shouldNotCreateOrderWhenProductApiIsUnavailable() {
         String jsonOrder = AlgaShopResourceUtils.readContent("json/create-order-with-product.json");
 
+        // derruba product catalog
         wireMockProductCatalog.stop();
 
-        RestAssured
-                .given()
+        givenAuthenticated()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType("application/vnd.order-with-product.v1+json")
                 .body(jsonOrder)

@@ -13,7 +13,7 @@ import com.gtech.algashop.infrastructure.adapters.out.persistence.order.OrderJpa
 import com.gtech.algashop.infrastructure.adapters.out.persistence.shoppingcart.ShoppingCartJpaEntityRepository;
 import com.gtech.algashop.infrastructure.adapters.out.persistence.shoppingcart.ShoppingCartPersistenceEntity;
 import com.gtech.algashop.infrastructure.adapters.in.web.AbstractPresentationIT;
-import com.gtech.algashop.infrastructure.adapters.in.web.utils.AlgaShopResourceUtils;
+import com.gtech.algashop.utils.AlgaShopResourceUtils;
 import io.restassured.RestAssured;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
@@ -53,8 +53,7 @@ class OrderControllerIT extends AbstractPresentationIT {
     @Test
     void shouldAndOrderUsingProduct() {
         String jsonOrder = AlgaShopResourceUtils.readContent("json/create-order-with-product.json");
-        String orderCreatedId = RestAssured
-                .given()
+        String orderCreatedId = givenAuthenticated()
                     .accept(MediaType.APPLICATION_JSON_VALUE)
                     .contentType("application/vnd.order-with-product.v1+json")
                     .body(jsonOrder)
@@ -83,8 +82,7 @@ class OrderControllerIT extends AbstractPresentationIT {
                 .creditCardId(creditCardId)
                 .build();
 
-        OrderDetailOutput orderCreated = RestAssured
-                .given()
+        OrderDetailOutput orderCreated = givenAuthenticated()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType("application/vnd.order-with-product.v1+json")
                 .body(input)
@@ -111,8 +109,8 @@ class OrderControllerIT extends AbstractPresentationIT {
     @Test
     void shouldNotCreateOrderWhenCustomerWasNotFound() {
         String jsonOrder = AlgaShopResourceUtils.readContent("json/create-order-with-invalid-customer.json");
-        RestAssured
-                .given()
+
+        givenAuthenticated()
                     .accept(MediaType.APPLICATION_JSON_VALUE)
                     .contentType("application/vnd.order-with-product.v1+json")
                     .body(jsonOrder)
@@ -129,8 +127,7 @@ class OrderControllerIT extends AbstractPresentationIT {
     void shouldNotCreateOrderWhenProductWhenProductDoesNotExists() {
         String jsonOrder = AlgaShopResourceUtils.readContent("json/create-order-product-with-invalid-product.json");
 
-        RestAssured
-                .given()
+        givenAuthenticated()
                     .accept(MediaType.APPLICATION_JSON_VALUE)
                     .contentType("application/vnd.order-with-product.v1+json")
                     .body(jsonOrder)
@@ -158,8 +155,7 @@ class OrderControllerIT extends AbstractPresentationIT {
                 .aCheckoutInput(cart.getId())
                 .build();
 
-        OrderDetailOutput orderCreated = RestAssured
-                .given()
+        OrderDetailOutput orderCreated = givenAuthenticated()
                     .accept(MediaType.APPLICATION_JSON_VALUE)
                     .contentType("application/vnd.order-with-shopping-cart.v1+json")
                     .body(input)
@@ -192,8 +188,7 @@ class OrderControllerIT extends AbstractPresentationIT {
                 .aCheckoutInput(nonExistentCartId)
                 .build();
 
-        RestAssured
-                .given()
+        givenAuthenticated()
                     .accept(MediaType.APPLICATION_JSON_VALUE)
                     .contentType("application/vnd.order-with-shopping-cart.v1+json")
                     .body(input)

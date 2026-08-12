@@ -296,6 +296,35 @@ No compose ele sobe com o Tomcat limitado a 10 threads, de propósito. Medido: *
 
 Detalhes em [Threads e concorrência](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/threads-e-concorrencia.md).
 
+
+### Segurança — escopos exigidos
+
+Este serviço é um **resource server**: toda rota exige `Authorization: Bearer <jwt>`, validado contra o issuer `http://algashop-authorization-server:9000`. Só `/actuator/health/**` é público.
+
+| Rota | Escopo |
+|---|---|
+| `GET /api/v1/orders`, `/orders/{id}` | `orders:read` |
+| `POST /api/v1/orders` (as duas assinaturas) | `orders:write` |
+| `GET /api/v1/customers`, `/customers/{id}` | `customers:read` |
+| `POST`/`PUT`/`DELETE` `/api/v1/customers` | `customers:write` |
+| `GET /api/v1/customers/{id}/shopping-cart` | **`shopping-carts:read`** |
+| `GET` do carrinho e dos itens | `shopping-carts:read` |
+| `POST`/`DELETE` do carrinho e dos itens | `shopping-carts:write` |
+| `POST /api/v1/shipping-cost-previews` | `shipping-costs:preview` |
+
+> ⚠️ **Achado conhecido:** este serviço chama o `product-catalog` por HTTP e **não propaga token**. O catálogo responde 401, o client mapeia 4xx para vazio, e o usuário recebe **422 "produto não encontrado"**. A propagação ainda não foi implementada.
+
+O carrinho sob `/customers/{id}/shopping-cart` exige escopo de **carrinho**, não de cliente: o escopo segue o recurso, não a URL.
+
+```bash
+TOKEN=$(curl -s -u algashop-test:testing123 -d grant_type=client_credentials \
+  http://localhost:9000/oauth2/token | jq -r .access_token)
+
+curl -s -H "Authorization: Bearer $TOKEN" localhost:8081/api/v1/...
+```
+
+Sem token → **401**. Com token e sem o escopo → **403**. Detalhes em [Resource servers e escopos](https://github.com/gabriel-lima258/algashop-docs/blob/main/05-seguranca/resource-server-e-escopos.md).
+
 ---
 
 ## Documentação
@@ -312,6 +341,7 @@ O projeto tem um caderno de estudos separado, em [`algashop-docs`](https://githu
 - [Redis na prática](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/redis.md) — eviction, TTL e a armadilha da senha vazia
 - [Contract tests](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/stubs-contract-tests.md) — testar integração sem subir o outro serviço
 - [Health check e degradação](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/health-checks.md) — liveness × readiness e o status DEGRADED
+- [Resource servers e escopos](https://github.com/gabriel-lima258/algashop-docs/blob/main/05-seguranca/resource-server-e-escopos.md) — escopo por rota, 401 × 403 e a matriz de testes
 - [Threads e concorrência](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/threads-e-concorrencia.md) — onde o serviço satura, medido sob carga
 - [Tratamento de erros](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/tratamento-erros-api.md) — `ProblemDetail` e quando usar 404, 422 ou 502
 - [Paginação](https://github.com/gabriel-lima258/algashop-docs/blob/main/02-persistencia/paginacao.md) · [Flyway](https://github.com/gabriel-lima258/algashop-docs/blob/main/02-persistencia/flyway.md) · [Ambiente local](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/ambiente-local.md)

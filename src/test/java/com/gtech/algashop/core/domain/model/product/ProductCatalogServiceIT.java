@@ -1,6 +1,7 @@
 package com.gtech.algashop.core.domain.model.product;
 
-import com.gtech.algashop.infrastructure.adapters.in.web.utils.TestContainerPostgresSQLConfig;
+import com.gtech.algashop.utils.MockJwtDecoderConfig;
+import com.gtech.algashop.utils.TestContainerPostgresSQLConfig;
 import com.gtech.algashop.infrastructure.adapters.out.web.product.client.http.ProductCatalogApiClient;
 import com.gtech.algashop.infrastructure.adapters.out.web.product.client.http.ProductResponse;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 // entraram simultaneamente. Fica registrado como pendencia em
 // docs/01-arquitetura-design/resiliencia.md
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@Import(TestContainerPostgresSQLConfig.class) // banco real em container, so para o contexto subir
+@Import({TestContainerPostgresSQLConfig.class, MockJwtDecoderConfig.class}) // banco real em container, so para o contexto subir
 class ProductCatalogServiceIT {
 
     private static final int CONCURRENT_CALLS = 6;

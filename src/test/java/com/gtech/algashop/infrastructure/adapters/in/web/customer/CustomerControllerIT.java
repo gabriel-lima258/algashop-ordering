@@ -38,8 +38,7 @@ class CustomerControllerIT extends AbstractPresentationIT {
     void shouldCreateCustomer() {
         CustomerInput input = CustomerInputTestDataBuilder.aCustomer().build();
 
-        String customerId = RestAssured
-                .given()
+        String customerId = givenAuthenticated()
                     .accept(MediaType.APPLICATION_JSON_VALUE)
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .body(input)
@@ -63,8 +62,7 @@ class CustomerControllerIT extends AbstractPresentationIT {
     void shouldNotCreateCustomerWithInvalidData() {
         CustomerInput input = CustomerInput.builder().build();
 
-        RestAssured
-                .given()
+        givenAuthenticated()
                     .accept(MediaType.APPLICATION_JSON_VALUE)
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .body(input)
@@ -85,8 +83,7 @@ class CustomerControllerIT extends AbstractPresentationIT {
 
         UUID customerId = customer.getId();
 
-        RestAssured
-                .given()
+        givenAuthenticated()
                     .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when()
                     .delete("/api/v1/customers/{customerId}", customerId)
@@ -106,8 +103,7 @@ class CustomerControllerIT extends AbstractPresentationIT {
     void shouldReturnNotFoundWhenArchivingNonExistentCustomer() {
         UUID nonExistentId = UUID.randomUUID();
 
-        RestAssured
-                .given()
+        givenAuthenticated()
                     .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when()
                     .delete("/api/v1/customers/{customerId}", nonExistentId)
@@ -115,6 +111,38 @@ class CustomerControllerIT extends AbstractPresentationIT {
                     .assertThat()
                     .statusCode(HttpStatus.NOT_FOUND.value())
                     .contentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+    }
+
+    @Test
+    void shouldReturnForbiddenWhenCreatingCustomerWithoutWriteScope() {
+        CustomerInput input = CustomerInputTestDataBuilder.aCustomer().build();
+
+        givenAuthenticatedWithNoScopeToken()
+                    .accept(MediaType.APPLICATION_JSON_VALUE)
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(input)
+                .when()
+                    .post("/api/v1/customers")
+                .then()
+                    .assertThat()
+                    .statusCode(HttpStatus.FORBIDDEN.value());
+
+    }
+
+    @Test
+    void shouldReturnUnathorizedWhenExpiredTokenIsGiven() {
+        CustomerInput input = CustomerInputTestDataBuilder.aCustomer().build();
+
+        givenAuthenticatedWithExpiredToken()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(input)
+                .when()
+                .post("/api/v1/customers")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value());
+
     }
 
 }

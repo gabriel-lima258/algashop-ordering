@@ -1,6 +1,7 @@
 package com.gtech.algashop.core.application;
 
-import com.gtech.algashop.infrastructure.adapters.in.web.utils.TestContainerPostgresSQLConfig;
+import com.gtech.algashop.utils.MockJwtDecoderConfig;
+import com.gtech.algashop.utils.TestContainerPostgresSQLConfig;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -9,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(TestContainerPostgresSQLConfig.class)
+@Import({TestContainerPostgresSQLConfig.class, MockJwtDecoderConfig.class})
 public abstract class AbstractIntegrationTest {
 
     // inicia o postgres automaticamnete no docker e depois morre ao final do teste

@@ -46,8 +46,8 @@ class ShoppingCartControllerIT extends AbstractPresentationIT {
                 .customerId(customerIdForCreateCart)
                 .build();
 
-        String shoppingCartCreatedId = RestAssured
-                .given()
+        String shoppingCartCreatedId =
+                givenAuthenticated()
                     .accept(APPLICATION_JSON_VALUE)
                     .contentType(APPLICATION_JSON_VALUE)
                     .body(input)
@@ -71,8 +71,7 @@ class ShoppingCartControllerIT extends AbstractPresentationIT {
     void shouldNotCreateShoppingCartWithInvalidData() {
         ShoppingCartInput input = ShoppingCartInput.builder().build();
 
-        RestAssured
-                .given()
+                givenAuthenticated()
                     .accept(APPLICATION_JSON_VALUE)
                     .contentType(APPLICATION_JSON_VALUE)
                     .body(input)
@@ -90,8 +89,8 @@ class ShoppingCartControllerIT extends AbstractPresentationIT {
                 .customerId(customerIdForAddItem)
                 .build();
 
-        String shoppingCartId = RestAssured
-                .given()
+        String shoppingCartId =
+                givenAuthenticated()
                     .accept(APPLICATION_JSON_VALUE)
                     .contentType(APPLICATION_JSON_VALUE)
                     .body(cartInput)
@@ -106,8 +105,7 @@ class ShoppingCartControllerIT extends AbstractPresentationIT {
                 .quantity(2)
                 .build();
 
-        RestAssured
-                .given()
+        givenAuthenticated()
                     .accept(APPLICATION_JSON_VALUE)
                     .contentType(APPLICATION_JSON_VALUE)
                     .body(itemInput)
@@ -117,8 +115,7 @@ class ShoppingCartControllerIT extends AbstractPresentationIT {
                     .assertThat()
                     .statusCode(HttpStatus.NO_CONTENT.value());
 
-        RestAssured
-                .given()
+        givenAuthenticated()
                     .accept(APPLICATION_JSON_VALUE)
                 .when()
                     .get("/api/v1/shopping-carts/{shoppingCartId}", shoppingCartId)
@@ -140,8 +137,7 @@ class ShoppingCartControllerIT extends AbstractPresentationIT {
                 .quantity(1)
                 .build();
 
-        RestAssured
-                .given()
+       givenAuthenticated()
                     .accept(APPLICATION_JSON_VALUE)
                     .contentType(APPLICATION_JSON_VALUE)
                     .body(itemInput)
