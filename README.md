@@ -312,7 +312,9 @@ Este serviço é um **resource server**: toda rota exige `Authorization: Bearer 
 | `POST`/`DELETE` do carrinho e dos itens | `shopping-carts:write` |
 | `POST /api/v1/shipping-cost-previews` | `shipping-costs:preview` |
 
-> ⚠️ **Achado conhecido:** este serviço chama o `product-catalog` por HTTP e **não propaga token**. O catálogo responde 401, o client mapeia 4xx para vazio, e o usuário recebe **422 "produto não encontrado"**. A propagação ainda não foi implementada.
+Este serviço também é **OAuth2 client**: para chamar o `product-catalog` ele pede um token por `client_credentials` (escopo `products:read`), guarda em cache e anexa o `Bearer` por interceptor — sem uma linha de código HTTP escrita à mão.
+
+> O lado client declara `token-uri`, e não `issuer-uri`, de propósito: `issuer-uri` faria descoberta na **subida do contexto** e o `ordering` deixaria de subir sem o authorization server no ar. Ver [OAuth2 client e token](https://github.com/gabriel-lima258/algashop-docs/blob/main/05-seguranca/oauth2-client-e-token.md).
 
 O carrinho sob `/customers/{id}/shopping-cart` exige escopo de **carrinho**, não de cliente: o escopo segue o recurso, não a URL.
 
@@ -342,6 +344,7 @@ O projeto tem um caderno de estudos separado, em [`algashop-docs`](https://githu
 - [Contract tests](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/stubs-contract-tests.md) — testar integração sem subir o outro serviço
 - [Health check e degradação](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/health-checks.md) — liveness × readiness e o status DEGRADED
 - [Resource servers e escopos](https://github.com/gabriel-lima258/algashop-docs/blob/main/05-seguranca/resource-server-e-escopos.md) — escopo por rota, 401 × 403 e a matriz de testes
+- [OAuth2 client e token](https://github.com/gabriel-lima258/algashop-docs/blob/main/05-seguranca/oauth2-client-e-token.md) — como este serviço obtém e propaga token ao chamar o catálogo
 - [Threads e concorrência](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/threads-e-concorrencia.md) — onde o serviço satura, medido sob carga
 - [Tratamento de erros](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/tratamento-erros-api.md) — `ProblemDetail` e quando usar 404, 422 ou 502
 - [Paginação](https://github.com/gabriel-lima258/algashop-docs/blob/main/02-persistencia/paginacao.md) · [Flyway](https://github.com/gabriel-lima258/algashop-docs/blob/main/02-persistencia/flyway.md) · [Ambiente local](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/ambiente-local.md)

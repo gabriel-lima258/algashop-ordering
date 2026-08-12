@@ -63,7 +63,7 @@ public class ResilientProductCatalogAPIClient {
     // cache usa disableCachingNullValues() - o put e recusado e sai um WARN a cada 404.
     // CUIDADO: unless = "#result.isEmpty()" NAO resolve - o mesmo desembrulho vale para o
     // unless, entao #result e o ProductResponse e a expressao estoura. Seria "#result == null".
-    @Cacheable(cacheNames = "algashop:product-catalog-api:v1", key = "#productId")
+    @Cacheable(cacheNames = "algashop:product-catalog-api:v1", key = "#productId", unless = "#result == null")
     @ConcurrencyLimit(10) // bulkhead: no maximo 10 threads aqui dentro; as demais BLOQUEIAM
     public Optional<ProductResponse> getById(UUID productId) {
         // "Trying" sai mesmo com o circuito aberto; "Loading" (no loadProduct) so quando vai
@@ -87,10 +87,7 @@ public class ResilientProductCatalogAPIClient {
 
         try {
             return Optional.ofNullable(productCatalogApiClient.getById(productId));
-        } catch (HttpClientErrorException e) {
-            if (!(e instanceof HttpClientErrorException.NotFound)) {
-                log.error("Client HTTP error when loading product {}", productId, e);
-            }
+        } catch (HttpClientErrorException.NotFound e) {
             return Optional.empty();
         } catch (RestClientException e) {
             // Traduzir AQUI DENTRO e o que faz a RetryPolicy enxergar os tipos do includes;

@@ -13,6 +13,8 @@ import org.springframework.security.web.SecurityFilterChain;
 //
 // @EnableMethodSecurity liga o @PreAuthorize das meta-anotacoes de SecurityAnnotations.
 // Sem ele as anotacoes ficam no codigo sem efeito nenhum - e nada avisa.
+
+// Ordering é client porque faz requisição para product mas também é resource de authorization-server pois fornece api
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -28,7 +30,8 @@ public class OrderingSecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/actuator/health/**").permitAll()
                     .anyRequest().authenticated())
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+            .oauth2Client(Customizer.withDefaults());
 
         return http.build();
     }

@@ -1,0 +1,15 @@
+{
+  "id" : "9c1a7f30-51b8-4d2a-9f0c-1a2b3c4d5e6f",
+  "request" : {
+    "url" : "/oauth2/token",
+    "method" : "POST"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"access_token\":\"fake-machine-token\",\"token_type\":\"Bearer\",\"expires_in\":300,\"scope\":\"products:read\"}",
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "uuid" : "9c1a7f30-51b8-4d2a-9f0c-1a2b3c4d5e6f"
+}

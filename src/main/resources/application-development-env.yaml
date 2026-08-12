@@ -26,10 +26,43 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://algashop-authorization-server:9000 # url de authorization server
+          issuer-uri: ${algashop.integrations.authorization-server.url} # url de authorization server
+      # O outro papel: aqui o ordering e CLIENT, e pede token para chamar o catalogo.
+      client:
+        provider:
+          # token-uri, e NAO issuer-uri, e a decisao que desacopla a subida.
+          #
+          # Com issuer-uri, o Spring executa ClientRegistrations.fromIssuerLocation() na
+          # CRIACAO DO BEAN: uma ida ao /.well-known do authorization server durante o
+          # refresh do contexto. Se o AS nao estiver no ar, o ordering nao sobe - e o
+          # sintoma e um servico que "nao inicia", sem relacao aparente com seguranca.
+          #
+          # Declarando token-uri, nao ha descoberta: o endereco ja e conhecido, e a
+          # primeira ida a rede passa a ser a primeira requisicao que precisar de token.
+          # O preco e perder a descoberta automatica dos demais endpoints - que este
+          # fluxo nao usa, porque client_credentials so precisa do /oauth2/token.
+          algashop-as:
+            token-uri: ${algashop.integrations.authorization-server.url}/oauth2/token
+        registration:
+          algashop-ordering-service-client:
+            provider: algashop-as
+            client-id: algashop-ordering-service
+            # Segredo em texto puro num arquivo versionado - o par do {noop} do lado do
+            # authorization server. Didatico aqui, indefensavel fora de estudo: em
+            # producao viria de variavel de ambiente ou cofre.
+            client-secret: secret123
+            authorization-grant-type: client_credentials
+            client-authentication-method: client_secret_basic
+            scope: products:read
 
 algashop:
   integrations:
+    # Fonte unica do endereco do authorization server: o issuer-uri do resource server e o
+    # token-uri do client interpolam daqui. Sao dois papeis diferentes lendo o mesmo valor -
+    # e ter que muda-lo em dois lugares seria um jeito silencioso de deixa-los divergir.
+    authorization-server.url: http://algashop-authorization-server:9000
     shipping.provider: "RAPIDEX"
     rapidex.url: "http://localhost:8787"
-    product-catalog.url: "http://localhost:8083"
+    product-catalog:
+      url: "http://localhost:8083"
+      oauth2-client-registration-id: algashop-ordering-service-client

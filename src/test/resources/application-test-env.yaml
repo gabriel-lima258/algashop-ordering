@@ -24,9 +24,38 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://algashop-authorization-server:9000
+      # A registration abaixo NUNCA e usada: nenhum teste pede token de verdade - os *IT
+      # trocam o JwtDecoder por mock, e a matriz de autorizacao injeta a autenticacao com
+      # o post-processor jwt(). Ela existe porque o .oauth2Client() da OrderingSecurityConfig
+      # faz a SecurityFilterChain EXIGIR um ClientRegistrationRepository, e o Spring so cria
+      # esse bean quando ha ao menos uma registration configurada. Sem estas linhas o
+      # contexto nao sobe e todo teste de fatia falha com NoSuchBeanDefinitionException.
+      #
+      # E ela e usada de verdade num caso: o RestClient do catalogo carrega o
+      # OAuth2ClientHttpRequestInterceptor, entao TODO teste que chama o catalogo primeiro
+      # pede um token. Por isso o token-uri aponta para o mesmo WireMock que finge ser o
+      # catalogo (porta 8781, do AbstractPresentationIT), que serve o /oauth2/token pelo
+      # mapping post-oauth2-token.json. O ResilientProductCatalogAPIClientIT sobe o proprio
+      # WireMock em porta dinamica e sobrescreve esta propriedade.
+      client:
+        provider:
+          algashop-as:
+            token-uri: http://localhost:8781/oauth2/token
+        registration:
+          algashop-ordering-service-client:
+            provider: algashop-as
+            client-id: test-client
+            client-secret: test-secret
+            authorization-grant-type: client_credentials
+            client-authentication-method: client_secret_basic
+            scope: products:read
 
 algashop:
   integrations:
     shipping.provider: "FAKE"
     rapidex.url: "http://localhost:8780"
-    product-catalog.url: "http://localhost:8781"
+    product-catalog:
+      url: "http://localhost:8781"
+      # ProductCatalogIntegrationProperties e @Component @Validated com @NotBlank nos dois
+      # campos: sem este aqui, nenhum contexto sobe - nem em teste.
+      oauth2-client-registration-id: algashop-ordering-service-client

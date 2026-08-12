@@ -19,7 +19,10 @@ import org.springframework.test.context.TestPropertySource;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.lessThanOrExactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.moreThanOrExactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -90,6 +93,17 @@ class ResilientProductCatalogAPIClientIT extends AbstractDomainIT {
     static void productCatalogUrl(DynamicPropertyRegistry registry) {
         registry.add("algashop.integrations.product-catalog.url",
                 () -> "http://localhost:" + wireMockProductCatalog.port());
+
+        // O RestClient do catalogo carrega o OAuth2ClientHttpRequestInterceptor: antes de
+        // CADA chamada ele pede um token ao manager, que vai ao token-uri. Sem apontar o
+        // token-uri para um endereco que responde, nenhum teste desta classe chega ao
+        // WireMock do catalogo - a falha acontece antes, buscando o token.
+        //
+        // Servir o /oauth2/token pelo MESMO WireMock e deliberado: alem de fazer os testes
+        // rodarem, deixa as duas idas (token e produto) no mesmo journal, o que permite
+        // afirmar sobre o Bearer que chegou ao catalogo.
+        registry.add("spring.security.oauth2.client.provider.algashop-as.token-uri",
+                () -> "http://localhost:" + wireMockProductCatalog.port() + "/oauth2/token");
     }
 
     @BeforeEach
@@ -125,16 +139,66 @@ class ResilientProductCatalogAPIClientIT extends AbstractDomainIT {
         verifyCallCount(NOT_FOUND_PRODUCT, 1);
     }
 
+    /**
+     * A prova de que o ordering virou OAuth2 client: a chamada ao catalogo sai com
+     * Authorization: Bearer, e o token veio de uma ida ao token-uri.
+     *
+     * Ate a Fase 22 nada anexava header nenhum - o catalogo respondia 401 e o client
+     * transformava isso em "produto nao encontrado". Este teste e o que impede a regressao:
+     * tirar o interceptor do ProductCatalogApiConfig faz ele ficar vermelho na hora.
+     */
     @Test
-    void shouldReturnEmptyWhenCatalogAnswersClientError() {
-        // TODO 4xx vira vazio, entao um 401 chega ao consumidor como "produto nao
-        // encontrado" (422) - um erro de configuracao disfarcado de erro de negocio. Em
-        // troca, o pedido nao cai por causa disso e o circuito NAO abre (4xx e culpa da
-        // requisicao, nao do catalogo). Se o mapeamento mudar, este teste muda junto.
-        Optional<ProductResponse> product = client.getById(UNAUTHORIZED_PRODUCT);
+    void shouldAttachBearerTokenObtainedFromAuthorizationServer() {
+        client.getById(EXISTING_PRODUCT);
 
-        assertThat(product).isEmpty();
-        verifyCallCount(UNAUTHORIZED_PRODUCT, 1); // sem retry: repetir daria o mesmo 401
+        // O valor e o que o /oauth2/token do WireMock devolveu: o header nao foi montado a
+        // mao em lugar nenhum do codigo - ele veio do fluxo client_credentials completo.
+        wireMockProductCatalog.verify(getRequestedFor(urlEqualTo("/api/v1/products/" + EXISTING_PRODUCT))
+                .withHeader("Authorization", equalTo("Bearer fake-machine-token")));
+    }
+
+    /**
+     * O token e cacheado pelo par (registrationId, principalName) - e o principalName vem
+     * do resolver sintetico do ProductCatalogApiConfig, constante para todas as chamadas.
+     * Por isso duas chamadas ao catalogo custam UMA ida ao /oauth2/token, e nao duas.
+     *
+     * Com o resolver padrao, o principal seria o Authentication da thread: o cache
+     * fragmentaria por usuario e este teste veria duas idas.
+     */
+    @Test
+    void shouldReuseCachedTokenAcrossCalls() {
+        client.getById(EXISTING_PRODUCT);
+        client.getById(NOT_FOUND_PRODUCT);
+
+        // No MAXIMO uma ida, e nao uma por chamada. O limite superior - em vez de exatamente
+        // um - existe porque o cache de token vive no OAuth2AuthorizedClientService, que e
+        // um bean do contexto: o contexto e reaproveitado entre os testes da classe, entao o
+        // token pode ja estar quente aqui e o numero legitimo ser ZERO.
+        //
+        // O que este teste realmente descarta e a regressao que importa: se o principal
+        // deixasse de ser constante, cada chamada viraria uma entrada nova no cache e
+        // duas chamadas custariam duas idas ao authorization server.
+        wireMockProductCatalog.verify(lessThanOrExactly(1),
+                postRequestedFor(urlEqualTo("/oauth2/token")));
+    }
+
+    @Test
+    void shouldFailWithBadGatewayWhenCatalogAnswersClientError() {
+        // Ate a Fase 21 este teste afirmava Optional.empty(): o catch cobria
+        // HttpClientErrorException inteira, entao 401 e 403 saiam daqui identicos a um 404.
+        // O efeito era um erro de CONFIGURACAO chegando ao usuario como erro de NEGOCIO -
+        // "produto nao encontrado", 422 - apontando para o lugar errado na hora de depurar.
+        //
+        // Com o catch estreitado para HttpClientErrorException.NotFound, so o 404 vira
+        // vazio. O resto cai em translateException e vira 502: o servico admite que o
+        // problema e da integracao, nao do produto.
+        assertThatThrownBy(() -> client.getById(UNAUTHORIZED_PRODUCT))
+                .isInstanceOf(BadGatewayException.ClientErrorException.class);
+
+        // Uma chamada so: 4xx nao esta no includes da RetryPolicy, e repetir daria o mesmo
+        // 401. O circuito TAMBEM nao deveria abrir por isto - 4xx e culpa da requisicao,
+        // nao do catalogo - mas hoje abre, porque nao ha distincao no run() do breaker.
+        verifyCallCount(UNAUTHORIZED_PRODUCT, 1);
     }
 
     @Test
