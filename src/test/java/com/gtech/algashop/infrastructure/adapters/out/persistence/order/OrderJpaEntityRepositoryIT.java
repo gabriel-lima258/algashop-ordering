@@ -6,6 +6,7 @@ import com.gtech.algashop.core.domain.model.order.OrderPersistenceEntityTestData
 import com.gtech.algashop.infrastructure.adapters.out.persistence.AbstractPersistenceIT;
 import com.gtech.algashop.infrastructure.adapters.out.persistence.customer.CustomerJpaEntityRepository;
 import com.gtech.algashop.infrastructure.adapters.out.persistence.customer.CustomerPersistenceEntity;
+import com.gtech.algashop.utils.TestSecurityCheckConfig;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,9 +83,15 @@ class OrderJpaEntityRepositoryIT extends AbstractPersistenceIT {
                 .build();
         entity = orderJpaEntityRepository.saveAndFlush(entity);
 
-        Assertions.assertThat(entity.getCreatedByUserId()).isNotNull();
+        // O autor nao e mais "qualquer valor nao nulo": desde a Fase 25 ele vem do
+        // SecurityCheckApplicationService, e aqui o stub responde um UUID conhecido.
+        // Afirmar o valor exato e o que faz este teste cobrir a mudanca - com isNotNull()
+        // ele passaria igual se a auditoria voltasse a gravar UUID.randomUUID().
+        Assertions.assertThat(entity.getCreatedByUserId())
+                .isEqualTo(TestSecurityCheckConfig.TEST_USER_ID);
         Assertions.assertThat(entity.getLastModifiedAt()).isNotNull();
-        Assertions.assertThat(entity.getLastModifiedByUserId()).isNotNull();
+        Assertions.assertThat(entity.getLastModifiedByUserId())
+                .isEqualTo(TestSecurityCheckConfig.TEST_USER_ID);
     }
 
 }

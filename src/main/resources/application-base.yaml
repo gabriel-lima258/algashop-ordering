@@ -26,14 +26,6 @@ algashop:
     shipping.provider: "RAPIDEX"
 
   # Politica de resiliencia das chamadas de saida (product-catalog e Rapidex).
-  #
-  # Estes valores ja eram os defaults do @Value no SpringCircuitBreakerConfig - explicita-los
-  # aqui nao muda nada em runtime. O que muda e quem consegue enxerga-los: a politica que
-  # governa producao estava escrita apenas dentro de um construtor Java, e quem opera o
-  # servico nao tem por que abrir codigo para descobrir quanto tempo um circuito fica aberto.
-  #
-  # Os ITs sobrescrevem para milissegundos via @TestPropertySource - sem isso, um unico teste
-  # de retry ficaria 21s parado no backoff.
   resilience:
     circuit-breaker:
       # tentativas ALEM da original: 3 retries = 4 idas no total

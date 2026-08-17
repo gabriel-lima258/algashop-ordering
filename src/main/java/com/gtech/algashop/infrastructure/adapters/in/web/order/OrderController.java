@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import static com.gtech.algashop.infrastructure.config.security.SecurityAnnotations.*;
+import static com.gtech.algashop.infrastructure.config.security.check.SecurityAnnotations.*;
 
 @RestController
 @RequestMapping(path = "/api/v1/orders")

@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.jwt.JwtException;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 // JwtDecoder de mentira, para os *IT rodarem sem authorization server de pe.
@@ -33,7 +34,15 @@ public class MockJwtDecoderFactory {
             "shipping-costs:preview"
     };
 
-    public static final String DEFAULT_SUBJECT = "test-user";
+    // O "sub" precisa ser um UUID: desde a Fase 24 o authorization server emite o id do
+    // usuario ali, e o OAuth2SecurityCheckApplicationServiceImpl faz UUID.fromString(sub)
+    // para alimentar a auditoria. Um "test-user" qualquer estoura IllegalArgumentException.
+    public static final String DEFAULT_SUBJECT = "01912e0a-0000-7000-8000-000000000001";
+
+    // A audiencia existe e e DIFERENTE do subject - e assim que se distingue token de
+    // usuario de token de maquina (no client_credentials o sub e o proprio client_id,
+    // que tambem aparece na aud).
+    public static final String DEFAULT_AUDIENCE = "algashop-ordering";
 
     public static final String DEFAULT_TOKEN_VALUE = "fake.jwt.token";
     public static final String NO_SCOPE_TOKEN_VALUE = "fake.jwt.no-scope";
@@ -60,6 +69,7 @@ public class MockJwtDecoderFactory {
     Map<String, Object> claims = new HashMap<>();
     claims.put("sub", subject);
     claims.put("iss", issuer);
+    claims.put("aud", List.of(DEFAULT_AUDIENCE));
 
     if (scopes != null && scopes.length > 0) {
         claims.put("scope", String.join(" ", scopes));
@@ -70,6 +80,7 @@ public class MockJwtDecoderFactory {
             .expiresAt(expiresAt)
             .issuer(issuer)
             .subject(subject)
+            .audience(List.of(DEFAULT_AUDIENCE))
             .claims(c -> c.putAll(claims))
             .headers(h -> h.put("alg", "none"))
             .build();

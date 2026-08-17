@@ -1,5 +1,6 @@
 package com.gtech.algashop.infrastructure.config.auditing;
 
+import com.gtech.algashop.core.application.security.SecurityCheckApplicationService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.auditing.DateTimeProvider;
@@ -11,6 +12,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 
+// Habilita o mecanismo de auditoria do Spring Data JPA.
+// Com essa configuração, campos anotados com @CreatedDate, @LastModifiedDate,
+// @CreatedBy e @LastModifiedBy são preenchidos automaticamente pelo framework
+// sempre que uma entidade é persistida ou atualizada.
 @Configuration
 @EnableJpaAuditing(
         dateTimeProviderRef = "auditingDateTimeProvider",
@@ -24,7 +29,13 @@ public class SpringDataAuditingConfig {
     }
 
     @Bean
-    public AuditorAware<UUID> auditorProvider() {
-        return () -> Optional.of(UUID.randomUUID());
+    public AuditorAware<UUID> auditorProvider(SecurityCheckApplicationService securityCheck) {
+        return () -> {
+            if (!securityCheck.isAuthenticated() || securityCheck.isMachineAuthenticated()) {
+                return Optional.empty();
+            }
+            return Optional.of(securityCheck.getAuthenticatedUserId());
+        };
     }
+
 }

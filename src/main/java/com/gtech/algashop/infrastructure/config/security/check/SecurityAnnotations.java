@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.config.security;
+package com.gtech.algashop.infrastructure.config.security.check;
 
 
 import org.springframework.security.access.prepost.PreAuthorize;

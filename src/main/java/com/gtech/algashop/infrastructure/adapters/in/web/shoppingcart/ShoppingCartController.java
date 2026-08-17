@@ -4,8 +4,7 @@ import com.gtech.algashop.core.ports.in.shoppingcart.*;
 import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundException;
 import com.gtech.algashop.core.domain.model.product.ProductNotFoundException;
 import com.gtech.algashop.infrastructure.adapters.in.web.exceptionhandler.UnprocessableEntityException;
-import com.gtech.algashop.infrastructure.config.security.SecurityAnnotations;
-import com.gtech.algashop.infrastructure.config.security.SecurityAnnotations.CanWriteShoppingCart;
+import com.gtech.algashop.infrastructure.config.security.check.SecurityAnnotations.CanWriteShoppingCart;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.gtech.algashop.infrastructure.config.security.SecurityAnnotations.*;
+import static com.gtech.algashop.infrastructure.config.security.check.SecurityAnnotations.*;
 
 @RestController
 @RequestMapping(path = "/api/v1/shopping-carts")
