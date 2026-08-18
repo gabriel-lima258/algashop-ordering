@@ -22,7 +22,7 @@ import java.util.Map;
 // validador. Validacao real de token so acontece contra o authorization server rodando.
 public class MockJwtDecoderFactory {
 
-    public static final String DEFAULT_ISSUER_URI = "http://algashop-authorization-server:9000";
+    public static final String DEFAULT_ISSUER_URI = "http://auth.algashop.local:9000";
 
     public static final String[] DEFAULT_SCOPES = new String[] {
             "orders:read",

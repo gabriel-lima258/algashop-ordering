@@ -60,7 +60,7 @@ algashop:
     # Fonte unica do endereco do authorization server: o issuer-uri do resource server e o
     # token-uri do client interpolam daqui. Sao dois papeis diferentes lendo o mesmo valor -
     # e ter que muda-lo em dois lugares seria um jeito silencioso de deixa-los divergir.
-    authorization-server.url: http://algashop-authorization-server:9000
+    authorization-server.url: http://auth.algashop.local:9000
     shipping.provider: "RAPIDEX"
     rapidex.url: "http://localhost:8787"
     product-catalog:

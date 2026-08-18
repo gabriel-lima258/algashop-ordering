@@ -23,7 +23,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://algashop-authorization-server:9000
+          issuer-uri: http://auth.algashop.local:9000
       # A registration abaixo NUNCA e usada: nenhum teste pede token de verdade - os *IT
       # trocam o JwtDecoder por mock, e a matriz de autorizacao injeta a autenticacao com
       # o post-processor jwt(). Ela existe porque o .oauth2Client() da OrderingSecurityConfig
