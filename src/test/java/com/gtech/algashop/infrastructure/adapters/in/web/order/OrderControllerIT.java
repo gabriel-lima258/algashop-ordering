@@ -106,8 +106,21 @@ class OrderControllerIT extends AbstractPresentationIT {
         Assertions.assertThat(orderExists).isTrue();
     }
 
+    /**
+     * Fase 27: a resposta mudou de 422 para 403, e a mudanca esta CERTA.
+     *
+     * Antes, pedir um pedido para um customerId inexistente chegava ao dominio e voltava
+     * "cliente nao encontrado". Agora a verificacao de dono roda primeiro: o customerId do
+     * corpo nao e o do token, entao a requisicao para em AccessDenied antes de o banco ser
+     * consultado.
+     *
+     * O efeito colateral e uma propriedade desejavel: a API deixou de confirmar QUAIS ids de
+     * cliente existem para quem nao tem direito a eles. Um 422 "nao encontrado" contra um 200
+     * seria um oraculo de enumeracao - a mesma razao pela qual o login responde igual para
+     * senha errada e usuario inexistente (Fase 24).
+     */
     @Test
-    void shouldNotCreateOrderWhenCustomerWasNotFound() {
+    void shouldReturnForbiddenWhenOrderingForAnotherCustomer() {
         String jsonOrder = AlgaShopResourceUtils.readContent("json/create-order-with-invalid-customer.json");
 
         givenAuthenticated()
@@ -119,7 +132,7 @@ class OrderControllerIT extends AbstractPresentationIT {
                 .then()
                     .assertThat()
                     .contentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE)
-                    .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value());
+                    .statusCode(HttpStatus.FORBIDDEN.value());
 
     }
 

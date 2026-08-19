@@ -49,7 +49,11 @@ public class TestSecurityCheckConfig {
             }
 
             @Override
-            public boolean canAccessOwnProfile() {
+            public boolean isCustomer() {
+                // Fase 27: a porta trocou canAccessOwnProfile() por isCustomer(). Este stub
+                // serve as fatias @DataJpaTest, onde so a AUDITORIA importa - nenhuma delas
+                // exercita regra de papel. Quem precisa de papel de verdade usa
+                // TestAuthentications, que passa pelo converter real.
                 return true;
             }
         };

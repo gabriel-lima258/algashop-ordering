@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -31,6 +32,8 @@ import java.util.UUID;
 @Service("securityCheck")
 @Slf4j
 public class OAuth2SecurityCheckApplicationServiceImpl implements SecurityCheckApplicationService {
+
+    private static final String ROLE_CUSTOMER = "ROLE_CUSTOMER";
 
     @Override
     public UUID getAuthenticatedUserId() {
@@ -76,8 +79,8 @@ public class OAuth2SecurityCheckApplicationServiceImpl implements SecurityCheckA
     }
 
     @Override
-    public boolean canAccessOwnProfile() {
-        return this.isAuthenticated() && !isMachineAuthenticated();
+    public boolean isCustomer() {
+        return hasAuthority(ROLE_CUSTOMER);
     }
 
     private Jwt getJwt() {
@@ -95,5 +98,19 @@ public class OAuth2SecurityCheckApplicationServiceImpl implements SecurityCheckA
             throw new IllegalStateException("No authentication found");
         }
         return authentication;
+    }
+
+    private boolean hasAuthority(String authority) {
+        Authentication authentication;
+        try {
+            authentication = getAuthentication();
+        } catch (IllegalStateException e) {
+            log.debug(e.getMessage(), e);
+            return false;
+        }
+
+        // verifica se authority existe
+        return authentication.getAuthorities()
+                .stream().anyMatch(a -> Objects.equals(a.getAuthority(), authority));
     }
 }

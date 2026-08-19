@@ -6,6 +6,7 @@ import com.gtech.algashop.core.domain.model.commons.Quantity;
 import com.gtech.algashop.core.domain.model.costumer.CustomerId;
 import com.gtech.algashop.core.domain.model.costumer.Customers;
 import com.gtech.algashop.core.domain.model.customer.CustomerTestDataBuilder;
+import com.gtech.algashop.utils.TestAuthentications;
 import com.gtech.algashop.core.domain.model.order.OrderId;
 import com.gtech.algashop.core.domain.model.order.OrderPlacedEvent;
 import com.gtech.algashop.core.domain.model.order.Orders;
@@ -114,9 +115,16 @@ class CheckoutApplicationServiceIT extends AbstractIntegrationTest {
     // Helpers
     // =========================================================
 
+    /**
+     * Fase 27: o checkout passou a exigir que o autenticado SEJA o dono do carrinho. Como
+     * cada teste cria um cliente novo, a autenticacao precisa acompanhar - por isso o
+     * contexto e trocado aqui, junto com a criacao. Autenticar de fora, com um id fixo,
+     * faria os testes passarem contornando a regra em vez de exercita-la.
+     */
     private CustomerId persistCustomer() {
         CustomerId customerId = new CustomerId();
         customers.add(CustomerTestDataBuilder.existingCustomer().id(customerId).build());
+        TestAuthentications.authenticateAsCustomer(customerId.value());
         return customerId;
     }
 

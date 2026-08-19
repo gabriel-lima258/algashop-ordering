@@ -37,12 +37,19 @@ public class MockJwtDecoderFactory {
     // O "sub" precisa ser um UUID: desde a Fase 24 o authorization server emite o id do
     // usuario ali, e o OAuth2SecurityCheckApplicationServiceImpl faz UUID.fromString(sub)
     // para alimentar a auditoria. Um "test-user" qualquer estoura IllegalArgumentException.
-    public static final String DEFAULT_SUBJECT = "01912e0a-0000-7000-8000-000000000001";
+    // Fase 27: passou a ser o id do CLIENTE PADRAO dos builders - o mesmo do seed e o mesmo
+    // do auth_user no authorization server. Nao e coincidencia arrumada para o teste passar:
+    // no fluxo real o "sub" do token de um cliente E o id daquele cliente, e e essa igualdade
+    // que sustenta a regra de "so o dono acessa". Um sub arbitrario aqui faria os ITs de API
+    // baterem 403 em todo pedido - que foi exatamente o que aconteceu.
+    public static final String DEFAULT_SUBJECT = "6e148bd5-47f6-4022-b9da-07cfaa294f7a";
 
     // A audiencia existe e e DIFERENTE do subject - e assim que se distingue token de
     // usuario de token de maquina (no client_credentials o sub e o proprio client_id,
     // que tambem aparece na aud).
     public static final String DEFAULT_AUDIENCE = "algashop-ordering";
+
+    public static final String DEFAULT_ROLE = "CUSTOMER";
 
     public static final String DEFAULT_TOKEN_VALUE = "fake.jwt.token";
     public static final String NO_SCOPE_TOKEN_VALUE = "fake.jwt.no-scope";
@@ -70,6 +77,10 @@ public class MockJwtDecoderFactory {
     claims.put("sub", subject);
     claims.put("iss", issuer);
     claims.put("aud", List.of(DEFAULT_AUDIENCE));
+    // Fase 27: o access token de fluxo com pessoa passou a trazer "role", e o
+    // JwtGrantedAuthoritiesDelegatingConverter o transforma em ROLE_*. Sem este claim, o
+    // token de teste representaria alguem sem papel nenhum - que nao e o que o servidor emite.
+    claims.put("role", DEFAULT_ROLE);
 
     if (scopes != null && scopes.length > 0) {
         claims.put("scope", String.join(" ", scopes));

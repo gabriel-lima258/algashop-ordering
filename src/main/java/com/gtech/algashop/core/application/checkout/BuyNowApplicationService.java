@@ -1,5 +1,6 @@
 package com.gtech.algashop.core.application.checkout;
 
+import com.gtech.algashop.core.application.security.SecurityCheckApplicationService;
 import com.gtech.algashop.core.domain.model.BusinessException;
 import com.gtech.algashop.core.domain.model.commons.Quantity;
 import com.gtech.algashop.core.domain.model.commons.ZipCode;
@@ -17,11 +18,14 @@ import com.gtech.algashop.core.domain.model.product.ProductNotFoundException;
 import com.gtech.algashop.core.ports.in.checkout.BuyNowInput;
 import com.gtech.algashop.core.ports.in.checkout.ForBuyingProduct;
 import com.gtech.algashop.core.ports.in.checkout.ShippingInput;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -41,10 +45,15 @@ public class BuyNowApplicationService implements ForBuyingProduct {
     private final ShippingInputDisassembler shippingInputDisassembler;
     private final BillingInputDisassembler billingInputDisassembler;
 
+    // security
+    private final SecurityCheckApplicationService securityCheck;
+
     @Transactional
     @Override
     public String buyNow(BuyNowInput input) {
         Objects.requireNonNull(input);
+
+        verifyCanOrderFor(input.getCustomerId());
 
         // extraindo enum a partir do input String
         PaymentMethod paymentMethod = PaymentMethod.valueOf(input.getPaymentMethod());
@@ -97,5 +106,12 @@ public class BuyNowApplicationService implements ForBuyingProduct {
     private Product findProduct(ProductId productId) {
         return productCatalogService.ofId(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
+    }
+
+    // verificação se não for customer e se o usuário autenticado não for o mesmo do customerId
+    private void verifyCanOrderFor(@NotNull UUID customerId) {
+        if (!(securityCheck.isCustomer() && securityCheck.getAuthenticatedUserId().equals(customerId))) {
+            throw new AccessDeniedException("Cannot order for customer " + customerId);
+        }
     }
 }

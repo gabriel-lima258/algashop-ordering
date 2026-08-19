@@ -3,6 +3,10 @@ package com.gtech.algashop.core.application.order.query;
 import com.gtech.algashop.core.application.AbstractIntegrationTest;
 import com.gtech.algashop.core.domain.model.costumer.Customer;
 import com.gtech.algashop.core.domain.model.costumer.CustomerId;
+import com.gtech.algashop.utils.TestAuthentications;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.UUID;
 import com.gtech.algashop.core.domain.model.costumer.Customers;
 import com.gtech.algashop.core.domain.model.customer.CustomerTestDataBuilder;
 import com.gtech.algashop.core.domain.model.order.Order;
@@ -14,12 +18,27 @@ import com.gtech.algashop.core.ports.out.order.OrderDetailOutput;
 import com.gtech.algashop.core.ports.in.order.OrderFilter;
 import com.gtech.algashop.core.ports.out.order.OrderSummaryOutput;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 
 class OrderQueryServiceIT extends AbstractIntegrationTest {
+
+    /**
+     * Fase 27: OrderQueryService.filter() passou a SOBRESCREVER o customerId do filtro quando
+     * quem consulta e um CUSTOMER - ele so enxerga os proprios pedidos. Esta suite testa a
+     * consulta ampla (filtrar por status, por cliente arbitrario, ordenar), que e operacao de
+     * back-office. Por isso autentica como MANAGER, para quem o filtro vale como escrito.
+     *
+     * A restricao do CUSTOMER tem prova propria, no fluxo real - ver o documento de RBAC.
+     */
+    @BeforeEach
+    void authenticateAsManager() {
+        SecurityContextHolder.getContext().setAuthentication(
+                TestAuthentications.manager(UUID.randomUUID()));
+    }
 
     @Autowired
     private ForQueryOrders queryService;
