@@ -49,7 +49,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
  * 2. O @MockitoBean JwtDecoder existe so para o contexto subir: oauth2ResourceServer().jwt()
  *    exige o bean. Ele nunca e chamado, porque o post-processor jwt() do spring-security-test
  *    injeta a autenticacao ja pronta. Consequencia: este teste NAO cobre validacao de
- *    token (assinatura, iss, exp, aud) - so autorizacao. Ver MockJwtDecoderFactory.
+ *    token (assinatura, iss, exp, aud) - so autorizacao. Ver MockJwtFactory.
  *
  * 3. O caso positivo afirma "nao e 401 nem 403", e nao "e 200". Um teste de seguranca
  *    deve falhar quando a seguranca muda, nao quando o controller passa a devolver 400

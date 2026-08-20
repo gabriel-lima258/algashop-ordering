@@ -20,7 +20,7 @@ import java.util.Map;
 // O caso "expirado" tambem e simulado: e um thenThrow(JwtException), que exercita o
 // tratamento de falha de decode - nao um token com exp no passado sendo rejeitado pelo
 // validador. Validacao real de token so acontece contra o authorization server rodando.
-public class MockJwtDecoderFactory {
+public class MockJwtFactory {
 
     public static final String DEFAULT_ISSUER_URI = "http://auth.algashop.local:9000";
 
@@ -34,20 +34,12 @@ public class MockJwtDecoderFactory {
             "shipping-costs:preview"
     };
 
-    // O "sub" precisa ser um UUID: desde a Fase 24 o authorization server emite o id do
-    // usuario ali, e o OAuth2SecurityCheckApplicationServiceImpl faz UUID.fromString(sub)
-    // para alimentar a auditoria. Um "test-user" qualquer estoura IllegalArgumentException.
-    // Fase 27: passou a ser o id do CLIENTE PADRAO dos builders - o mesmo do seed e o mesmo
-    // do auth_user no authorization server. Nao e coincidencia arrumada para o teste passar:
-    // no fluxo real o "sub" do token de um cliente E o id daquele cliente, e e essa igualdade
-    // que sustenta a regra de "so o dono acessa". Um sub arbitrario aqui faria os ITs de API
-    // baterem 403 em todo pedido - que foi exatamente o que aconteceu.
     public static final String DEFAULT_SUBJECT = "6e148bd5-47f6-4022-b9da-07cfaa294f7a";
 
-    // A audiencia existe e e DIFERENTE do subject - e assim que se distingue token de
+    // A audiencia existe e  DIFERENTE do subject - e assim que se distingue token de
     // usuario de token de maquina (no client_credentials o sub e o proprio client_id,
     // que tambem aparece na aud).
-    public static final String DEFAULT_AUDIENCE = "algashop-ordering";
+    public static final String[] DEFAULT_AUDIENCES = {"ecommerce-web-app"};
 
     public static final String DEFAULT_ROLE = "CUSTOMER";
 
@@ -69,39 +61,35 @@ public class MockJwtDecoderFactory {
         return jwtDecoder;
     }
 
-    public static Jwt buildJwt(String tokenValue, String subject, String issuer, String[] scopes) {
-    Instant now = Instant.now();
-    Instant expiresAt = now.plusSeconds(600);
+    public static Jwt buildJwt(String tokenValue, String subject,
+                               String issuer, String[] scopes,
+                               String role, String[] audiences) {
+        Instant now = Instant.now();
+        Instant expiresAt = now.plusSeconds(600);
 
-    Map<String, Object> claims = new HashMap<>();
-    claims.put("sub", subject);
-    claims.put("iss", issuer);
-    claims.put("aud", List.of(DEFAULT_AUDIENCE));
-    // Fase 27: o access token de fluxo com pessoa passou a trazer "role", e o
-    // JwtGrantedAuthoritiesDelegatingConverter o transforma em ROLE_*. Sem este claim, o
-    // token de teste representaria alguem sem papel nenhum - que nao e o que o servidor emite.
-    claims.put("role", DEFAULT_ROLE);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("sub", subject);
+        claims.put("iss", issuer);
+        claims.put("role", role);
+        claims.put("aud", List.of(audiences));
+        claims.put("scope", List.of(scopes));
 
-    if (scopes != null && scopes.length > 0) {
-        claims.put("scope", String.join(" ", scopes));
-    }
-
-    return Jwt.withTokenValue(tokenValue)
-            .issuedAt(now)
-            .expiresAt(expiresAt)
-            .issuer(issuer)
-            .subject(subject)
-            .audience(List.of(DEFAULT_AUDIENCE))
-            .claims(c -> c.putAll(claims))
-            .headers(h -> h.put("alg", "none"))
-            .build();
+        return Jwt.withTokenValue(tokenValue)
+                .issuedAt(now)
+                .expiresAt(expiresAt)
+                .issuer(issuer)
+                .subject(subject)
+                .audience(List.of(DEFAULT_AUDIENCES))
+                .claims(c -> c.putAll(claims))
+                .headers(h -> h.put("alg", "none"))
+                .build();
     }
 
     private static Jwt buildDefaultJwt() {
-        return buildJwt(DEFAULT_TOKEN_VALUE, DEFAULT_SUBJECT, DEFAULT_ISSUER_URI, DEFAULT_SCOPES);
+        return buildJwt(DEFAULT_TOKEN_VALUE, DEFAULT_SUBJECT, DEFAULT_ISSUER_URI, DEFAULT_SCOPES, DEFAULT_ROLE, DEFAULT_AUDIENCES);
     }
 
     private static Jwt buildNoScopeJwt() {
-        return buildJwt(NO_SCOPE_TOKEN_VALUE, DEFAULT_SUBJECT, DEFAULT_ISSUER_URI, new String[]{});
+        return buildJwt(NO_SCOPE_TOKEN_VALUE, DEFAULT_SUBJECT, DEFAULT_ISSUER_URI, new String[]{}, DEFAULT_ROLE, DEFAULT_AUDIENCES);
     }
 }

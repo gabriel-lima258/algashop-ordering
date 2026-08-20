@@ -6,7 +6,6 @@ import com.gtech.algashop.core.domain.model.order.OrderPersistenceEntityTestData
 import com.gtech.algashop.infrastructure.adapters.out.persistence.AbstractPersistenceIT;
 import com.gtech.algashop.infrastructure.adapters.out.persistence.customer.CustomerJpaEntityRepository;
 import com.gtech.algashop.infrastructure.adapters.out.persistence.customer.CustomerPersistenceEntity;
-import com.gtech.algashop.utils.TestSecurityCheckConfig;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -84,14 +83,12 @@ class OrderJpaEntityRepositoryIT extends AbstractPersistenceIT {
         entity = orderJpaEntityRepository.saveAndFlush(entity);
 
         // O autor nao e mais "qualquer valor nao nulo": desde a Fase 25 ele vem do
-        // SecurityCheckApplicationService, e aqui o stub responde um UUID conhecido.
+        // SecurityCheckApplicationService, e aqui o mock responde um UUID conhecido.
         // Afirmar o valor exato e o que faz este teste cobrir a mudanca - com isNotNull()
         // ele passaria igual se a auditoria voltasse a gravar UUID.randomUUID().
-        Assertions.assertThat(entity.getCreatedByUserId())
-                .isEqualTo(TestSecurityCheckConfig.TEST_USER_ID);
+        Assertions.assertThat(entity.getCreatedByUserId()).isEqualTo(TEST_USER_ID);
         Assertions.assertThat(entity.getLastModifiedAt()).isNotNull();
-        Assertions.assertThat(entity.getLastModifiedByUserId())
-                .isEqualTo(TestSecurityCheckConfig.TEST_USER_ID);
+        Assertions.assertThat(entity.getLastModifiedByUserId()).isEqualTo(TEST_USER_ID);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.gtech.algashop.infrastructure.adapters.out.web.product.client.http;
 
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -26,8 +27,26 @@ public class ProductCatalogApiConfig {
     @Bean
     public ProductCatalogApiClient productCatalogApiClient(RestClient.Builder builder,
            ProductCatalogIntegrationProperties properties,
-           OAuth2AuthorizedClientManager manager) {
+           @Qualifier("productCatalogAPIClientInterceptor") OAuth2ClientHttpRequestInterceptor interceptor) {
 
+        RestClient restClient = builder.baseUrl(properties.getUrl())
+                .requestFactory(generateClientHttpRequestFactory())
+                .requestInterceptor(interceptor)
+                .build();
+
+        // ProductCatalogApiClient e so uma interface com @GetExchange: o proxy gerado aqui
+        // traduz cada metodo anotado em chamada do RestClient acima - e por isso herda
+        // baseUrl, timeouts e o interceptor OAuth2 sem nenhum codigo HTTP escrito a mao.
+        RestClientAdapter adapter = RestClientAdapter.create(restClient);
+        HttpServiceProxyFactory proxyFactory = HttpServiceProxyFactory.builderFor(adapter).build();
+        return proxyFactory.createClient(ProductCatalogApiClient.class);
+    }
+
+    @Bean("productCatalogAPIClientInterceptor")
+    public OAuth2ClientHttpRequestInterceptor productCatalogAPIClientInterceptor(
+            ProductCatalogIntegrationProperties properties,
+            OAuth2AuthorizedClientManager manager
+    ) {
         // Antes de cada request o interceptor pede ao manager um token valido: se ja ha um
         // cacheado e nao expirado, reusa; senao o manager vai ao /oauth2/token e renova.
         // O registrationIdResolver diz QUAL registration do YAML usar (a URL alvo nao
@@ -43,17 +62,7 @@ public class ProductCatalogApiConfig {
         // principal sintetico constante, toda chamada compartilha o MESMO token cacheado.
         interceptor.setPrincipalResolver(_ -> generatePrincipal(properties.getOauth2ClientRegistrationId()));
 
-        RestClient restClient = builder.baseUrl(properties.getUrl())
-                .requestFactory(generateClientHttpRequestFactory())
-                .requestInterceptor(interceptor)
-                .build();
-
-        // ProductCatalogApiClient e so uma interface com @GetExchange: o proxy gerado aqui
-        // traduz cada metodo anotado em chamada do RestClient acima - e por isso herda
-        // baseUrl, timeouts e o interceptor OAuth2 sem nenhum codigo HTTP escrito a mao.
-        RestClientAdapter adapter = RestClientAdapter.create(restClient);
-        HttpServiceProxyFactory proxyFactory = HttpServiceProxyFactory.builderFor(adapter).build();
-        return proxyFactory.createClient(ProductCatalogApiClient.class);
+        return interceptor;
     }
 
     // Authentication de fachada: existe so para dar um nome estavel ao "dono" do token no

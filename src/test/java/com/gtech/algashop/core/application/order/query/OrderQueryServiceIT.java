@@ -3,8 +3,7 @@ package com.gtech.algashop.core.application.order.query;
 import com.gtech.algashop.core.application.AbstractIntegrationTest;
 import com.gtech.algashop.core.domain.model.costumer.Customer;
 import com.gtech.algashop.core.domain.model.costumer.CustomerId;
-import com.gtech.algashop.utils.TestAuthentications;
-import org.springframework.security.core.context.SecurityContextHolder;
+import com.gtech.algashop.utils.WithMockJwt;
 
 import java.util.UUID;
 import com.gtech.algashop.core.domain.model.costumer.Customers;
@@ -24,21 +23,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 
+/**
+ * Fase 27: OrderQueryService.filter() passou a SOBRESCREVER o customerId do filtro quando
+ * quem consulta e um CUSTOMER - ele so enxerga os proprios pedidos. Esta suite testa a
+ * consulta ampla (filtrar por status, por cliente arbitrario, ordenar), que e operacao de
+ * back-office. Por isso o papel e MANAGER, para quem o filtro vale como escrito.
+ *
+ * O @WithMockJwt aqui SOBRESCREVE o da superclasse (que autentica como CUSTOMER). E o
+ * caso tipico do mecanismo declarativo: a identidade e conhecida antes do teste rodar, e
+ * cabe na assinatura da classe - sem @BeforeEach, sem SecurityContextHolder no corpo.
+ *
+ * A restricao do CUSTOMER tem prova propria, no fluxo real - ver o documento de RBAC.
+ */
+@WithMockJwt(role = "MANAGER")
 class OrderQueryServiceIT extends AbstractIntegrationTest {
-
-    /**
-     * Fase 27: OrderQueryService.filter() passou a SOBRESCREVER o customerId do filtro quando
-     * quem consulta e um CUSTOMER - ele so enxerga os proprios pedidos. Esta suite testa a
-     * consulta ampla (filtrar por status, por cliente arbitrario, ordenar), que e operacao de
-     * back-office. Por isso autentica como MANAGER, para quem o filtro vale como escrito.
-     *
-     * A restricao do CUSTOMER tem prova propria, no fluxo real - ver o documento de RBAC.
-     */
-    @BeforeEach
-    void authenticateAsManager() {
-        SecurityContextHolder.getContext().setAuthentication(
-                TestAuthentications.manager(UUID.randomUUID()));
-    }
 
     @Autowired
     private ForQueryOrders queryService;

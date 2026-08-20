@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,7 +39,7 @@ public class TestAuthentications {
 
     /** Token de maquina: sub == aud (client_credentials) e sem papel nenhum. */
     public static AbstractAuthenticationToken machine() {
-        return authentication(MockJwtDecoderFactory.DEFAULT_AUDIENCE, null);
+        return authentication(Arrays.stream(MockJwtFactory.DEFAULT_AUDIENCES).findFirst().get(), null);
     }
 
     public static void authenticateAsCustomer(UUID customerId) {
@@ -54,10 +55,10 @@ public class TestAuthentications {
         Jwt.Builder builder = Jwt.withTokenValue("fake.jwt.token")
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(600))
-                .issuer(MockJwtDecoderFactory.DEFAULT_ISSUER_URI)
+                .issuer(MockJwtFactory.DEFAULT_ISSUER_URI)
                 .subject(subject)
-                .audience(List.of(MockJwtDecoderFactory.DEFAULT_AUDIENCE))
-                .claim("scope", String.join(" ", MockJwtDecoderFactory.DEFAULT_SCOPES))
+                .audience(List.of(MockJwtFactory.DEFAULT_AUDIENCES))
+                .claim("scope", String.join(" ", MockJwtFactory.DEFAULT_SCOPES))
                 .header("alg", "none");
 
         if (role != null) {

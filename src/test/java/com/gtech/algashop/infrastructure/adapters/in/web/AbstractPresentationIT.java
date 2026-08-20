@@ -2,7 +2,7 @@ package com.gtech.algashop.infrastructure.adapters.in.web;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.gtech.algashop.utils.MockJwtDecoderConfig;
-import com.gtech.algashop.utils.MockJwtDecoderFactory;
+import com.gtech.algashop.utils.MockJwtFactory;
 import com.gtech.algashop.utils.TestContainerPostgresSQLConfig;
 import io.restassured.RestAssured;
 import io.restassured.path.json.config.JsonPathConfig;
@@ -15,6 +15,8 @@ import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.oauth2.client.web.client.OAuth2ClientHttpRequestInterceptor;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -27,11 +29,6 @@ import static io.restassured.config.JsonConfig.jsonConfig;
 @Sql(scripts = "classpath:db/clean/afterMigrate.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 @Import({TestContainerPostgresSQLConfig.class, MockJwtDecoderConfig.class}) // importando o gerenciamento de bean do postgres
 public class AbstractPresentationIT {
-
-//    @Container
-//    @ServiceConnection // uma forma alternativa de criar dynamicSource de configs
-//    protected static PostgreSQLContainer postgresSQLContainer = new PostgreSQLContainer<>("postgres:17-alpine")
-//            .withDatabaseName("ordering_test");
 
     @LocalServerPort
     protected int port;
@@ -46,21 +43,24 @@ public class AbstractPresentationIT {
     protected static WireMockServer wireMockProductCatalog;
     protected static WireMockServer wireMockRapidex;
 
+    @MockitoBean("productCatalogAPIClientInterceptor")
+    protected OAuth2ClientHttpRequestInterceptor productCatalogAPIClientInterceptor;
+
     protected RequestSpecification givenAuthenticated(String tokenValue) {
         return RestAssured.given()
                 .header("Authorization", "Bearer " + tokenValue);
     }
 
     protected RequestSpecification givenAuthenticated() {
-        return givenAuthenticated(MockJwtDecoderFactory.DEFAULT_TOKEN_VALUE);
+        return givenAuthenticated(MockJwtFactory.DEFAULT_TOKEN_VALUE);
     }
 
     protected RequestSpecification givenAuthenticatedWithExpiredToken() {
-        return givenAuthenticated(MockJwtDecoderFactory.EXPIRED_TOKEN_VALUE);
+        return givenAuthenticated(MockJwtFactory.EXPIRED_TOKEN_VALUE);
     }
 
     protected RequestSpecification givenAuthenticatedWithNoScopeToken() {
-        return givenAuthenticated(MockJwtDecoderFactory.NO_SCOPE_TOKEN_VALUE);
+        return givenAuthenticated(MockJwtFactory.NO_SCOPE_TOKEN_VALUE);
     }
 
     protected void beforeEach() {

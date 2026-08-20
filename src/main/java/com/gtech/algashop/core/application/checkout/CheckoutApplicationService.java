@@ -102,7 +102,7 @@ public class CheckoutApplicationService implements ForBuyingWithShoppingCart {
 
     // verificação se não for customer e se o usuário autenticado não for o mesmo do customerId em order
     private void verifyCanOrderFor(@NotNull UUID customerId) {
-        if (!(securityCheck.isCustomer() && securityCheck.getAuthenticatedUserId().equals(customerId))) {
+        if (!(securityCheck.canOrderFor(customerId))) {
             throw new AccessDeniedException("Cannot order for customer " + customerId);
         }
     }

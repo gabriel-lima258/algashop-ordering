@@ -83,6 +83,15 @@ public class OAuth2SecurityCheckApplicationServiceImpl implements SecurityCheckA
         return hasAuthority(ROLE_CUSTOMER);
     }
 
+    @Override
+    public boolean canOrderFor(UUID customerId) {
+        if (customerId == null) {
+            return false;
+        }
+
+        return isCustomer() && getAuthenticatedUserId().equals(customerId);
+    }
+
     private Jwt getJwt() {
         Authentication authentication = getAuthentication();
         if (authentication.getPrincipal() instanceof Jwt jwt) {

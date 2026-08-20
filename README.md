@@ -252,6 +252,24 @@ Três suítes separadas, para falha barata aparecer antes da cara:
 
 Os contratos em `src/contractTest/resources/contracts/` servem duas pontas: geram os testes que verificam **este** serviço e o stub WireMock que os **consumidores** usam para testar sem subir o `ordering`.
 
+### Segurança em teste
+
+Desde a Fase 29 a identidade é **declarativa**: uma anotação própria põe um usuário no contexto, e cada teste diz na assinatura quem ele é.
+
+```java
+@WithMockJwt(role = "MANAGER")            // na classe, sobrescreve o CUSTOMER padrão
+class OrderQueryServiceIT extends AbstractIntegrationTest { ... }
+
+@WithMockJwt(role = "", audiences = "machine-client-id", subject = "machine-client-id")
+void givenAuthenticatedMachineShouldNotAllowOrder() { ... }   // simula client_credentials
+```
+
+O `WithMockJwtSecurityContextFactory` monta o `Jwt` com os mesmos claims que o authorization server emite e o converte com o **bean do contexto** — o mesmo converter de produção. Quando a identidade só existe *depois* que o teste roda (um cliente criado no próprio método), o caminho é o `TestAuthentications`, imperativo.
+
+> ⚠️ O `JwtDecoder` é mockado: assinatura, `iss`, `exp` e `aud` **nunca** são verificados. A suíte cobre **autorização**, não autenticação.
+
+Ver [Testando segurança](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/testando-seguranca.md).
+
 ---
 
 ## Imagem Docker
