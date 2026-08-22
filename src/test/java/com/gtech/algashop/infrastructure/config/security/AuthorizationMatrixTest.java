@@ -1,5 +1,6 @@
 package com.gtech.algashop.infrastructure.config.security;
 
+import com.gtech.algashop.core.application.security.SecurityCheckApplicationService;
 import com.gtech.algashop.core.application.shipping.ShippingApplicationService;
 import com.gtech.algashop.core.ports.in.checkout.ForBuyingProduct;
 import com.gtech.algashop.core.ports.in.checkout.ForBuyingWithShoppingCart;
@@ -9,9 +10,11 @@ import com.gtech.algashop.core.ports.in.order.ForQueryOrders;
 import com.gtech.algashop.core.ports.in.shoppingcart.ForManagingShoppingCarts;
 import com.gtech.algashop.core.ports.in.shoppingcart.ForQueryShoppingCarts;
 import com.gtech.algashop.infrastructure.adapters.in.web.customer.CustomerController;
+import com.gtech.algashop.infrastructure.adapters.in.web.customer.MyCustomerController;
+import com.gtech.algashop.infrastructure.adapters.in.web.order.MyOrderController;
 import com.gtech.algashop.infrastructure.adapters.in.web.order.OrderController;
 import com.gtech.algashop.infrastructure.adapters.in.web.shipping.ShippingCostController;
-import com.gtech.algashop.infrastructure.adapters.in.web.shoppingcart.ShoppingCartController;
+import com.gtech.algashop.infrastructure.adapters.in.web.shoppingcart.MyShoppingCartController;
 import com.gtech.algashop.utils.AlgaShopResourceUtils;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -58,8 +61,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
  */
 @WebMvcTest(controllers = {
         OrderController.class,
+        MyOrderController.class,
         CustomerController.class,
-        ShoppingCartController.class,
+        MyCustomerController.class,
+        MyShoppingCartController.class,
         ShippingCostController.class
 })
 @Import(OrderingSecurityConfig.class)
@@ -101,46 +106,55 @@ class AuthorizationMatrixTest {
     @MockitoBean private ForBuyingWithShoppingCart forBuyingWithShoppingCart;
     @MockitoBean private ForManagingCustomer forManagingCustomer;
     @MockitoBean private ForQueryCustomers forQueryCustomers;
+    // dependencia do MyCustomerController; a fatia nao carrega o impl OAuth2
+    @MockitoBean private SecurityCheckApplicationService securityCheck;
     @MockitoBean private ForQueryShoppingCarts forQueryShoppingCarts;
     @MockitoBean private ForManagingShoppingCarts forManagingShoppingCarts;
     @MockitoBean private ShippingApplicationService shippingApplicationService;
 
-    private static final String CART_ID = "3a2b1c4d-0000-0000-0000-000000000000";
     private static final String CUSTOMER_ID = "41cdc65c-6158-48b0-a8e6-34c0ff8fd74e";
 
     /**
-     * (metodo, caminho, escopo exigido, content-type). Cada linha aqui espelha uma
-     * anotacao de SecurityAnnotations num controller - e e essa correspondencia que
-     * a classe existe para travar.
+     * (metodo, caminho, authorities exigidas, content-type, corpo). Cada linha aqui
+     * espelha uma anotacao de SecurityAnnotations num controller - e e essa
+     * correspondencia que a classe existe para travar.
+     *
+     * As rotas /me exigem escopo E papel CUSTOMER; nesses casos a terceira coluna traz
+     * as duas authorities separadas por espaco, e o caso positivo concede todas.
      */
     static Stream<Arguments> routes() {
         return Stream.of(
-                // ORDERS
+                // ORDERS (administrativo, leitura)
                 Arguments.of(HttpMethod.GET, "/api/v1/orders", "SCOPE_orders:read", null, null),
                 Arguments.of(HttpMethod.GET, "/api/v1/orders/0R8PSRVRB4WQH", "SCOPE_orders:read", null, null),
-                Arguments.of(HttpMethod.POST, "/api/v1/orders", "SCOPE_orders:write", ORDER_WITH_PRODUCT, orderWithProductBody()),
-                Arguments.of(HttpMethod.POST, "/api/v1/orders", "SCOPE_orders:write", ORDER_WITH_CART, checkoutBody()),
+
+                // MY ORDERS (/me): escopo + papel CUSTOMER
+                Arguments.of(HttpMethod.GET, "/api/v1/customers/me/orders", "SCOPE_orders:read ROLE_CUSTOMER", null, null),
+                Arguments.of(HttpMethod.GET, "/api/v1/customers/me/orders/0R8PSRVRB4WQH", "SCOPE_orders:read ROLE_CUSTOMER", null, null),
+                Arguments.of(HttpMethod.POST, "/api/v1/customers/me/orders", "SCOPE_orders:write ROLE_CUSTOMER", ORDER_WITH_PRODUCT, orderWithProductBody()),
+                Arguments.of(HttpMethod.POST, "/api/v1/customers/me/orders", "SCOPE_orders:write ROLE_CUSTOMER", ORDER_WITH_CART, checkoutBody()),
 
                 // CUSTOMERS
                 Arguments.of(HttpMethod.GET, "/api/v1/customers", "SCOPE_customers:read", null, null),
                 Arguments.of(HttpMethod.GET, "/api/v1/customers/" + CUSTOMER_ID, "SCOPE_customers:read", null, null),
-                Arguments.of(HttpMethod.POST, "/api/v1/customers", "SCOPE_customers:write", JSON, CUSTOMER_BODY),
-                Arguments.of(HttpMethod.PUT, "/api/v1/customers/" + CUSTOMER_ID, "SCOPE_customers:write", JSON, CUSTOMER_UPDATE_BODY),
-                Arguments.of(HttpMethod.DELETE, "/api/v1/customers/" + CUSTOMER_ID, "SCOPE_customers:write", null, null),
+                // MY CUSTOMER PROFILE (/me): escopo + papel CUSTOMER
+                Arguments.of(HttpMethod.GET, "/api/v1/customers/me", "SCOPE_customers:read ROLE_CUSTOMER", null, null),
+                Arguments.of(HttpMethod.POST, "/api/v1/customers/me", "SCOPE_customers:write ROLE_CUSTOMER", JSON, CUSTOMER_BODY),
+                Arguments.of(HttpMethod.PUT, "/api/v1/customers/me", "SCOPE_customers:write ROLE_CUSTOMER", JSON, CUSTOMER_UPDATE_BODY),
 
-                // O carrinho do cliente mora sob /customers mas exige escopo de CARRINHO,
-                // nao de cliente. E deliberado, e o tipo de coisa que so um teste fixa.
+                // O carrinho do cliente (visao administrativa) mora sob /customers mas exige
+                // escopo de CARRINHO, nao de cliente. E deliberado, e so um teste fixa isso.
                 Arguments.of(HttpMethod.GET, "/api/v1/customers/" + CUSTOMER_ID + "/shopping-cart",
                         "SCOPE_shopping-carts:read", null, null),
 
-                // SHOPPING CARTS
-                Arguments.of(HttpMethod.POST, "/api/v1/shopping-carts", "SCOPE_shopping-carts:write", JSON, "{\"customerId\":\"" + CUSTOMER_ID + "\"}"),
-                Arguments.of(HttpMethod.GET, "/api/v1/shopping-carts/" + CART_ID, "SCOPE_shopping-carts:read", null, null),
-                Arguments.of(HttpMethod.GET, "/api/v1/shopping-carts/" + CART_ID + "/items", "SCOPE_shopping-carts:read", null, null),
-                Arguments.of(HttpMethod.DELETE, "/api/v1/shopping-carts/" + CART_ID, "SCOPE_shopping-carts:write", null, null),
-                Arguments.of(HttpMethod.DELETE, "/api/v1/shopping-carts/" + CART_ID + "/items", "SCOPE_shopping-carts:write", null, null),
-                Arguments.of(HttpMethod.POST, "/api/v1/shopping-carts/" + CART_ID + "/items", "SCOPE_shopping-carts:write", JSON, "{\"productId\":\"" + CART_ID + "\",\"quantity\":1}"),
-                Arguments.of(HttpMethod.DELETE, "/api/v1/shopping-carts/" + CART_ID + "/items/" + CART_ID, "SCOPE_shopping-carts:write", null, null),
+                // MY SHOPPING CART (/me): escopo + papel CUSTOMER, nenhum id no path
+                Arguments.of(HttpMethod.GET, "/api/v1/customers/me/shopping-cart", "SCOPE_shopping-carts:read ROLE_CUSTOMER", null, null),
+                Arguments.of(HttpMethod.POST, "/api/v1/customers/me/shopping-cart", "SCOPE_shopping-carts:write ROLE_CUSTOMER", null, null),
+                Arguments.of(HttpMethod.DELETE, "/api/v1/customers/me/shopping-cart", "SCOPE_shopping-carts:write ROLE_CUSTOMER", null, null),
+                Arguments.of(HttpMethod.GET, "/api/v1/customers/me/shopping-cart/items", "SCOPE_shopping-carts:read ROLE_CUSTOMER", null, null),
+                Arguments.of(HttpMethod.POST, "/api/v1/customers/me/shopping-cart/items", "SCOPE_shopping-carts:write ROLE_CUSTOMER", JSON, "{\"productId\":\"" + CUSTOMER_ID + "\",\"quantity\":1}"),
+                Arguments.of(HttpMethod.DELETE, "/api/v1/customers/me/shopping-cart/items", "SCOPE_shopping-carts:write ROLE_CUSTOMER", null, null),
+                Arguments.of(HttpMethod.DELETE, "/api/v1/customers/me/shopping-cart/items/" + CUSTOMER_ID, "SCOPE_shopping-carts:write ROLE_CUSTOMER", null, null),
 
                 // SHIPPING
                 Arguments.of(HttpMethod.POST, "/api/v1/shipping-cost-previews", "SCOPE_shipping-costs:preview", JSON, "{\"zipCode\":\"62704\"}")
@@ -172,8 +186,12 @@ class AuthorizationMatrixTest {
     @MethodSource("routes")
     void shouldAllowRequestWithRequiredScope(HttpMethod method, String path, String scope, String contentType, String body)
             throws Exception {
+        SimpleGrantedAuthority[] granted = java.util.Arrays.stream(scope.split(" "))
+                .map(SimpleGrantedAuthority::new)
+                .toArray(SimpleGrantedAuthority[]::new);
+
         mockMvc.perform(request(method, path, contentType, body)
-                        .with(jwt().authorities(new SimpleGrantedAuthority(scope))))
+                        .with(jwt().authorities(granted)))
                 .andExpect(result -> assertThat(result.getResponse().getStatus())
                         .as("com o escopo %s a requisicao nao deveria parar na seguranca", scope)
                         .isNotIn(401, 403));
@@ -214,7 +232,7 @@ class AuthorizationMatrixTest {
      */
     @org.junit.jupiter.api.Test
     void shouldValidateBodyBeforeCheckingScope() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/customers")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/customers/me")
                         .contentType(JSON)
                         .content("{}")
                         .with(jwt().authorities(new SimpleGrantedAuthority(UNRELATED_SCOPE))))

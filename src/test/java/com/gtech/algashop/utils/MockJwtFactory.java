@@ -43,9 +43,21 @@ public class MockJwtFactory {
 
     public static final String DEFAULT_ROLE = "CUSTOMER";
 
+    // Um token por NIVEL de acesso. O MANAGER tem sub proprio (um back-office user nao e um
+    // customer da base); o de maquina segue a regra do client_credentials: sub == aud e
+    // nenhum papel - e assim que o SecurityCheck distingue maquina de gente.
+    public static final String MANAGER_SUBJECT = "9c1f4d27-0000-7000-8000-0000000000aa";
+
+    // usuario CUSTOMER que existe no authorization server mas AINDA NAO se registrou como
+    // customer aqui - e o unico jeito de exercitar o POST /me sem colidir com o seed
+    public static final String NEW_CUSTOMER_SUBJECT = "3d94c2b1-0000-7000-8000-0000000000bb";
+
     public static final String DEFAULT_TOKEN_VALUE = "fake.jwt.token";
     public static final String NO_SCOPE_TOKEN_VALUE = "fake.jwt.no-scope";
     public static final String EXPIRED_TOKEN_VALUE = "fake.jwt.expired";
+    public static final String MANAGER_TOKEN_VALUE = "fake.jwt.manager";
+    public static final String MACHINE_TOKEN_VALUE = "fake.jwt.machine";
+    public static final String NEW_CUSTOMER_TOKEN_VALUE = "fake.jwt.new-customer";
 
     public static JwtDecoder createMockJwtDecoder() {
         JwtDecoder jwtDecoder = Mockito.mock(JwtDecoder.class);
@@ -56,6 +68,12 @@ public class MockJwtFactory {
                 .thenReturn(buildNoScopeJwt());
         Mockito.when(jwtDecoder.decode(EXPIRED_TOKEN_VALUE))
                 .thenThrow(new JwtException("Token is expired"));
+        Mockito.when(jwtDecoder.decode(MANAGER_TOKEN_VALUE))
+                .thenReturn(buildManagerJwt());
+        Mockito.when(jwtDecoder.decode(MACHINE_TOKEN_VALUE))
+                .thenReturn(buildMachineJwt());
+        Mockito.when(jwtDecoder.decode(NEW_CUSTOMER_TOKEN_VALUE))
+                .thenReturn(buildNewCustomerJwt());
 
 
         return jwtDecoder;
@@ -70,7 +88,10 @@ public class MockJwtFactory {
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", subject);
         claims.put("iss", issuer);
-        claims.put("role", role);
+        // token de maquina (client_credentials) nao carrega papel nenhum
+        if (role != null) {
+            claims.put("role", role);
+        }
         claims.put("aud", List.of(audiences));
         claims.put("scope", List.of(scopes));
 
@@ -91,5 +112,17 @@ public class MockJwtFactory {
 
     private static Jwt buildNoScopeJwt() {
         return buildJwt(NO_SCOPE_TOKEN_VALUE, DEFAULT_SUBJECT, DEFAULT_ISSUER_URI, new String[]{}, DEFAULT_ROLE, DEFAULT_AUDIENCES);
+    }
+
+    private static Jwt buildManagerJwt() {
+        return buildJwt(MANAGER_TOKEN_VALUE, MANAGER_SUBJECT, DEFAULT_ISSUER_URI, DEFAULT_SCOPES, "MANAGER", DEFAULT_AUDIENCES);
+    }
+
+    private static Jwt buildMachineJwt() {
+        return buildJwt(MACHINE_TOKEN_VALUE, DEFAULT_AUDIENCES[0], DEFAULT_ISSUER_URI, DEFAULT_SCOPES, null, DEFAULT_AUDIENCES);
+    }
+
+    private static Jwt buildNewCustomerJwt() {
+        return buildJwt(NEW_CUSTOMER_TOKEN_VALUE, NEW_CUSTOMER_SUBJECT, DEFAULT_ISSUER_URI, DEFAULT_SCOPES, DEFAULT_ROLE, DEFAULT_AUDIENCES);
     }
 }

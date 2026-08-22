@@ -1,11 +1,10 @@
 package com.gtech.algashop.contract.base;
 
-import com.gtech.algashop.core.ports.in.shoppingcart.ShoppingCartItemInput;
-import com.gtech.algashop.core.application.shoppingcart.ShoppingCartManagementApplicationService;
+import com.gtech.algashop.core.application.security.SecurityCheckApplicationService;
 import com.gtech.algashop.core.application.shoppingcart.query.ShoppingCartOutputTestDataBuilder;
+import com.gtech.algashop.core.ports.in.shoppingcart.ForManagingShoppingCarts;
 import com.gtech.algashop.core.ports.in.shoppingcart.ForQueryShoppingCarts;
-import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCartNotFound;
-import com.gtech.algashop.infrastructure.adapters.in.web.shoppingcart.ShoppingCartController;
+import com.gtech.algashop.infrastructure.adapters.in.web.shoppingcart.MyShoppingCartController;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
@@ -18,21 +17,27 @@ import org.springframework.web.context.WebApplicationContext;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-@WebMvcTest(controllers = ShoppingCartController.class)
+// O recurso virou /customers/me/shopping-cart: nenhum id no path. O carrinho e resolvido
+// pelo SecurityCheck (mockado com sub fixo) + findByCustomerId - mesmo padrao do OrderBase.
+@WebMvcTest(controllers = MyShoppingCartController.class)
 public class ShoppingCartBase {
+
+    public static final UUID AUTHENTICATED_USER_ID =
+            UUID.fromString("6e148bd5-47f6-4022-b9da-07cfaa294f7a");
+
+    public static final UUID validShoppingCartId = UUID.fromString("ad265aa3-c77d-46e9-9782-b70c487c1e17");
 
     @Autowired
     private WebApplicationContext context;
 
     @MockitoBean
-    private ShoppingCartManagementApplicationService managementService;
+    private ForManagingShoppingCarts managementService;
 
     @MockitoBean
     private ForQueryShoppingCarts queryService;
 
-    public static final UUID validShoppingCartId = UUID.fromString("ad265aa3-c77d-46e9-9782-b70c487c1e17");
-
-    public static final UUID notFoundShoppingCartId = UUID.fromString("e2103964-5353-4910-81ee-212a40a2ca70");
+    @MockitoBean
+    private SecurityCheckApplicationService securityCheck;
 
     @BeforeEach
     void setUp() {
@@ -44,22 +49,15 @@ public class ShoppingCartBase {
 
         RestAssuredMockMvc.enableLoggingOfRequestAndResponseIfValidationFails();
 
-        Mockito.when(queryService.findById(validShoppingCartId))
-                .thenReturn(ShoppingCartOutputTestDataBuilder.aShoppingCart().id(validShoppingCartId).build());
+        Mockito.when(securityCheck.getAuthenticatedUserId()).thenReturn(AUTHENTICATED_USER_ID);
 
-        Mockito.when(queryService.findById(notFoundShoppingCartId))
-                .thenThrow(new ShoppingCartNotFound());
+        Mockito.when(queryService.findByCustomerId(AUTHENTICATED_USER_ID))
+                .thenReturn(ShoppingCartOutputTestDataBuilder.aShoppingCart()
+                        .id(validShoppingCartId)
+                        .customerId(AUTHENTICATED_USER_ID)
+                        .build());
 
-        Mockito.when(managementService.createNew(Mockito.any(UUID.class)))
+        Mockito.when(managementService.createNew(AUTHENTICATED_USER_ID))
                 .thenReturn(validShoppingCartId);
-
-        Mockito.doNothing().when(managementService).addItem(Mockito.any(ShoppingCartItemInput.class));
-
-        Mockito.doNothing().when(managementService).delete(validShoppingCartId);
-
-        Mockito.doNothing().when(managementService).empty(validShoppingCartId);
-
-        Mockito.doNothing().when(managementService).removeItem(Mockito.eq(validShoppingCartId), Mockito.anyString());
-
     }
 }

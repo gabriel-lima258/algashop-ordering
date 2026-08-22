@@ -2,19 +2,21 @@ package contracts.shoppingcart
 
 import org.springframework.cloud.contract.spec.Contract
 
+// Sem corpo: o dono do carrinho novo e o cliente autenticado, extraido do token.
 Contract.make {
     request {
-        method GET()
-        urlPath("/api/v1/shopping-carts/ad265aa3-c77d-46e9-9782-b70c487c1e17")
+        method POST()
+        urlPath("/api/v1/customers/me/shopping-cart")
     }
     response {
-        status 200
+        status 201
         headers {
             contentType('application/json')
+            header('Location', '/api/v1/customers/me/shopping-cart')
         }
         body([
-                id: fromRequest().path(3),
-                customerId: anyUuid(),
+                id: anyUuid(),
+                customerId: "6e148bd5-47f6-4022-b9da-07cfaa294f7a",
                 totalItems: 3,
                 totalAmount: 1250.00,
                 items: [

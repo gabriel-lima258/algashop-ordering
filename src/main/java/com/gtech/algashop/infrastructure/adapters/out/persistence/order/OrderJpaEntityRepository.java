@@ -65,4 +65,15 @@ public interface OrderJpaEntityRepository extends JpaRepository<OrderPersistence
     @Override
     @EntityGraph(attributePaths = {"customer", "items"}) // consulta graph ja traz os dois atributos, evita o lazy
     Optional<OrderPersistenceEntity> findById(Long id);
+
+    // o caminho precisa ser explicito: a entidade nao tem atributo customerId, tem a
+    // associacao customer - a query derivada gerava "o.customerId" e quebrava em runtime
+    @Query("""
+        SELECT o FROM OrderPersistenceEntity o
+        WHERE o.id = :orderId
+        AND o.customer.id = :customerId
+    """)
+    @EntityGraph(attributePaths = {"customer", "items"})
+    Optional<OrderPersistenceEntity> findByIdAndCustomerId(@Param("orderId") Long orderId,
+                                                           @Param("customerId") UUID customerId);
 }

@@ -46,7 +46,7 @@ class OrderControllerWithoutProductIT extends AbstractPresentationIT {
                 .contentType("application/vnd.order-with-product.v1+json")
                 .body(jsonOrder)
                 .when()
-                .post("/api/v1/orders")
+                .post("/api/v1/customers/me/orders")
                 .then()
                 .assertThat()
                 .contentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE)

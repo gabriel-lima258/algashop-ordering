@@ -4,6 +4,7 @@ import com.gtech.algashop.core.application.AbstractIntegrationTest;
 import com.gtech.algashop.core.domain.model.commons.Money;
 import com.gtech.algashop.core.domain.model.commons.Quantity;
 import com.gtech.algashop.core.domain.model.costumer.CustomerId;
+import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundException;
 import com.gtech.algashop.core.domain.model.costumer.Customers;
 import com.gtech.algashop.core.domain.model.customer.CustomerTestDataBuilder;
 import com.gtech.algashop.utils.TestAuthentications;
@@ -68,7 +69,8 @@ class CheckoutApplicationServiceIT extends AbstractIntegrationTest {
         CustomerId customerId = persistCustomer();
         ShoppingCart cart = persistCart(customerId, true);
 
-        CheckoutInput input = CheckoutInputTestDataBuilder.aCheckoutInput(cart.id().value()).build();
+        CheckoutInput input = CheckoutInputTestDataBuilder.aCheckoutInput()
+                .customerId(customerId.value()).build();
 
         String orderId = service.checkout(input);
 
@@ -81,20 +83,35 @@ class CheckoutApplicationServiceIT extends AbstractIntegrationTest {
                 .listen(Mockito.any(OrderPlacedEvent.class));
     }
 
+    // O carrinho agora e resolvido pelo cliente do input: "carrinho inexistente" significa
+    // cliente real SEM carrinho. Cliente inexistente para antes, no caso irmao abaixo.
     @Test
-    void shouldThrowShoppingCartNotFoundWhenCartDoesNotExist() {
-        CheckoutInput input = CheckoutInputTestDataBuilder.aCheckoutInput(UUID.randomUUID()).build();
+    void shouldThrowShoppingCartNotFoundWhenCustomerHasNoCart() {
+        CustomerId customerId = persistCustomer();
+
+        CheckoutInput input = CheckoutInputTestDataBuilder.aCheckoutInput()
+                .customerId(customerId.value()).build();
 
         Assertions.assertThatThrownBy(() -> service.checkout(input))
                 .isInstanceOf(ShoppingCartNotFound.class);
     }
 
     @Test
+    void shouldThrowCustomerNotFoundWhenCustomerDoesNotExist() {
+        CheckoutInput input = CheckoutInputTestDataBuilder.aCheckoutInput()
+                .customerId(UUID.randomUUID()).build();
+
+        Assertions.assertThatThrownBy(() -> service.checkout(input))
+                .isInstanceOf(CustomerNotFoundException.class);
+    }
+
+    @Test
     void shouldThrowShoppingCartCantProceedToCheckoutExceptionWhenCartIsEmpty() {
         CustomerId customerId = persistCustomer();
-        ShoppingCart cart = persistCart(customerId, false);
+        persistCart(customerId, false);
 
-        CheckoutInput input = CheckoutInputTestDataBuilder.aCheckoutInput(cart.id().value()).build();
+        CheckoutInput input = CheckoutInputTestDataBuilder.aCheckoutInput()
+                .customerId(customerId.value()).build();
 
         Assertions.assertThatThrownBy(() -> service.checkout(input))
                 .isInstanceOf(ShoppingCartCantProceedToCheckoutException.class);
@@ -103,9 +120,10 @@ class CheckoutApplicationServiceIT extends AbstractIntegrationTest {
     @Test
     void shouldThrowShoppingCartCantProceedToCheckoutExceptionWhenCartHasUnavailableItems() {
         CustomerId customerId = persistCustomer();
-        ShoppingCart cart = persistCartWithUnavailableItems(customerId);
+        persistCartWithUnavailableItems(customerId);
 
-        CheckoutInput input = CheckoutInputTestDataBuilder.aCheckoutInput(cart.id().value()).build();
+        CheckoutInput input = CheckoutInputTestDataBuilder.aCheckoutInput()
+                .customerId(customerId.value()).build();
 
         Assertions.assertThatThrownBy(() -> service.checkout(input))
                 .isInstanceOf(ShoppingCartCantProceedToCheckoutException.class);

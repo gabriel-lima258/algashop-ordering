@@ -5,12 +5,12 @@ import org.springframework.cloud.contract.spec.Contract
 Contract.make {
     request {
         method POST()
-        url "/api/v1/orders"
+        // o carrinho deixou de vir no corpo: a rota /me o resolve pelo cliente do token
+        url "/api/v1/customers/me/orders"
         headers {
             contentType("application/vnd.order-with-shopping-cart.v1+json")
         }
         body([
-                shoppingCartId: value(test(anyUuid()), stub(anyUuid())),
                 paymentMethod: "GATEWAY_BALANCE",
                 shipping: [
                         recipient: [

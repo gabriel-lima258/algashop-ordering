@@ -8,8 +8,9 @@ import com.gtech.algashop.core.ports.out.order.OrderDetailOutput;
 import com.gtech.algashop.core.ports.out.order.OrderSummaryOutput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,30 +21,16 @@ public class OrderQueryService implements ForQueryOrders {
 
     @Override
     public OrderDetailOutput findById(String orderId) {
-        OrderDetailOutput order = forObtainingOrder.findById(orderId);
-        if (!canAccess(order)) {
-            throw new AccessDeniedException("You don't have permission to access this order");
-        }
-        return order;
+        return forObtainingOrder.findById(orderId);
+    }
+
+    @Override
+    public OrderDetailOutput findByIdAndCustomerId(String orderId, UUID customerId) {
+        return forObtainingOrder.findByIdAndCustomerId(orderId, customerId);
     }
 
     @Override
     public Page<OrderSummaryOutput> filter(OrderFilter filter) {
-        // regra de segurança, se for customer, ele só pode filtrar os seus pedidos
-        // caso manager ou operator pode ver todos
-        if (securityCheck.isCustomer()) {
-            filter.setCustomerId(securityCheck.getAuthenticatedUserId());
-        }
         return forObtainingOrder.filter(filter);
-    }
-
-    private boolean canAccess(OrderDetailOutput order) {
-        // se for manager ou operator pode retornar
-        if (!securityCheck.isCustomer() && securityCheck.isAuthenticated()) {
-            return true;
-        }
-
-        return securityCheck.isCustomer() &&
-                securityCheck.getAuthenticatedUserId().equals(order.getCustomer().getId());
     }
 }

@@ -63,6 +63,21 @@ public class AbstractPresentationIT {
         return givenAuthenticated(MockJwtFactory.NO_SCOPE_TOKEN_VALUE);
     }
 
+    // As rotas administrativas exigem NAO ser CUSTOMER; sem estes niveis, nenhum IT HTTP
+    // conseguiria alcanca-las - o token padrao e sempre de cliente.
+    protected RequestSpecification givenAuthenticatedAsManager() {
+        return givenAuthenticated(MockJwtFactory.MANAGER_TOKEN_VALUE);
+    }
+
+    protected RequestSpecification givenAuthenticatedAsMachine() {
+        return givenAuthenticated(MockJwtFactory.MACHINE_TOKEN_VALUE);
+    }
+
+    // cliente autenticado que ainda nao tem cadastro de customer (sub fora do seed)
+    protected RequestSpecification givenAuthenticatedAsNewCustomer() {
+        return givenAuthenticated(MockJwtFactory.NEW_CUSTOMER_TOKEN_VALUE);
+    }
+
     protected void beforeEach() {
         resetProductCatalogCircuitBreaker();
 

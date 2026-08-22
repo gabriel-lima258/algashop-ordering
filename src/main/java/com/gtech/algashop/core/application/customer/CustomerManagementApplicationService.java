@@ -24,7 +24,7 @@ public class CustomerManagementApplicationService implements ForManagingCustomer
 
     @Transactional
     @Override
-    public UUID create(CustomerInput input) {
+    public UUID create(UUID customerUserId, CustomerInput input) {
         // valida null
         Objects.requireNonNull(input);
         // pega address de input
@@ -32,6 +32,7 @@ public class CustomerManagementApplicationService implements ForManagingCustomer
 
         // cria uma entidade de customer
         Customer customer = customerRegistration.register(
+                new CustomerId(customerUserId),
                 new FullName(input.getFirstName(), input.getLastName()),
                 new BirthDate(input.getBirthDate()),
                 new Email(input.getEmail()),

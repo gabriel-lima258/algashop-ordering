@@ -2,10 +2,12 @@ package contracts.shoppingcart
 
 import org.springframework.cloud.contract.spec.Contract
 
+// O carrinho e sempre o do cliente autenticado: nenhum id no path.
+// O customerId da resposta e o sub do token, que a base mocka fixo.
 Contract.make {
     request {
         method GET()
-        urlPath("/api/v1/shopping-carts/ad265aa3-c77d-46e9-9782-b70c487c1e17/items")
+        urlPath("/api/v1/customers/me/shopping-cart")
     }
     response {
         status 200
@@ -13,6 +15,10 @@ Contract.make {
             contentType('application/json')
         }
         body([
+                id: anyUuid(),
+                customerId: "6e148bd5-47f6-4022-b9da-07cfaa294f7a",
+                totalItems: 3,
+                totalAmount: 1250.00,
                 items: [
                         [
                                 id: anyUuid(),

@@ -41,10 +41,15 @@ public class Customer
 
     // construtor para novo cliente, padrao static factory
     @Builder(builderClassName = "BrandNewCustomerBuild", builderMethodName = "brandNew")
-    private static Customer createBrandNew(FullName fullName, BirthDate birthDate, Email email,
+    private static Customer createBrandNew(CustomerId id, FullName fullName, BirthDate birthDate, Email email,
                                           Phone phone, Document document, Boolean promotionNotificationsAllowed,
                                           Address address) {
-        Customer customer = new Customer(new CustomerId(),
+        if (id == null) {
+            id = new CustomerId();
+        }
+
+        Customer customer = new Customer(
+                id,
                 null,
                 fullName,
                 birthDate,

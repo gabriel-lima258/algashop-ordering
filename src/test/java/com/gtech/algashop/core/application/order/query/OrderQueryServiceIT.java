@@ -24,16 +24,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 
 /**
- * Fase 27: OrderQueryService.filter() passou a SOBRESCREVER o customerId do filtro quando
- * quem consulta e um CUSTOMER - ele so enxerga os proprios pedidos. Esta suite testa a
- * consulta ampla (filtrar por status, por cliente arbitrario, ordenar), que e operacao de
- * back-office. Por isso o papel e MANAGER, para quem o filtro vale como escrito.
+ * O OrderQueryService voltou a ser delegacao pura: o isolamento por dono saiu daqui e
+ * mora na borda - MyOrderController forca o customerId do filtro com o sub do token e o
+ * findById do /me usa findByIdAndCustomerId. Esta suite testa a consulta ampla (filtrar
+ * por status, por cliente arbitrario, ordenar), que e operacao de back-office; por isso o
+ * papel e MANAGER, para quem o filtro vale como escrito.
  *
  * O @WithMockJwt aqui SOBRESCREVE o da superclasse (que autentica como CUSTOMER). E o
  * caso tipico do mecanismo declarativo: a identidade e conhecida antes do teste rodar, e
  * cabe na assinatura da classe - sem @BeforeEach, sem SecurityContextHolder no corpo.
  *
- * A restricao do CUSTOMER tem prova propria, no fluxo real - ver o documento de RBAC.
+ * A restricao do CUSTOMER tem prova propria, no fluxo real: OrderControllerIT
+ * (shouldScopeMyOrdersListToAuthenticatedCustomer e o 404 de pedido alheio).
  */
 @WithMockJwt(role = "MANAGER")
 class OrderQueryServiceIT extends AbstractIntegrationTest {

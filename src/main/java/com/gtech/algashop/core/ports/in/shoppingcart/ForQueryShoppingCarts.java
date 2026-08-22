@@ -10,7 +10,7 @@ import java.util.UUID;
  * mensageria, testes) pode invocar.
  *
  * Quem implementa: a camada de aplicação ({@code ShoppingCartQueryService}).
- * Quem consome:    adaptadores primários ({@code ShoppingCartController},
+ * Quem consome:    adaptadores primários ({@code MyShoppingCartController},
  *                  {@code CustomerController}).
  *
  * Por que separar de {@code ForObtainingShoppingCarts}?

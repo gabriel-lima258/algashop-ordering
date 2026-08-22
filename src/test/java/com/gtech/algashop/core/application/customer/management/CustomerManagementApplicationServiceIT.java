@@ -1,6 +1,7 @@
 package com.gtech.algashop.core.application.customer.management;
 
 import com.gtech.algashop.core.application.AbstractIntegrationTest;
+import com.gtech.algashop.core.application.security.SecurityCheckApplicationService;
 import com.gtech.algashop.core.ports.out.customer.ForNotifyingCustomers;
 import com.gtech.algashop.core.ports.in.customer.CustomerOutput;
 import com.gtech.algashop.core.ports.in.customer.ForQueryCustomers;
@@ -23,6 +24,10 @@ class CustomerManagementApplicationServiceIT extends AbstractIntegrationTest {
     @Autowired
     private ForManagingCustomer customerManagementApplicationService;
 
+    // bean real (OAuth2SecurityCheckApplicationServiceImpl) lendo a identidade do @WithMockJwt
+    @Autowired
+    private SecurityCheckApplicationService securityCheck;
+
     // verifica se esta sendo chamado
     @MockitoSpyBean
     private CustomerEventListener customerEventListener;
@@ -37,7 +42,7 @@ class CustomerManagementApplicationServiceIT extends AbstractIntegrationTest {
     @Test
     void shouldRegister() {
         CustomerInput input = CustomerInputTestDataBuilder.aCustomer().build();
-        UUID customerId = customerManagementApplicationService.create(input);
+        UUID customerId = customerManagementApplicationService.create(securityCheck.getAuthenticatedUserId(), input);
         Assertions.assertThat(customerId).isNotNull();
 
         CustomerOutput customerOutput = customerQueryService.findById(customerId);
@@ -81,7 +86,7 @@ class CustomerManagementApplicationServiceIT extends AbstractIntegrationTest {
         CustomerInput input = CustomerInputTestDataBuilder.aCustomer().build();
         CustomerUpdateInput updatedInput = CustomerUpdatedInputTestDataBuilder.aUpdatedCustomer().build();
 
-        UUID customerId = customerManagementApplicationService.create(input);
+        UUID customerId = customerManagementApplicationService.create(securityCheck.getAuthenticatedUserId(), input);
         Assertions.assertThat(customerId).isNotNull();
 
         customerManagementApplicationService.update(customerId, updatedInput);
@@ -107,7 +112,7 @@ class CustomerManagementApplicationServiceIT extends AbstractIntegrationTest {
     @Test
     void shouldArchiveCustomer() {
         CustomerInput input = CustomerInputTestDataBuilder.aCustomer().build();
-        UUID customerId = customerManagementApplicationService.create(input);
+        UUID customerId = customerManagementApplicationService.create(securityCheck.getAuthenticatedUserId(), input);
 
         customerManagementApplicationService.archive(customerId);
 
@@ -140,7 +145,7 @@ class CustomerManagementApplicationServiceIT extends AbstractIntegrationTest {
     @Test
     void shouldThrowCustomerArchivedExceptionWhenArchivingAlreadyArchivedCustomer() {
         CustomerInput input = CustomerInputTestDataBuilder.aCustomer().build();
-        UUID customerId = customerManagementApplicationService.create(input);
+        UUID customerId = customerManagementApplicationService.create(securityCheck.getAuthenticatedUserId(), input);
 
         customerManagementApplicationService.archive(customerId);
 
@@ -151,7 +156,7 @@ class CustomerManagementApplicationServiceIT extends AbstractIntegrationTest {
     @Test
     void shouldChangeEmail() {
         UUID customerId = customerManagementApplicationService.create(
-                CustomerInputTestDataBuilder.aCustomer().build());
+                securityCheck.getAuthenticatedUserId(), CustomerInputTestDataBuilder.aCustomer().build());
 
         customerManagementApplicationService.changeEmail(customerId, "newemail@email.com");
 
@@ -171,7 +176,7 @@ class CustomerManagementApplicationServiceIT extends AbstractIntegrationTest {
     @Test
     void shouldThrowCustomerArchivedExceptionWhenChangingEmailForArchivedCustomer() {
         UUID customerId = customerManagementApplicationService.create(
-                CustomerInputTestDataBuilder.aCustomer().build());
+                securityCheck.getAuthenticatedUserId(), CustomerInputTestDataBuilder.aCustomer().build());
 
         customerManagementApplicationService.archive(customerId);
 
@@ -183,7 +188,7 @@ class CustomerManagementApplicationServiceIT extends AbstractIntegrationTest {
     @Test
     void shouldThrowIllegalArgumentExceptionWhenChangingEmailWithInvalidFormat() {
         UUID customerId = customerManagementApplicationService.create(
-                CustomerInputTestDataBuilder.aCustomer().build());
+                securityCheck.getAuthenticatedUserId(), CustomerInputTestDataBuilder.aCustomer().build());
 
         Assertions.assertThatThrownBy(() ->
                 customerManagementApplicationService.changeEmail(customerId, "email-invalido"))
@@ -193,10 +198,11 @@ class CustomerManagementApplicationServiceIT extends AbstractIntegrationTest {
     @Test
     void shouldThrowCustomerEmailIsInUseExceptionWhenEmailAlreadyBelongsToAnotherCustomer() {
         CustomerInput firstInput = CustomerInputTestDataBuilder.aCustomer().build();
-        customerManagementApplicationService.create(firstInput);
+        customerManagementApplicationService.create(securityCheck.getAuthenticatedUserId(), firstInput);
 
+        // o segundo cliente precisa de outro id: repetir o id do token sobrescreveria o primeiro
         UUID secondCustomerId = customerManagementApplicationService.create(
-                CustomerInputTestDataBuilder.aCustomer().build());
+                UUID.randomUUID(), CustomerInputTestDataBuilder.aCustomer().build());
 
         Assertions.assertThatThrownBy(() ->
                 customerManagementApplicationService.changeEmail(secondCustomerId, firstInput.getEmail()))

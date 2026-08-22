@@ -31,6 +31,7 @@ class CustomerRegistrationServiceTest {
                 .thenReturn(true);
 
         Customer customer = customerRegistrationService.register(
+                new CustomerId(),
                 new FullName("John", "Doe"),
                 new BirthDate(LocalDate.of(1991, 7, 5)),
                 new Email("john@gmail.com"),

@@ -2,10 +2,11 @@ package contracts.shoppingcart
 
 import org.springframework.cloud.contract.spec.Contract
 
+// O corpo nao carrega shoppingCartId: o controller resolve o carrinho pelo token.
 Contract.make {
     request {
         method POST()
-        urlPath("/api/v1/shopping-carts/ad265aa3-c77d-46e9-9782-b70c487c1e17/items")
+        urlPath("/api/v1/customers/me/shopping-cart/items")
         headers {
             contentType("application/json")
         }

@@ -10,9 +10,10 @@ import java.util.UUID;
 
 public class CheckoutInputTestDataBuilder {
 
-    public static CheckoutInput.CheckoutInputBuilder aCheckoutInput(UUID shoppingCartId) {
+    // o carrinho deixou de vir no corpo: e resolvido pelo cliente autenticado, entao o
+    // builder nao recebe mais shoppingCartId - quem precisa de dono seta customerId
+    public static CheckoutInput.CheckoutInputBuilder aCheckoutInput() {
         return CheckoutInput.builder()
-                .shoppingCartId(shoppingCartId)
                 .paymentMethod("CREDIT_CARD")
                 .creditCardId(UUID.randomUUID())
                 .shipping(ShippingInput.builder()

@@ -1,6 +1,7 @@
 package com.gtech.algashop.infrastructure.adapters.out.persistence.order;
 
 import com.gtech.algashop.core.application.util.Mapper;
+import com.gtech.algashop.core.domain.model.costumer.CustomerId;
 import com.gtech.algashop.core.domain.model.order.OrderId;
 import com.gtech.algashop.core.domain.model.order.OrderNotFoundException;
 import com.gtech.algashop.core.ports.out.order.CustomerMinimalOutput;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -51,6 +53,14 @@ public class ForObtainingOrderJpaRepositoryImpl implements ForObtainingOrder {
         }
 
         return filterQuery(filter, totalQueryResults);
+    }
+
+    @Override
+    public OrderDetailOutput findByIdAndCustomerId(String orderId, UUID customerId) {
+        OrderPersistenceEntity entity = repository.findByIdAndCustomerId(
+                new OrderId(orderId).value().toLong(), customerId)
+                    .orElseThrow(OrderNotFoundException::new);
+        return mapper.convert(entity, OrderDetailOutput.class);
     }
 
     private Page<OrderSummaryOutput> filterQuery(OrderFilter filter, Long totalQueryResults) {

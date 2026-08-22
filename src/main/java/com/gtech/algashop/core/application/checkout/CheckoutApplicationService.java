@@ -4,6 +4,7 @@ import com.gtech.algashop.core.application.security.SecurityCheckApplicationServ
 import com.gtech.algashop.core.domain.model.BusinessException;
 import com.gtech.algashop.core.domain.model.commons.ZipCode;
 import com.gtech.algashop.core.domain.model.costumer.Customer;
+import com.gtech.algashop.core.domain.model.costumer.CustomerId;
 import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundException;
 import com.gtech.algashop.core.domain.model.costumer.Customers;
 import com.gtech.algashop.core.domain.model.order.*;
@@ -50,6 +51,10 @@ public class CheckoutApplicationService implements ForBuyingWithShoppingCart {
     public String checkout(CheckoutInput input) {
         Objects.requireNonNull(input);
 
+        CustomerId customerId = new CustomerId(input.getCustomerId());
+        Customer customer = customers.ofId(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException(customerId));
+
         // extraindo enum a partir do input String
         PaymentMethod paymentMethod = PaymentMethod.valueOf(input.getPaymentMethod());
         CreditCardId creditCardId = null;
@@ -61,14 +66,12 @@ public class CheckoutApplicationService implements ForBuyingWithShoppingCart {
             creditCardId = new CreditCardId(input.getCreditCardId());
         }
 
-        ShoppingCartId shoppingCartId = new ShoppingCartId(input.getShoppingCartId());
-        ShoppingCart shoppingCart = shoppingCarts.ofId(shoppingCartId)
-                .orElseThrow(ShoppingCartNotFound::new);
+        ShoppingCart shoppingCart = shoppingCarts.ofCustomer(customerId)
+                .orElseThrow(() -> ShoppingCartNotFound.ofCustomer(customerId.value()));
 
         verifyCanOrderFor(shoppingCart.customerId().value());
 
-        Customer customer = customers.ofId(shoppingCart.customerId())
-                .orElseThrow(() -> new CustomerNotFoundException(shoppingCart.customerId()));
+
 
 
         // calcula frete

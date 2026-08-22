@@ -4,6 +4,7 @@ import com.gtech.algashop.core.domain.model.AbstractDomainIT;
 import com.gtech.algashop.core.domain.model.commons.*;
 import com.gtech.algashop.core.domain.model.costumer.BirthDate;
 import com.gtech.algashop.core.domain.model.costumer.Customer;
+import com.gtech.algashop.core.domain.model.costumer.CustomerId;
 import com.gtech.algashop.core.domain.model.costumer.CustomerRegistrationService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ class CustomerRegistrationServiceIT extends AbstractDomainIT {
     @Test
     void shouldRegister() {
         Customer customer = customerRegistrationService.register(
+                new CustomerId(),
                 new FullName("John", "Doe"),
                 new BirthDate(LocalDate.of(1991, 7, 5)),
                 new Email("johndoe@email.com"),

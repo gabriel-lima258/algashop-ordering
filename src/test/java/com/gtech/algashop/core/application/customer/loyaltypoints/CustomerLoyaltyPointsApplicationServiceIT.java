@@ -2,6 +2,7 @@ package com.gtech.algashop.core.application.customer.loyaltypoints;
 
 import com.gtech.algashop.core.application.AbstractIntegrationTest;
 import com.gtech.algashop.core.application.customer.management.CustomerInputTestDataBuilder;
+import com.gtech.algashop.core.application.security.SecurityCheckApplicationService;
 import com.gtech.algashop.core.ports.in.customer.ForManagingCustomer;
 import com.gtech.algashop.core.ports.in.customer.CustomerOutput;
 import com.gtech.algashop.core.ports.in.customer.ForQueryCustomers;
@@ -20,6 +21,10 @@ class CustomerLoyaltyPointsApplicationServiceIT extends AbstractIntegrationTest 
 
     @Autowired
     private ForAddingLoyaltyPoints loyaltyPointsApplicationService;
+
+    // bean real (OAuth2SecurityCheckApplicationServiceImpl) lendo a identidade do @WithMockJwt
+    @Autowired
+    private SecurityCheckApplicationService securityCheck;
 
     @Autowired
     private ForManagingCustomer customerManagementApplicationService;
@@ -44,7 +49,7 @@ class CustomerLoyaltyPointsApplicationServiceIT extends AbstractIntegrationTest 
     @Test
     void shouldAddLoyaltyPointsSuccessfully() {
         UUID customerId = customerManagementApplicationService.create(
-                CustomerInputTestDataBuilder.aCustomer().build());
+                securityCheck.getAuthenticatedUserId(), CustomerInputTestDataBuilder.aCustomer().build());
 
         Order order = OrderTestDataBuilder.anOrder()
                 .customerId(new CustomerId(customerId))
@@ -63,7 +68,7 @@ class CustomerLoyaltyPointsApplicationServiceIT extends AbstractIntegrationTest 
         // Order must reference a real customer to satisfy the FK constraint,
         // but we query addLoyaltyPoints with a different, non-existent UUID.
         UUID realCustomerId = customerManagementApplicationService.create(
-                CustomerInputTestDataBuilder.aCustomer().build());
+                securityCheck.getAuthenticatedUserId(), CustomerInputTestDataBuilder.aCustomer().build());
 
         Order order = OrderTestDataBuilder.anOrder()
                 .customerId(new CustomerId(realCustomerId))
@@ -82,7 +87,7 @@ class CustomerLoyaltyPointsApplicationServiceIT extends AbstractIntegrationTest 
     @Test
     void shouldThrowOrderNotFoundExceptionWhenOrderDoesNotExist() {
         UUID customerId = customerManagementApplicationService.create(
-                CustomerInputTestDataBuilder.aCustomer().build());
+                securityCheck.getAuthenticatedUserId(), CustomerInputTestDataBuilder.aCustomer().build());
 
         String nonExistentOrderId = new OrderId().toString();
 
@@ -94,7 +99,7 @@ class CustomerLoyaltyPointsApplicationServiceIT extends AbstractIntegrationTest 
     @Test
     void shouldThrowCustomerArchivedExceptionWhenCustomerIsArchived() {
         UUID customerId = customerManagementApplicationService.create(
-                CustomerInputTestDataBuilder.aCustomer().build());
+                securityCheck.getAuthenticatedUserId(), CustomerInputTestDataBuilder.aCustomer().build());
 
         Order order = OrderTestDataBuilder.anOrder()
                 .customerId(new CustomerId(customerId))
@@ -113,9 +118,10 @@ class CustomerLoyaltyPointsApplicationServiceIT extends AbstractIntegrationTest 
     @Test
     void shouldThrowOrderNotBelongsToCustomerExceptionWhenOrderBelongsToAnotherCustomer() {
         UUID customerAId = customerManagementApplicationService.create(
-                CustomerInputTestDataBuilder.aCustomer().build());
+                securityCheck.getAuthenticatedUserId(), CustomerInputTestDataBuilder.aCustomer().build());
+        // o cliente B precisa de outro id: repetir o id do token sobrescreveria o cliente A
         UUID customerBId = customerManagementApplicationService.create(
-                CustomerInputTestDataBuilder.aCustomer().email("janedoe@email.com").build());
+                UUID.randomUUID(), CustomerInputTestDataBuilder.aCustomer().email("janedoe@email.com").build());
 
         Order orderForCustomerB = OrderTestDataBuilder.anOrder()
                 .customerId(new CustomerId(customerBId))
@@ -132,7 +138,7 @@ class CustomerLoyaltyPointsApplicationServiceIT extends AbstractIntegrationTest 
     @Test
     void shouldThrowCanAddLoyaltyPointsOrderIsNotReadyExceptionWhenOrderIsNotReady() {
         UUID customerId = customerManagementApplicationService.create(
-                CustomerInputTestDataBuilder.aCustomer().build());
+                securityCheck.getAuthenticatedUserId(), CustomerInputTestDataBuilder.aCustomer().build());
 
         Order order = OrderTestDataBuilder.anOrder()
                 .customerId(new CustomerId(customerId))
@@ -149,7 +155,7 @@ class CustomerLoyaltyPointsApplicationServiceIT extends AbstractIntegrationTest 
     @Test
     void shouldNotAddPointsWhenOrderTotalIsBelowThreshold() {
         UUID customerId = customerManagementApplicationService.create(
-                CustomerInputTestDataBuilder.aCustomer().build());
+                securityCheck.getAuthenticatedUserId(), CustomerInputTestDataBuilder.aCustomer().build());
 
         // withItems(false) → total = R$0.00 (below R$1000 threshold) → 0 points
         Order order = OrderTestDataBuilder.anOrder()
