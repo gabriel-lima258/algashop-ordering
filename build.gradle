@@ -38,6 +38,7 @@ repositories {
 
 ext {
     set('springCloudVersion', "2025.1.0")
+    set('springCloudAwsVersion', "4.0.0")
 }
 
 dependencyManagement {
@@ -64,6 +65,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-framework-retry'
+
+    // AWS secrets manager - AWS parameters store
+    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:${springCloudAwsVersion}")
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-secrets-manager'
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-parameter-store'
     runtimeOnly 'org.postgresql:postgresql'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

@@ -1,14 +1,33 @@
 server.port: 8081
 
+# config.import traz os secrets e parameters da aws (LocalStack) para este arquivo env.
+# O seed é feito pelo etc/aws/init.sh (parameters.csv / secrets.csv).
+# prefix facilita o uso: ${ordering.params.datasource.url}, ${ordering.secrets.datasource.username}
+
 spring:
+  config:
+    import:
+      - aws-secretsmanager:/secret/algashop/ordering/database?prefix=ordering.secrets.datasource.
+      - aws-secretsmanager:/secret/algashop/ordering/redis?prefix=ordering.secrets.redis.
+      - aws-secretsmanager:/secret/algashop/ordering/oauth2-client?prefix=ordering.secrets.oauth2-client.
+      - aws-parameterstore:/config/algashop/ordering?prefix=ordering.params
+      - aws-parameterstore:/config/algashop/shared?prefix=shared.params
+  cloud:
+    aws:
+      region:
+        static: us-east-1
+      endpoint: http://algashop-localstack:4566
+      credentials:
+        access-key: LSIAQAAAAAAVNCBMPNSG
+        secret-key: test
   cache:
     type: redis
   datasource:
-    url: jdbc:postgresql://localhost:5433/ordering
-    username: postgres
-    password: postgres
+    url: ${ordering.params.datasource.url}
+    username: ${ordering.secrets.datasource.username}
+    password: ${ordering.secrets.datasource.password}
   jpa:
-    show-sql: true
+    show-sql: ${ordering.params.jpa.show-sql}
   flyway:
     enabled: true
     locations: classpath:db/migration,classpath:db/testdata
@@ -17,11 +36,11 @@ spring:
     url: jdbc:postgresql://localhost:5433/ordering
   data:
     redis:
-      host: localhost
-      port: 6379
-      password: algashop
-      database: 1       # database 1 diferente do catalog 0 para separar os banco lógicos
-      timeout: 600
+      host: ${ordering.params.redis.host}
+      port: ${ordering.params.redis.port}
+      password: ${ordering.secrets.redis.password}
+      database: ${ordering.params.redis.database}       # database 1 diferente do catalog 0 para separar os banco lógicos
+      timeout: ${ordering.params.redis.timeout}
   security:
     oauth2:
       resourceserver:
@@ -47,10 +66,9 @@ spring:
           algashop-ordering-service-client:
             provider: algashop-as
             client-id: algashop-ordering-service
-            # Segredo em texto puro num arquivo versionado - o par do {noop} do lado do
-            # authorization server. Didatico aqui, indefensavel fora de estudo: em
-            # producao viria de variavel de ambiente ou cofre.
-            client-secret: secret123
+            # Segredo vem do Secrets Manager - o par em texto puro do {bcrypt} registrado
+            # no lado do authorization server (mesmo valor, representacoes diferentes).
+            client-secret: ${ordering.secrets.oauth2-client.client-secret}
             authorization-grant-type: client_credentials
             client-authentication-method: client_secret_basic
             scope: products:read
@@ -60,9 +78,9 @@ algashop:
     # Fonte unica do endereco do authorization server: o issuer-uri do resource server e o
     # token-uri do client interpolam daqui. Sao dois papeis diferentes lendo o mesmo valor -
     # e ter que muda-lo em dois lugares seria um jeito silencioso de deixa-los divergir.
-    authorization-server.url: http://auth.algashop.local:9000
+    authorization-server.url: ${shared.params.auth-server-url}
     shipping.provider: "RAPIDEX"
-    rapidex.url: "http://localhost:8787"
+    rapidex.url: ${ordering.params.integrations.rapidex.url}
     product-catalog:
-      url: "http://localhost:8083"
+      url: ${ordering.params.integrations.product-catalog.url}
       oauth2-client-registration-id: algashop-ordering-service-client
