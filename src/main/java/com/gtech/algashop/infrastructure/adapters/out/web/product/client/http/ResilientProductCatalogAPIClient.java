@@ -89,7 +89,7 @@ public class ResilientProductCatalogAPIClient {
             return Optional.ofNullable(productCatalogApiClient.getById(productId));
         } catch (HttpClientErrorException.NotFound e) {
             return Optional.empty();
-        } catch (RestClientException e) {
+        } catch (Exception e) {
             // Traduzir AQUI DENTRO e o que faz a RetryPolicy enxergar os tipos do includes;
             // traduzir so no getById deixaria o retry vendo a excecao crua do RestClient.
             throw translateException(e);
@@ -113,7 +113,7 @@ public class ResilientProductCatalogAPIClient {
     }
 
     // traduz o vocabulario do RestClient para o da API (504 / 502)
-    private RuntimeException translateException(RestClientException e) {
+    private RuntimeException translateException(Exception e) {
         // connect/read timeout (3s / 7s) ou rede fora
         if (e.getCause() instanceof SocketTimeoutException || e instanceof ResourceAccessException) {
             return new GatewayTimeoutException("Product Catalog API Timeout", e);

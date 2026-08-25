@@ -57,6 +57,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
     implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client' // self client eureka
+
+
     implementation 'org.flywaydb:flyway-database-postgresql'
     implementation 'commons-validator:commons-validator:1.10.1'
     implementation 'com.fasterxml.uuid:java-uuid-generator:5.2.0'
@@ -110,6 +113,7 @@ contracts {
         baseClassMapping("order", "com.gtech.algashop.contract.base.OrderBase")
     }
 }
+
 
 //contracts {
 //    testFramework ='JUNIT5'

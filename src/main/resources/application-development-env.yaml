@@ -73,6 +73,12 @@ spring:
             client-authentication-method: client_secret_basic
             scope: products:read
 
+logging:
+  level:
+    com.netflix.discovery.DiscoveryClient: OFF # desativa error eureka em dev
+    com.netflix.discovery: OFF
+    com.netflix.eureka: OFF
+
 algashop:
   integrations:
     # Fonte unica do endereco do authorization server: o issuer-uri do resource server e o
@@ -84,3 +90,13 @@ algashop:
     product-catalog:
       url: ${ordering.params.integrations.product-catalog.url}
       oauth2-client-registration-id: algashop-ordering-service-client
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${shared.params.service-registry-url}/eureka
+    healthcheck:
+      enabled: true # habilita o health em eureka para status de serviço dentro de eureka
+  instance:
+    instanceId: ${random.uuid} # cada instancia replicada ganha um id unico
+    prefer-ip-address: true # configura rede alcançável via docker
