@@ -1,4 +1,4 @@
-package com.gtech.algashop.infrastructure.discovery;
+package com.gtech.algashop.infrastructure.config.discovery;
 
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Configuration;
