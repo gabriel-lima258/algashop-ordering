@@ -4,6 +4,9 @@ server.port: 8081
 # O seed é feito pelo etc/aws/init.sh (parameters.csv / secrets.csv).
 # prefix facilita o uso: ${ordering.params.datasource.url}, ${ordering.secrets.datasource.username}
 
+# ProductCatalog.ProductAddedIntegrationEvent:tools.jackson.databind.node.ObjectNode serializa em json generico
+# já tratado automaticamente na classe KafkaConsumerTypeIdIdentifier
+
 spring:
   config:
     import:
@@ -72,7 +75,21 @@ spring:
             authorization-grant-type: client_credentials
             client-authentication-method: client_secret_basic
             scope: products:read
-
+  kafka:
+    bootstrap-servers: algashop-kafka-1:9092,algashop-kafka-2:9093,algashop-kafka-3:9094
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      group-id: ordering
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+        spring.json.trusted.packages: com.gtech.algashop.* # define os pacotes seguros ao kafka para evitar erros
+        spring.json.key.default.type: java.lang.String
+        spring.json.value.default.type: java.lang.String
+        spring.json.value.type.method: com.gtech.algashop.infrastructure.config.kafka.KafkaConsumerTypeIdIdentifier.readType
+        spring.json.type.mapping: # deserialização do type id do produtor
+          ProductCatalog.ProductDelistedIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductDelistedIntegrationEvent,
+          ProductCatalog.ProductListedIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductListedIntegrationEvent
 logging:
   level:
     com.netflix.discovery.DiscoveryClient: OFF # desativa error eureka em dev
@@ -90,6 +107,9 @@ algashop:
     product-catalog:
       url: ${ordering.params.integrations.product-catalog.url}
       oauth2-client-registration-id: algashop-ordering-service-client
+  messaging:
+    kafka:
+      product-event-topic-name: product-catalog.product.events
 
 eureka:
   client:

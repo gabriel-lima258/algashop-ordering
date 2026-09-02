@@ -13,6 +13,12 @@ spring:
     enabled: true
     locations: classpath:db/migration,classpath:db/testdata
     url: jdbc:postgresql://algashop-postgres:5432/ordering
+  # Dentro da rede do compose o bootstrap e o listener PLAINTEXT interno (9090).
+  # O development-env aponta para os EXTERNAL (9092-9094), que anunciam localhost -
+  # dentro do container isso apontaria para o proprio container e a conexao morreria
+  # no segundo passo do bootstrap (conectar no endereco ANUNCIADO pelo broker).
+  kafka:
+    bootstrap-servers: algashop-kafka-1:9090,algashop-kafka-2:9090,algashop-kafka-3:9090
 
 algashop:
   integrations:
