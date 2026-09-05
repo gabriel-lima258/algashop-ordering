@@ -89,7 +89,8 @@ spring:
         spring.json.value.type.method: com.gtech.algashop.infrastructure.config.kafka.KafkaConsumerTypeIdIdentifier.readType
         spring.json.type.mapping: # deserialização do type id do produtor
           ProductCatalog.ProductDelistedIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductDelistedIntegrationEvent,
-          ProductCatalog.ProductListedIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductListedIntegrationEvent
+          ProductCatalog.ProductListedIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductListedIntegrationEvent,
+          ProductCatalog.ProductPriceChangedV2IntegrationEvent:com.gtech.algashop.core.application.product.event.ProductPriceChangedV2IntegrationEvent
 logging:
   level:
     com.netflix.discovery.DiscoveryClient: OFF # desativa error eureka em dev

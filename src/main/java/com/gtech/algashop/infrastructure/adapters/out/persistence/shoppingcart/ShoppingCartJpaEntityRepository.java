@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -90,4 +91,6 @@ public interface ShoppingCartJpaEntityRepository extends JpaRepository<ShoppingC
                 AND i2.productId = :productId)
     """)
     void recalculateTotalForCartWithProduct(@Param("productId") UUID productId);
+
+    List<ShoppingCartPersistenceEntity> findAllByItems_productId(UUID productId);
 }

@@ -83,6 +83,18 @@ public class ShoppingCartItem {
         this.recalculateTotals();
     }
 
+    void changeAvailability(boolean available) {
+        this.setAvailable(available);
+    }
+
+    // package-private como changeQuantity e changeAvailability: so o ShoppingCart (raiz)
+    // pode mudar o item - publico permitiria alterar o preco por fora e deixar o total
+    // do carrinho inconsistente
+    void changeItemPrice(Money price) {
+        this.setPrice(price);
+        this.recalculateTotals();
+    }
+
     /////////////////////////////////////
     ///  GETTERS
     ////////////////////////////////////

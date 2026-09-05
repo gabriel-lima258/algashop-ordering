@@ -1,5 +1,6 @@
 package com.gtech.algashop.infrastructure.adapters.out.persistence.shoppingcart;
 
+import com.gtech.algashop.core.domain.model.product.ProductId;
 import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCart;
 import com.gtech.algashop.core.domain.model.costumer.CustomerId;
 import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCartId;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -30,6 +32,15 @@ public class ShoppingCartPersistenceProvider implements ShoppingCarts {
     public Optional<ShoppingCart> ofCustomer(CustomerId customerId) {
         return persistenceRepository.findByCustomer_Id(customerId.value())
                 .map(disassembler::toDomainEntity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ShoppingCart> findAllContainingItem(ProductId productId) {
+        return persistenceRepository.findAllByItems_productId(productId.value())
+                .stream()
+                .map(disassembler::toDomainEntity)
+                .toList();
     }
 
     @Override

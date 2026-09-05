@@ -22,14 +22,18 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 
 import java.time.Duration;
 
+import static com.gtech.algashop.infrastructure.config.cache.ProductCacheManager.PRODUCT_CATALOG_API_CACHE_NAME;
+
 // O que este serviço cacheia é diferente do que o product-catalog cacheia, e vale ter
 // isso claro: aqui o cache é do LADO CLIENTE. O que entra no Redis é a resposta de uma
 // chamada HTTP a outro microsserviço, não uma consulta ao banco próprio.
 //
 // A diferença prática está em quem invalida. No catálogo, quem escreve o produto é o
 // mesmo serviço que o cacheia, então ele sabe exatamente quando a entrada ficou velha e
-// usa @CacheEvict. Aqui não: o dado é de outro serviço, e este não fica sabendo quando
-// muda. Sobra o TTL como único mecanismo de invalidação — e é por isso que ele é curto.
+// usa @CacheEvict. Aqui o dado é de outro serviço — e desde a Fase 39 este serviço FICA
+// sabendo quando ele muda: os eventos Kafka de produto disparam o evict programático
+// (ProductCacheManager). O TTL curto deixou de ser o único mecanismo de invalidação e
+// virou a segunda linha de defesa, para o evento que se perder no caminho.
 @Configuration
 @EnableCaching
 @ConditionalOnProperty(name = "spring.cache.type", havingValue = "redis")
@@ -54,7 +58,7 @@ public class RedisCacheConfig implements CachingConfigurer {
 
         return (builder) -> builder
                 .cacheDefaults(defaultCacheConfig)
-                .withCacheConfiguration("algashop:product-catalog-api:v1",
+                .withCacheConfiguration(PRODUCT_CATALOG_API_CACHE_NAME,
                         defaultCacheConfig.disableCachingNullValues().entryTtl(Duration.ofMinutes(5)));
     }
 }

@@ -136,6 +136,20 @@ public class ShoppingCart
         return this.items().isEmpty();
     }
 
+    public void changeItemAvailability(ProductId productId, boolean available) {
+        ShoppingCartItem shoppingCartItem = this.findItem(productId);
+        shoppingCartItem.changeAvailability(available);
+    }
+
+    public void changeItemPrice(ProductId productId, Money newSalePrice) {
+        ShoppingCartItem shoppingCartItem = this.findItem(productId);
+        shoppingCartItem.changeItemPrice(newSalePrice);
+        // o item recalcula o SEU total, mas o total do carrinho e outro campo persistido -
+        // sem esta linha ele ficaria com a soma antiga no banco (bug de dinheiro), como
+        // ja garantem refreshItem e changeQuantity
+        this.recalculateTotals();
+    }
+
     /////////////////////////////////////
     ///  GETTERS
     ////////////////////////////////////
@@ -264,4 +278,5 @@ public class ShoppingCart
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
 }
