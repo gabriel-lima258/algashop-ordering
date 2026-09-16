@@ -11,7 +11,6 @@ import com.gtech.algashop.core.domain.model.order.*;
 import com.gtech.algashop.core.domain.model.order.shipping.OriginAddressService;
 import com.gtech.algashop.core.domain.model.order.shipping.ShippingCostService;
 import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCart;
-import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCartId;
 import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCartNotFound;
 import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCarts;
 import com.gtech.algashop.core.ports.in.checkout.CheckoutInput;
@@ -30,11 +29,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CheckoutApplicationService implements ForBuyingWithShoppingCart {
 
+    // Services
     private final ShippingCostService shippingCostService;
     private final OriginAddressService originAddressService;
     private final CheckoutService checkoutService;
 
-    // Repositório
+    // Repositories
     private final Orders orders;
     private final ShoppingCarts shoppingCarts;
     private final Customers customers;
@@ -52,8 +52,6 @@ public class CheckoutApplicationService implements ForBuyingWithShoppingCart {
         Objects.requireNonNull(input);
 
         CustomerId customerId = new CustomerId(input.getCustomerId());
-        Customer customer = customers.ofId(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException(customerId));
 
         // extraindo enum a partir do input String
         PaymentMethod paymentMethod = PaymentMethod.valueOf(input.getPaymentMethod());
@@ -66,13 +64,10 @@ public class CheckoutApplicationService implements ForBuyingWithShoppingCart {
             creditCardId = new CreditCardId(input.getCreditCardId());
         }
 
-        ShoppingCart shoppingCart = shoppingCarts.ofCustomer(customerId)
-                .orElseThrow(() -> ShoppingCartNotFound.ofCustomer(customerId.value()));
+        Customer customer = loadCustomer(customerId);
+        ShoppingCart shoppingCart = loadShoppingCart(customerId);
 
         verifyCanOrderFor(shoppingCart.customerId().value());
-
-
-
 
         // calcula frete
         var shippingCalculateResult = calculateShippingCost(input.getShipping());
@@ -108,5 +103,13 @@ public class CheckoutApplicationService implements ForBuyingWithShoppingCart {
         if (!(securityCheck.canOrderFor(customerId))) {
             throw new AccessDeniedException("Cannot order for customer " + customerId);
         }
+    }
+
+    private ShoppingCart loadShoppingCart(CustomerId customerId) {
+        return shoppingCarts.ofCustomer(customerId).orElseThrow(() -> ShoppingCartNotFound.ofCustomer(customerId.value()));
+    }
+
+    private Customer loadCustomer(CustomerId customerId) {
+        return customers.ofId(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
     }
 }

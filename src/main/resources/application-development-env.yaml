@@ -7,6 +7,10 @@ server.port: 8081
 # ProductCatalog.ProductAddedIntegrationEvent:tools.jackson.databind.node.ObjectNode serializa em json generico
 # já tratado automaticamente na classe KafkaConsumerTypeIdIdentifier
 
+#  max.poll.interval.ms	300000 (5 min)	tempo máximo entre duas chamadas de poll() — estourou, o consumer é considerado em falha e sai do grupo
+#  max.poll.records	500	quantos registros uma única chamada de poll() devolve
+#  heartbeat.interval.ms 3s de quanto em quanto tempo a thread de fundo avisa que está viva
+
 spring:
   config:
     import:
@@ -77,25 +81,37 @@ spring:
             scope: products:read
   kafka:
     bootstrap-servers: algashop-kafka-1:9092,algashop-kafka-2:9093,algashop-kafka-3:9094
+    properties:
+      spring.json.type.mapping: # deserialização do type id do produtor
+        ProductCatalog.ProductDelistedIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductDelistedIntegrationEvent,
+        ProductCatalog.ProductListedIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductListedIntegrationEvent,
+        ProductCatalog.ProductPriceChangedV2IntegrationEvent:com.gtech.algashop.core.application.product.event.ProductPriceChangedV2IntegrationEvent,
+        Ordering.OrderPlacedIntegrationEvent:com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEvent,
+        Ordering.ProcessAcceptedCheckoutIntegrationCommand:com.gtech.algashop.core.application.checkout.command.ProcessAcceptedCheckoutIntegrationCommand
+    producer: # produtor para topico de dead letter topic
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer # chave String
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer # valor Json
+      properties:
+        enable.idempotence: true
+        linger.ms: 0 # tempo de batch de messages enviados no producer, 0 envia uma mensagem por vez
+        request.timeout.ms: 5000 # tempo de UMA ida ao broker esperando a resposta
+        delivery.timeout.ms: 5000 # teto da operação inteira: envio + retries + backoff + confirmação
+        max.block.ms: 5000 # tempo que o próprio send() pode bloquear antes de existir future
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       group-id: ordering
+      auto-offset-reset: earliest # grupo novo começa do início do tópico (não perde comandos já publicados)
       properties:
+        max.poll.interval.ms: 300000 # (5 min) tempo máximo entre chamadas de consumo de eventos
+        max.poll.records: 1
+        heartbeat.interval.ms: 3000
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
         spring.json.trusted.packages: com.gtech.algashop.* # define os pacotes seguros ao kafka para evitar erros
         spring.json.key.default.type: java.lang.String
         spring.json.value.default.type: java.lang.String
         spring.json.value.type.method: com.gtech.algashop.infrastructure.config.kafka.KafkaConsumerTypeIdIdentifier.readType
-        spring.json.type.mapping: # deserialização do type id do produtor
-          ProductCatalog.ProductDelistedIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductDelistedIntegrationEvent,
-          ProductCatalog.ProductListedIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductListedIntegrationEvent,
-          ProductCatalog.ProductPriceChangedV2IntegrationEvent:com.gtech.algashop.core.application.product.event.ProductPriceChangedV2IntegrationEvent
-logging:
-  level:
-    com.netflix.discovery.DiscoveryClient: OFF # desativa error eureka em dev
-    com.netflix.discovery: OFF
-    com.netflix.eureka: OFF
 
 algashop:
   integrations:
@@ -111,6 +127,18 @@ algashop:
   messaging:
     kafka:
       product-event-topic-name: product-catalog.product.events
+      order-event-topic-name: ordering.order.events
+      order-command-topic-name: ordering.order.commands
+    outbox:
+      enabled: true # persistencia
+      send-timeout: PT5S
+      batch-size: 100 # quantidades de mensagens buscadas
+      poll-interval: PT1M # intervalo de verificação na tabela de outbox
+      max-attempts: 10 # maximas tentativas ao falhar
+      backoff: PT5S # tempo entre tentativas
+      batch-deadline: PT3M # tempo maximo que schedule de tentativa de envio pode ter e respeitar o lock
+      dispatcher:
+        enabled: true # envio
 
 eureka:
   client:
@@ -121,3 +149,11 @@ eureka:
   instance:
     instanceId: ${random.uuid} # cada instancia replicada ganha um id unico
     prefer-ip-address: true # configura rede alcançável via docker
+
+logging:
+  level:
+    com.netflix.discovery.DiscoveryClient: OFF # desativa error eureka em dev
+    com.netflix.discovery: OFF
+    com.netflix.eureka: OFF
+    org.springframework.kafka: OFF
+    org.apache.kafka: OFF

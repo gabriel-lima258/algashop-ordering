@@ -71,6 +71,10 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-kafka' // kafka
 
+    // shedlock: rotina de limpeza de banco com tarefas agendadas com controle de locks
+    implementation 'net.javacrumbs.shedlock:shedlock-spring:7.9.0'
+    implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:7.9.0'
+
     // AWS secrets manager - AWS parameters store
     implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:${springCloudAwsVersion}")
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-secrets-manager'

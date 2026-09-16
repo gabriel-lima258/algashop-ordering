@@ -60,3 +60,23 @@ algashop:
       # ProductCatalogIntegrationProperties e @Component @Validated com @NotBlank nos dois
       # campos: sem este aqui, nenhum contexto sobe - nem em teste.
       oauth2-client-registration-id: algashop-ordering-service-client
+# O contexto de teste carrega os beans de mensageria (@Component com @NotBlank e o
+# @Value do type.mapping) mesmo sem nenhum teste tocar Kafka - sem estas chaves o
+# contexto nem sobe. Outbox e dispatcher ficam DESLIGADOS: teste nao publica nada.
+spring.kafka.properties.spring.json.type.mapping: >
+  ProductCatalog.ProductDelistedIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductDelistedIntegrationEvent,
+  ProductCatalog.ProductListedIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductListedIntegrationEvent,
+  ProductCatalog.ProductPriceChangedV2IntegrationEvent:com.gtech.algashop.core.application.product.event.ProductPriceChangedV2IntegrationEvent,
+  Ordering.OrderPlacedIntegrationEvent:com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEvent,
+  Ordering.ProcessAcceptedCheckoutIntegrationCommand:com.gtech.algashop.core.application.checkout.command.ProcessAcceptedCheckoutIntegrationCommand
+
+algashop:
+  messaging:
+    kafka:
+      product-event-topic-name: product-catalog.product.events
+      order-event-topic-name: ordering.order.events
+      order-command-topic-name: ordering.order.commands
+    outbox:
+      enabled: false
+      dispatcher:
+        enabled: false

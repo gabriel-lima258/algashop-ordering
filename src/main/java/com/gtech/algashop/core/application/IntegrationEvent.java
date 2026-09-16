@@ -2,6 +2,8 @@ package com.gtech.algashop.core.application;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.UUID;
+
 // Espelho LOCAL do contrato minimo dos eventos de integracao do product-catalog.
 // No PRODUTOR o getAggregateId() vira a KEY do record; aqui, no consumidor, ninguem
 // chama este metodo - a key chega pronta no header KafkaHeaders.RECEIVED_KEY. A
@@ -12,4 +14,10 @@ public interface IntegrationEvent {
     // ja viaja como key do record e como campo productId do payload
     @JsonIgnore
     String getAggregateId();
+
+    // retorna null em casos que não precisa de idempotency
+    @JsonIgnore
+    default UUID getIdempotencyKey() {
+        return null;
+    }
 }

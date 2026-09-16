@@ -1,10 +1,13 @@
 package com.gtech.algashop.infrastructure.adapters.in.listerner.order;
 
+import com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEvent;
+import com.gtech.algashop.core.application.util.Mapper;
 import com.gtech.algashop.core.domain.model.order.OrderCanceledEvent;
 import com.gtech.algashop.core.domain.model.order.OrderPaidEvent;
 import com.gtech.algashop.core.domain.model.order.OrderPlacedEvent;
 import com.gtech.algashop.core.domain.model.order.OrderReadyEvent;
 import com.gtech.algashop.core.ports.out.order.ForNotifyingOrder;
+import com.gtech.algashop.core.ports.out.order.ForPublishingOrderIntegrationEvents;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -18,6 +21,8 @@ public class OrderEventListener {
 
     // efeito colateral do evento
     private final ForNotifyingOrder forNotifyingOrder;
+    private final ForPublishingOrderIntegrationEvents forPublishingOrderIntegrationEvents;
+    private final Mapper mapper;
 
     @EventListener
     public void listen(OrderPlacedEvent event) {
@@ -27,6 +32,9 @@ public class OrderEventListener {
                 event.customerId().value()
         );
         forNotifyingOrder.notificateOrderPlaced(input);
+
+        var integrationEvent = mapper.convert(event, OrderPlacedIntegrationEvent.class);
+        forPublishingOrderIntegrationEvents.send(integrationEvent);
     }
 
     @EventListener

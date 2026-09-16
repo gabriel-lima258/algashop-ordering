@@ -5,6 +5,8 @@ delete from "order";
 delete from shopping_cart_item;
 delete from shopping_cart;
 delete from customer;
+delete from processed_message;
+delete from outbox;
 
 insert into public.customer (id, archived, archived_at, birth_date, created_by_user_id, document, email, first_name, last_modified_at, last_modified_by_user_id, last_name, loyalty_points, phone, promotion_notifications_allowed, registered_at, address_city, address_complement, address_neighborhood, address_number, address_state, address_street, address_zip_code, version) values('41cdc65c-6158-48b0-a8e6-34c0ff8fd74e', true, '2024-06-07 18:45:36.429', NULL, NULL, '00000', '318510d2-a904-46a1-bcd4-1540a6ea57d9@anonymous.com', 'Anonymous', '2024-06-07 18:45:36.473', NULL, 'Anonymous', 0, '1000000000', false, '2024-06-07 18:42:44.361', 'Anonymized', NULL, 'Anonymized', 'Anonymized', 'Anonymized', 'Anonymized', '00000', 1);
 insert into public.customer (id, archived, archived_at, birth_date, created_by_user_id, document, email, first_name, last_modified_at, last_modified_by_user_id, last_name, loyalty_points, phone, promotion_notifications_allowed, registered_at, address_city, address_complement, address_neighborhood, address_number, address_state, address_street, address_zip_code, version) values('6e148bd5-47f6-4022-b9da-07cfaa294f7a', false, NULL, '1991-07-05', NULL, '25508578', 'johndoe@email.com', 'John', '2024-06-07 18:47:17.367', NULL, 'Doe', 0, '478-256-2604', true, '2024-06-07 18:47:17.262', 'New Orleans', 'Apt. 114', 'North Ville', '1134', 'Louisiana', 'Bourbon Street', '70130', 0);
