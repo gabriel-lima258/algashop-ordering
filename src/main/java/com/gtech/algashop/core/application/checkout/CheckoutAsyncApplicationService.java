@@ -1,8 +1,8 @@
 package com.gtech.algashop.core.application.checkout;
 
 import com.gtech.algashop.core.application.checkout.command.ProcessAcceptedCheckoutIntegrationCommand;
-import com.gtech.algashop.core.application.checkout.command.OrderSnapshot;
-import com.gtech.algashop.core.application.checkout.command.OrderSnapshotAssembler;
+import com.gtech.algashop.core.application.order.snapshot.OrderSnapshot;
+import com.gtech.algashop.core.application.order.snapshot.OrderSnapshotAssembler;
 import com.gtech.algashop.core.application.security.SecurityCheckApplicationService;
 import com.gtech.algashop.core.domain.model.BusinessException;
 import com.gtech.algashop.core.domain.model.commons.ZipCode;

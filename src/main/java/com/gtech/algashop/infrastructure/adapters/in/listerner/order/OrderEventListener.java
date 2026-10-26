@@ -1,11 +1,9 @@
 package com.gtech.algashop.infrastructure.adapters.in.listerner.order;
 
 import com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEvent;
+import com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEventAssembler;
 import com.gtech.algashop.core.application.util.Mapper;
-import com.gtech.algashop.core.domain.model.order.OrderCanceledEvent;
-import com.gtech.algashop.core.domain.model.order.OrderPaidEvent;
-import com.gtech.algashop.core.domain.model.order.OrderPlacedEvent;
-import com.gtech.algashop.core.domain.model.order.OrderReadyEvent;
+import com.gtech.algashop.core.domain.model.order.*;
 import com.gtech.algashop.core.ports.out.order.ForNotifyingOrder;
 import com.gtech.algashop.core.ports.out.order.ForPublishingOrderIntegrationEvents;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,9 @@ public class OrderEventListener {
     // efeito colateral do evento
     private final ForNotifyingOrder forNotifyingOrder;
     private final ForPublishingOrderIntegrationEvents forPublishingOrderIntegrationEvents;
-    private final Mapper mapper;
+
+    private final OrderPlacedIntegrationEventAssembler orderPlacedIntegrationEventAssembler;
+    private final Orders orders;
 
     @EventListener
     public void listen(OrderPlacedEvent event) {
@@ -33,7 +33,11 @@ public class OrderEventListener {
         );
         forNotifyingOrder.notificateOrderPlaced(input);
 
-        var integrationEvent = mapper.convert(event, OrderPlacedIntegrationEvent.class);
+        // valida o order
+        Order order = orders.ofId(event.orderId()).orElseThrow(OrderNotFoundException::new);
+        // converte o valor através de um assembler o evento recebido
+        OrderPlacedIntegrationEvent integrationEvent = orderPlacedIntegrationEventAssembler.toIntegrationEvent(order);
+        // publica evento
         forPublishingOrderIntegrationEvents.send(integrationEvent);
     }
 

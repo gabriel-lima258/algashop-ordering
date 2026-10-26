@@ -1,6 +1,7 @@
 package com.gtech.algashop.core.application.checkout.command;
 
 import com.gtech.algashop.core.application.IntegrationCommand;
+import com.gtech.algashop.core.application.order.snapshot.OrderSnapshot;
 import com.gtech.algashop.core.domain.model.IdGenerator;
 import lombok.*;
 

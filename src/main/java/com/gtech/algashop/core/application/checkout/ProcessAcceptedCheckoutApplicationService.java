@@ -1,8 +1,8 @@
 package com.gtech.algashop.core.application.checkout;
 
 import com.gtech.algashop.core.application.checkout.command.ProcessAcceptedCheckoutIntegrationCommand;
-import com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEvent;
-import com.gtech.algashop.core.application.checkout.command.OrderSnapshotAssembler;
+import com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEventAssembler;
+import com.gtech.algashop.core.application.order.snapshot.OrderSnapshotAssembler;
 import com.gtech.algashop.core.domain.model.order.Order;
 import com.gtech.algashop.core.domain.model.order.OrderId;
 import com.gtech.algashop.core.domain.model.order.Orders;
@@ -39,6 +39,7 @@ public class ProcessAcceptedCheckoutApplicationService implements ForProcessingC
 
     // Assembler
     private final OrderSnapshotAssembler orderSnapshotAssembler;
+    private final OrderPlacedIntegrationEventAssembler orderPlacedIntegrationEventAssembler;
 
     // Events
     private final ForPublishingOrderIntegrationEvents forPublishingOrderIntegrationEvents;
@@ -68,11 +69,7 @@ public class ProcessAcceptedCheckoutApplicationService implements ForProcessingC
 
         // publica o evento
         forPublishingOrderIntegrationEvents.send(
-                new OrderPlacedIntegrationEvent(
-                        orderId.toString(),
-                        order.customerId().value(),
-                        order.placedAt()
-                )
+                orderPlacedIntegrationEventAssembler.toIntegrationEvent(order)
         );
     }
 }

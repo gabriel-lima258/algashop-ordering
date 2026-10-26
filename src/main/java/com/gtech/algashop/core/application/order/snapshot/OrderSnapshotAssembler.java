@@ -1,4 +1,4 @@
-package com.gtech.algashop.core.application.checkout.command;
+package com.gtech.algashop.core.application.order.snapshot;
 
 import com.gtech.algashop.core.domain.model.commons.*;
 import com.gtech.algashop.core.domain.model.costumer.CustomerId;
@@ -87,8 +87,13 @@ public class OrderSnapshotAssembler {
     }
 
     private OrderItemSnapshot toSnapshot(OrderItem item) {
-        return new OrderItemSnapshot(item.id().toString(), item.productId().value(), item.productName().name(),
-                item.price().money(), item.quantity().quantity(), item.totalAmount().money());
+        return new OrderItemSnapshot(item.id().toString(),
+                item.orderId().toString(),
+                item.productId().value(),
+                item.productName().name(),
+                item.price().money(),
+                item.quantity().quantity(),
+                item.totalAmount().money());
     }
 
     private Billing toDomain(BillingSnapshot billing) {
