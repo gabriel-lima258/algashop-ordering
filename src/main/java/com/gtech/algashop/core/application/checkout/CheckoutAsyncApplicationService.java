@@ -4,17 +4,17 @@ import com.gtech.algashop.core.application.checkout.command.ProcessAcceptedCheck
 import com.gtech.algashop.core.application.order.snapshot.OrderSnapshot;
 import com.gtech.algashop.core.application.order.snapshot.OrderSnapshotAssembler;
 import com.gtech.algashop.core.application.security.SecurityCheckApplicationService;
-import com.gtech.algashop.core.domain.model.BusinessException;
+import com.gtech.algashop.core.domain.model.DomainException;
 import com.gtech.algashop.core.domain.model.commons.ZipCode;
 import com.gtech.algashop.core.domain.model.costumer.Customer;
 import com.gtech.algashop.core.domain.model.costumer.CustomerId;
-import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundException;
+import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundExceptionDomain;
 import com.gtech.algashop.core.domain.model.costumer.Customers;
 import com.gtech.algashop.core.domain.model.order.*;
 import com.gtech.algashop.core.domain.model.order.shipping.OriginAddressService;
 import com.gtech.algashop.core.domain.model.order.shipping.ShippingCostService;
 import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCart;
-import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCartNotFound;
+import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCartNotFoundDomain;
 import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCarts;
 import com.gtech.algashop.core.ports.in.checkout.CheckoutInput;
 import com.gtech.algashop.core.ports.in.checkout.ForBuyingWithShoppingCartAsync;
@@ -71,7 +71,7 @@ public class CheckoutAsyncApplicationService implements ForBuyingWithShoppingCar
 
         if (paymentMethod.equals(PaymentMethod.CREDIT_CARD)) {
             if (input.getCreditCardId() == null) {
-                throw new BusinessException("Credit card id is required");
+                throw new DomainException("Credit card id is required");
             }
             creditCardId = new CreditCardId(input.getCreditCardId());
         }
@@ -122,10 +122,10 @@ public class CheckoutAsyncApplicationService implements ForBuyingWithShoppingCar
     }
 
     private ShoppingCart loadShoppingCart(CustomerId customerId) {
-        return shoppingCarts.ofCustomer(customerId).orElseThrow(() -> ShoppingCartNotFound.ofCustomer(customerId.value()));
+        return shoppingCarts.ofCustomer(customerId).orElseThrow(() -> ShoppingCartNotFoundDomain.ofCustomer(customerId.value()));
     }
 
     private Customer loadCustomer(CustomerId customerId) {
-        return customers.ofId(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
+        return customers.ofId(customerId).orElseThrow(() -> new CustomerNotFoundExceptionDomain(customerId));
     }
 }

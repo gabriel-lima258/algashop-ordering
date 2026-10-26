@@ -4,7 +4,7 @@ import com.gtech.algashop.core.application.AbstractIntegrationTest;
 import com.gtech.algashop.core.domain.model.commons.Money;
 import com.gtech.algashop.core.domain.model.commons.Quantity;
 import com.gtech.algashop.core.domain.model.costumer.CustomerId;
-import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundException;
+import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundExceptionDomain;
 import com.gtech.algashop.core.domain.model.costumer.Customers;
 import com.gtech.algashop.core.domain.model.customer.CustomerTestDataBuilder;
 import com.gtech.algashop.utils.TestAuthentications;
@@ -93,7 +93,7 @@ class CheckoutApplicationServiceIT extends AbstractIntegrationTest {
                 .customerId(customerId.value()).build();
 
         Assertions.assertThatThrownBy(() -> service.checkout(input))
-                .isInstanceOf(ShoppingCartNotFound.class);
+                .isInstanceOf(ShoppingCartNotFoundDomain.class);
     }
 
     @Test
@@ -102,7 +102,7 @@ class CheckoutApplicationServiceIT extends AbstractIntegrationTest {
                 .customerId(UUID.randomUUID()).build();
 
         Assertions.assertThatThrownBy(() -> service.checkout(input))
-                .isInstanceOf(CustomerNotFoundException.class);
+                .isInstanceOf(CustomerNotFoundExceptionDomain.class);
     }
 
     @Test

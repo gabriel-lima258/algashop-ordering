@@ -9,7 +9,7 @@ import com.gtech.algashop.core.application.order.query.OrderDetailOutputTestData
 import com.gtech.algashop.core.ports.in.order.OrderFilter;
 import com.gtech.algashop.core.ports.in.order.ForQueryOrders;
 import com.gtech.algashop.core.application.order.query.OrderSummaryOutputTestDataBuilder;
-import com.gtech.algashop.core.domain.model.order.OrderNotFoundException;
+import com.gtech.algashop.core.domain.model.order.OrderNotFoundExceptionDomain;
 import com.gtech.algashop.infrastructure.adapters.in.web.order.MyOrderController;
 import com.gtech.algashop.infrastructure.adapters.in.web.order.OrderController;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
@@ -79,7 +79,7 @@ public class OrderBase {
 
     private void mockInvalidOrderIdNotFound() {
         Mockito.when(orderQueryService.findById(invalidOrderId))
-                .thenThrow(new OrderNotFoundException());
+                .thenThrow(new OrderNotFoundExceptionDomain());
     }
 
     public void mockCreateOrderWithProduct() {

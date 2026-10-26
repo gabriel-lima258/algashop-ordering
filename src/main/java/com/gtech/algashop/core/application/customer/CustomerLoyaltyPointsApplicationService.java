@@ -3,7 +3,7 @@ package com.gtech.algashop.core.application.customer;
 import com.gtech.algashop.core.domain.model.costumer.*;
 import com.gtech.algashop.core.domain.model.order.Order;
 import com.gtech.algashop.core.domain.model.order.OrderId;
-import com.gtech.algashop.core.domain.model.order.OrderNotFoundException;
+import com.gtech.algashop.core.domain.model.order.OrderNotFoundExceptionDomain;
 import com.gtech.algashop.core.domain.model.order.Orders;
 import com.gtech.algashop.core.ports.in.customer.ForAddingLoyaltyPoints;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +30,10 @@ public class CustomerLoyaltyPointsApplicationService implements ForAddingLoyalty
         Objects.requireNonNull(orderId);
 
         Customer customer = customers.ofId(new CustomerId(customerId))
-                .orElseThrow(CustomerNotFoundException::new);
+                .orElseThrow(CustomerNotFoundExceptionDomain::new);
 
         Order order = orders.ofId(new OrderId(orderId))
-                .orElseThrow(OrderNotFoundException::new);
+                .orElseThrow(OrderNotFoundExceptionDomain::new);
 
         customerLoyaltyPointsService.addPoints(customer, order);
         customers.add(customer);

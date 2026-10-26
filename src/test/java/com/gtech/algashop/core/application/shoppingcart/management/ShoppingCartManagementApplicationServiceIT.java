@@ -4,7 +4,7 @@ import com.gtech.algashop.core.application.AbstractIntegrationTest;
 import com.gtech.algashop.core.application.shoppingcart.ShoppingCartManagementApplicationService;
 import com.gtech.algashop.core.domain.model.costumer.CustomerAlreadyHaveShoppingCartException;
 import com.gtech.algashop.core.domain.model.costumer.CustomerId;
-import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundException;
+import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundExceptionDomain;
 import com.gtech.algashop.core.domain.model.costumer.Customers;
 import com.gtech.algashop.core.domain.model.customer.CustomerTestDataBuilder;
 import com.gtech.algashop.core.domain.model.product.*;
@@ -74,7 +74,7 @@ class ShoppingCartManagementApplicationServiceIT extends AbstractIntegrationTest
                 .build();
 
         Assertions.assertThatThrownBy(() -> service.addItem(input))
-                .isInstanceOf(ShoppingCartNotFound.class);
+                .isInstanceOf(ShoppingCartNotFoundDomain.class);
     }
 
     @Test
@@ -90,7 +90,7 @@ class ShoppingCartManagementApplicationServiceIT extends AbstractIntegrationTest
                 .build();
 
         Assertions.assertThatThrownBy(() -> service.addItem(input))
-                .isInstanceOf(ProductNotFoundException.class);
+                .isInstanceOf(ProductNotFoundExceptionDomain.class);
     }
 
     @Test
@@ -132,7 +132,7 @@ class ShoppingCartManagementApplicationServiceIT extends AbstractIntegrationTest
         UUID nonExistentCustomerId = UUID.randomUUID();
 
         Assertions.assertThatThrownBy(() -> service.createNew(nonExistentCustomerId))
-                .isInstanceOf(CustomerNotFoundException.class);
+                .isInstanceOf(CustomerNotFoundExceptionDomain.class);
     }
 
     @Test
@@ -170,7 +170,7 @@ class ShoppingCartManagementApplicationServiceIT extends AbstractIntegrationTest
 
         Assertions.assertThatThrownBy(() ->
                 service.removeItem(UUID.randomUUID(), itemId))
-                .isInstanceOf(ShoppingCartNotFound.class);
+                .isInstanceOf(ShoppingCartNotFoundDomain.class);
     }
 
     @Test
@@ -207,7 +207,7 @@ class ShoppingCartManagementApplicationServiceIT extends AbstractIntegrationTest
     @Test
     void shouldThrowShoppingCartNotFoundWhenEmptyingNonExistentCart() {
         Assertions.assertThatThrownBy(() -> service.empty(UUID.randomUUID()))
-                .isInstanceOf(ShoppingCartNotFound.class);
+                .isInstanceOf(ShoppingCartNotFoundDomain.class);
     }
 
     // =========================================================
@@ -227,7 +227,7 @@ class ShoppingCartManagementApplicationServiceIT extends AbstractIntegrationTest
     @Test
     void shouldThrowShoppingCartNotFoundWhenDeletingNonExistentCart() {
         Assertions.assertThatThrownBy(() -> service.delete(UUID.randomUUID()))
-                .isInstanceOf(ShoppingCartNotFound.class);
+                .isInstanceOf(ShoppingCartNotFoundDomain.class);
     }
 
     // =========================================================

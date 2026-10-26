@@ -1,9 +1,8 @@
 package com.gtech.algashop.infrastructure.adapters.out.persistence.order;
 
 import com.gtech.algashop.core.application.util.Mapper;
-import com.gtech.algashop.core.domain.model.costumer.CustomerId;
 import com.gtech.algashop.core.domain.model.order.OrderId;
-import com.gtech.algashop.core.domain.model.order.OrderNotFoundException;
+import com.gtech.algashop.core.domain.model.order.OrderNotFoundExceptionDomain;
 import com.gtech.algashop.core.ports.out.order.CustomerMinimalOutput;
 import com.gtech.algashop.core.ports.out.order.OrderDetailOutput;
 import com.gtech.algashop.core.ports.in.order.OrderFilter;
@@ -37,7 +36,7 @@ public class ForObtainingOrderJpaRepositoryImpl implements ForObtainingOrder {
     @Override
     public OrderDetailOutput findById(String orderId) {
         OrderPersistenceEntity entity = repository.findById(new OrderId(orderId).value().toLong())
-                .orElseThrow(OrderNotFoundException::new);
+                .orElseThrow(OrderNotFoundExceptionDomain::new);
         return mapper.convert(entity, OrderDetailOutput.class);
     }
 
@@ -59,7 +58,7 @@ public class ForObtainingOrderJpaRepositoryImpl implements ForObtainingOrder {
     public OrderDetailOutput findByIdAndCustomerId(String orderId, UUID customerId) {
         OrderPersistenceEntity entity = repository.findByIdAndCustomerId(
                 new OrderId(orderId).value().toLong(), customerId)
-                    .orElseThrow(OrderNotFoundException::new);
+                    .orElseThrow(OrderNotFoundExceptionDomain::new);
         return mapper.convert(entity, OrderDetailOutput.class);
     }
 

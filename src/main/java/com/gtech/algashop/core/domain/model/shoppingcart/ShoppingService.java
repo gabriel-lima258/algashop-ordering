@@ -2,7 +2,7 @@ package com.gtech.algashop.core.domain.model.shoppingcart;
 
 import com.gtech.algashop.core.domain.model.costumer.CustomerId;
 import com.gtech.algashop.core.domain.model.costumer.CustomerAlreadyHaveShoppingCartException;
-import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundException;
+import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundExceptionDomain;
 import com.gtech.algashop.core.domain.model.costumer.Customers;
 import com.gtech.algashop.core.domain.model.DomainService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ public class ShoppingService {
 
     public ShoppingCart startShopping(CustomerId customerId) {
         if (!customers.exists(customerId)) {
-            throw new CustomerNotFoundException();
+            throw new CustomerNotFoundExceptionDomain();
         }
 
         if (shoppingCarts.ofCustomer(customerId).isPresent()) {

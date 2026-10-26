@@ -1,7 +1,7 @@
 package com.gtech.algashop.infrastructure.adapters.in.web.exceptionhandler;
 
-import com.gtech.algashop.core.domain.model.BusinessException;
-import com.gtech.algashop.core.domain.model.EntityNotFoundException;
+import com.gtech.algashop.core.domain.model.DomainException;
+import com.gtech.algashop.core.domain.model.DomainEntityNotFoundException;
 import com.gtech.algashop.core.domain.model.costumer.CustomerEmailInUseException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,8 +50,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return super.handleExceptionInternal(ex, problemDetail,  headers, status, request);
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ProblemDetail handleEntityNotFoundException(EntityNotFoundException e) {
+    @ExceptionHandler(DomainEntityNotFoundException.class)
+    public ProblemDetail handleEntityNotFoundException(DomainEntityNotFoundException e) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         problemDetail.setTitle("Not found");
         problemDetail.setDetail(e.getMessage());
@@ -59,7 +59,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return problemDetail;
     }
 
-    @ExceptionHandler({BusinessException.class, UnprocessableEntityException.class})
+    @ExceptionHandler({DomainException.class, UnprocessableEntityException.class})
     public ProblemDetail handleBusinessException(Exception e) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
         problemDetail.setTitle("Unprocessable entity");

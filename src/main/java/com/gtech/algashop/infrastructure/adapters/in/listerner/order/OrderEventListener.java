@@ -2,7 +2,6 @@ package com.gtech.algashop.infrastructure.adapters.in.listerner.order;
 
 import com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEvent;
 import com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEventAssembler;
-import com.gtech.algashop.core.application.util.Mapper;
 import com.gtech.algashop.core.domain.model.order.*;
 import com.gtech.algashop.core.ports.out.order.ForNotifyingOrder;
 import com.gtech.algashop.core.ports.out.order.ForPublishingOrderIntegrationEvents;
@@ -34,7 +33,7 @@ public class OrderEventListener {
         forNotifyingOrder.notificateOrderPlaced(input);
 
         // valida o order
-        Order order = orders.ofId(event.orderId()).orElseThrow(OrderNotFoundException::new);
+        Order order = orders.ofId(event.orderId()).orElseThrow(OrderNotFoundExceptionDomain::new);
         // converte o valor através de um assembler o evento recebido
         OrderPlacedIntegrationEvent integrationEvent = orderPlacedIntegrationEventAssembler.toIntegrationEvent(order);
         // publica evento

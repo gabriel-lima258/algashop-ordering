@@ -81,7 +81,7 @@ class CustomerLoyaltyPointsApplicationServiceIT extends AbstractIntegrationTest 
         Assertions.assertThatThrownBy(() ->
                 loyaltyPointsApplicationService.addLoyaltyPoints(
                         nonExistentCustomerId, order.id().toString()))
-                .isInstanceOf(CustomerNotFoundException.class);
+                .isInstanceOf(CustomerNotFoundExceptionDomain.class);
     }
 
     @Test
@@ -93,7 +93,7 @@ class CustomerLoyaltyPointsApplicationServiceIT extends AbstractIntegrationTest 
 
         Assertions.assertThatThrownBy(() ->
                 loyaltyPointsApplicationService.addLoyaltyPoints(customerId, nonExistentOrderId))
-                .isInstanceOf(OrderNotFoundException.class);
+                .isInstanceOf(OrderNotFoundExceptionDomain.class);
     }
 
     @Test

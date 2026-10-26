@@ -139,7 +139,7 @@ class CustomerManagementApplicationServiceIT extends AbstractIntegrationTest {
         UUID nonExistentId = UUID.randomUUID();
 
         Assertions.assertThatThrownBy(() -> customerManagementApplicationService.archive(nonExistentId))
-                .isInstanceOf(CustomerNotFoundException.class);
+                .isInstanceOf(CustomerNotFoundExceptionDomain.class);
     }
 
     @Test
@@ -170,7 +170,7 @@ class CustomerManagementApplicationServiceIT extends AbstractIntegrationTest {
 
         Assertions.assertThatThrownBy(() ->
                 customerManagementApplicationService.changeEmail(nonExistentId, "newemail@email.com"))
-                .isInstanceOf(CustomerNotFoundException.class);
+                .isInstanceOf(CustomerNotFoundExceptionDomain.class);
     }
 
     @Test

@@ -1,6 +1,6 @@
 package com.gtech.algashop.core.domain.model.shoppingcart;
 
-import com.gtech.algashop.core.domain.model.BusinessException;
+import com.gtech.algashop.core.domain.model.DomainException;
 
-public class ShoppingCartCantProceedToCheckoutException extends BusinessException {
+public class ShoppingCartCantProceedToCheckoutException extends DomainException {
 }

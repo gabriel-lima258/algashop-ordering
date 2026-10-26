@@ -2,9 +2,8 @@ package com.gtech.algashop.infrastructure.adapters.out.persistence.customer;
 
 import com.gtech.algashop.core.ports.in.customer.CustomerFilter;
 import com.gtech.algashop.core.ports.in.customer.CustomerOutput;
-import com.gtech.algashop.core.ports.in.customer.ForQueryCustomers;
 import com.gtech.algashop.core.ports.in.customer.CustomerSummaryOutput;
-import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundException;
+import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundExceptionDomain;
 import com.gtech.algashop.core.ports.out.customer.ForObtainingCustomers;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -81,7 +80,7 @@ public class ForObtainingCustomerJpaRepositoryImpl implements ForObtainingCustom
             query.setParameter("id", customerId);
             return query.getSingleResult();
         } catch (NoResultException e) {
-            throw new CustomerNotFoundException();
+            throw new CustomerNotFoundExceptionDomain();
         }
     }
 

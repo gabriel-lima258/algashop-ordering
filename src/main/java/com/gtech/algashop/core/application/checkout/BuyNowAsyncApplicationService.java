@@ -4,12 +4,12 @@ import com.gtech.algashop.core.application.checkout.command.ProcessAcceptedCheck
 import com.gtech.algashop.core.application.order.snapshot.OrderSnapshot;
 import com.gtech.algashop.core.application.order.snapshot.OrderSnapshotAssembler;
 import com.gtech.algashop.core.application.security.SecurityCheckApplicationService;
-import com.gtech.algashop.core.domain.model.BusinessException;
+import com.gtech.algashop.core.domain.model.DomainException;
 import com.gtech.algashop.core.domain.model.commons.Quantity;
 import com.gtech.algashop.core.domain.model.commons.ZipCode;
 import com.gtech.algashop.core.domain.model.costumer.Customer;
 import com.gtech.algashop.core.domain.model.costumer.CustomerId;
-import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundException;
+import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundExceptionDomain;
 import com.gtech.algashop.core.domain.model.costumer.Customers;
 import com.gtech.algashop.core.domain.model.order.*;
 import com.gtech.algashop.core.domain.model.order.shipping.OriginAddressService;
@@ -17,7 +17,7 @@ import com.gtech.algashop.core.domain.model.order.shipping.ShippingCostService;
 import com.gtech.algashop.core.domain.model.product.Product;
 import com.gtech.algashop.core.domain.model.product.ProductCatalogService;
 import com.gtech.algashop.core.domain.model.product.ProductId;
-import com.gtech.algashop.core.domain.model.product.ProductNotFoundException;
+import com.gtech.algashop.core.domain.model.product.ProductNotFoundExceptionDomain;
 import com.gtech.algashop.core.ports.in.checkout.BuyNowInput;
 import com.gtech.algashop.core.ports.in.checkout.ForBuyingProductAsync;
 import com.gtech.algashop.core.ports.in.checkout.ShippingInput;
@@ -75,13 +75,13 @@ public class BuyNowAsyncApplicationService implements ForBuyingProductAsync {
 
         if (paymentMethod.equals(PaymentMethod.CREDIT_CARD)) {
             if (input.getCreditCardId() == null) {
-                throw new BusinessException("Credit card id is required");
+                throw new DomainException("Credit card id is required");
             }
             creditCardId = new CreditCardId(input.getCreditCardId());
         }
 
         Customer customer = customers.ofId(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException(customerId));
+                .orElseThrow(() -> new CustomerNotFoundExceptionDomain(customerId));
         // procura o produto
         Product product = findProduct(new ProductId(input.getProductId()));
 
@@ -125,7 +125,7 @@ public class BuyNowAsyncApplicationService implements ForBuyingProductAsync {
 
     private Product findProduct(ProductId productId) {
         return productCatalogService.ofId(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId));
+                .orElseThrow(() -> new ProductNotFoundExceptionDomain(productId));
     }
 
     // verificação se não for customer e se o usuário autenticado não for o mesmo do customerId

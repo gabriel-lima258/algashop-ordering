@@ -1,8 +1,8 @@
 package com.gtech.algashop.infrastructure.adapters.in.web.shoppingcart;
 
 import com.gtech.algashop.core.application.security.SecurityCheckApplicationService;
-import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundException;
-import com.gtech.algashop.core.domain.model.product.ProductNotFoundException;
+import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundExceptionDomain;
+import com.gtech.algashop.core.domain.model.product.ProductNotFoundExceptionDomain;
 import com.gtech.algashop.core.ports.in.shoppingcart.*;
 import com.gtech.algashop.infrastructure.adapters.in.web.exceptionhandler.UnprocessableEntityException;
 import com.gtech.algashop.infrastructure.config.security.check.SecurityAnnotations.CanReadMyShoppingCart;
@@ -36,7 +36,7 @@ public class MyShoppingCartController {
     public ResponseEntity<ShoppingCartOutput> createMyShoppingCart() {
         try {
             forManagingShoppingCarts.createNew(securityCheck.getAuthenticatedUserId());
-        } catch (CustomerNotFoundException e) {
+        } catch (CustomerNotFoundExceptionDomain e) {
             throw new UnprocessableEntityException(e.getMessage(), e);
         }
         return ResponseEntity.created(URI.create("/api/v1/customers/me/shopping-cart"))
@@ -73,7 +73,7 @@ public class MyShoppingCartController {
         input.setShoppingCartId(shoppingCart.getId());
         try {
             forManagingShoppingCarts.addItem(input);
-        } catch (ProductNotFoundException e) {
+        } catch (ProductNotFoundExceptionDomain e) {
             throw new UnprocessableEntityException(e.getMessage(), e);
         }
     }

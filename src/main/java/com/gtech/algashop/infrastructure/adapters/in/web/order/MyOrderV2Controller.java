@@ -1,9 +1,9 @@
 package com.gtech.algashop.infrastructure.adapters.in.web.order;
 
 import com.gtech.algashop.core.application.security.SecurityCheckApplicationService;
-import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundException;
-import com.gtech.algashop.core.domain.model.product.ProductNotFoundException;
-import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCartNotFound;
+import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundExceptionDomain;
+import com.gtech.algashop.core.domain.model.product.ProductNotFoundExceptionDomain;
+import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCartNotFoundDomain;
 import com.gtech.algashop.core.ports.in.checkout.*;
 import com.gtech.algashop.core.ports.in.order.ForQueryOrders;
 import com.gtech.algashop.core.ports.in.order.OrderFilter;
@@ -65,7 +65,7 @@ public class MyOrderV2Controller {
 
         try {
             orderId = forBuyingProduct.buyNow(input);
-        } catch (CustomerNotFoundException | ProductNotFoundException e) {
+        } catch (CustomerNotFoundExceptionDomain | ProductNotFoundExceptionDomain e) {
             throw new UnprocessableEntityException(e.getMessage(), e);
         }
 
@@ -81,7 +81,7 @@ public class MyOrderV2Controller {
 
         try {
             orderId = forBuyingWithShoppingCart.checkout(input);
-        } catch (CustomerNotFoundException | ShoppingCartNotFound e) {
+        } catch (CustomerNotFoundExceptionDomain | ShoppingCartNotFoundDomain e) {
             throw new UnprocessableEntityException(e.getMessage(), e);
         }
 

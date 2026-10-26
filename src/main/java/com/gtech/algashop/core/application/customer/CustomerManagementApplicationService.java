@@ -64,7 +64,7 @@ public class CustomerManagementApplicationService implements ForManagingCustomer
 
         // procura o customer em persistencia
         Customer customer = customers.ofId(new CustomerId(customerId))
-                .orElseThrow(CustomerNotFoundException::new);
+                .orElseThrow(CustomerNotFoundExceptionDomain::new);
 
         // alterações a serem feitas
         customer.changeName(new FullName(input.getFirstName(), input.getLastName()));
@@ -99,7 +99,7 @@ public class CustomerManagementApplicationService implements ForManagingCustomer
 
         // procura o customer em persistencia
         Customer customer = customers.ofId(new CustomerId(customerId))
-                .orElseThrow(CustomerNotFoundException::new);
+                .orElseThrow(CustomerNotFoundExceptionDomain::new);
         customer.archive();
         customers.add(customer);
     }
@@ -110,7 +110,7 @@ public class CustomerManagementApplicationService implements ForManagingCustomer
         Objects.requireNonNull(customerId);
 
         Customer customer = customers.ofId(new CustomerId(customerId))
-                .orElseThrow(CustomerNotFoundException::new);
+                .orElseThrow(CustomerNotFoundExceptionDomain::new);
 
         customerRegistration.changeEmail(customer, new Email(newEmail));
         customers.add(customer);

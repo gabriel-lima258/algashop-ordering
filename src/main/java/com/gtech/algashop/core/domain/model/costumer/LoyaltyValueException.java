@@ -1,9 +1,9 @@
 package com.gtech.algashop.core.domain.model.costumer;
-import com.gtech.algashop.core.domain.model.BusinessException;
+import com.gtech.algashop.core.domain.model.DomainException;
 
 import static com.gtech.algashop.core.domain.model.ErrorMessages.ERROR_LOYALTY_VALUE;
 
-public class LoyaltyValueException extends BusinessException {
+public class LoyaltyValueException extends DomainException {
 
     public LoyaltyValueException() {
         super(ERROR_LOYALTY_VALUE);

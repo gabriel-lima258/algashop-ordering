@@ -6,7 +6,7 @@ import com.gtech.algashop.core.domain.model.costumer.CustomerId;
 import com.gtech.algashop.core.domain.model.costumer.Customers;
 import com.gtech.algashop.core.domain.model.customer.CustomerTestDataBuilder;
 import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCart;
-import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCartNotFound;
+import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCartNotFoundDomain;
 import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCartTestDataBuilder;
 import com.gtech.algashop.core.domain.model.shoppingcart.ShoppingCarts;
 import com.gtech.algashop.core.ports.in.shoppingcart.ForQueryShoppingCarts;
@@ -93,7 +93,7 @@ class ShoppingCartQueryServiceIT extends AbstractIntegrationTest {
         UUID nonExistentId = UUID.randomUUID();
 
         assertThatThrownBy(() -> queryService.findById(nonExistentId))
-                .isInstanceOf(ShoppingCartNotFound.class);
+                .isInstanceOf(ShoppingCartNotFoundDomain.class);
     }
 
     // =====================================================
@@ -138,7 +138,7 @@ class ShoppingCartQueryServiceIT extends AbstractIntegrationTest {
         UUID nonExistentCustomerId = UUID.randomUUID();
 
         assertThatThrownBy(() -> queryService.findByCustomerId(nonExistentCustomerId))
-                .isInstanceOf(ShoppingCartNotFound.class);
+                .isInstanceOf(ShoppingCartNotFoundDomain.class);
     }
 
     // =====================================================

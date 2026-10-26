@@ -3,9 +3,9 @@ package com.gtech.algashop.infrastructure.adapters.in.web.customer;
 import com.gtech.algashop.core.application.security.SecurityCheckApplicationService;
 import com.gtech.algashop.core.ports.in.customer.*;
 import com.gtech.algashop.core.application.customer.query.CustomerOutputTestDataBuilder;
-import com.gtech.algashop.core.domain.model.BusinessException;
+import com.gtech.algashop.core.domain.model.DomainException;
 import com.gtech.algashop.core.domain.model.costumer.CustomerEmailInUseException;
-import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundException;
+import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundExceptionDomain;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -212,7 +212,7 @@ class MyCustomerControllerContractTest {
     void createMyCustomerError422Contract() {
         Mockito.when(customerManagementApplicationService.create(
                         Mockito.eq(AUTHENTICATED_USER_ID), Mockito.any(CustomerInput.class)))
-                .thenThrow(BusinessException.class);
+                .thenThrow(DomainException.class);
 
         RestAssuredMockMvc
                 .given()
@@ -332,7 +332,7 @@ class MyCustomerControllerContractTest {
 
     @Test
     void updateMyCustomerError404Contract() {
-        Mockito.doThrow(CustomerNotFoundException.class).when(customerManagementApplicationService)
+        Mockito.doThrow(CustomerNotFoundExceptionDomain.class).when(customerManagementApplicationService)
                 .update(Mockito.eq(AUTHENTICATED_USER_ID), Mockito.any(CustomerUpdateInput.class));
 
         RestAssuredMockMvc
@@ -380,7 +380,7 @@ class MyCustomerControllerContractTest {
 
     @Test
     void updateMyCustomerError422Contract() {
-        Mockito.doThrow(BusinessException.class).when(customerManagementApplicationService)
+        Mockito.doThrow(DomainException.class).when(customerManagementApplicationService)
                 .update(Mockito.eq(AUTHENTICATED_USER_ID), Mockito.any(CustomerUpdateInput.class));
 
         RestAssuredMockMvc
@@ -433,7 +433,7 @@ class MyCustomerControllerContractTest {
     @Test
     void loadMyCustomerError404Contract() {
         Mockito.when(customerQueryService.findById(AUTHENTICATED_USER_ID))
-                .thenThrow(CustomerNotFoundException.class);
+                .thenThrow(CustomerNotFoundExceptionDomain.class);
 
         RestAssuredMockMvc
                 .given()

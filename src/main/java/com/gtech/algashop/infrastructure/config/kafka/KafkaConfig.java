@@ -1,10 +1,12 @@
 package com.gtech.algashop.infrastructure.config.kafka;
 
-import com.gtech.algashop.core.domain.model.BusinessException;
+import com.gtech.algashop.core.domain.model.DomainException;
+import jakarta.validation.ConstraintViolationException;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
@@ -36,6 +38,10 @@ public class KafkaConfig {
     public static final String TYPE_ID_HEADER = "__TypeId__";
     public static final String IDEMPOTENCY_KEY_HEADER = "idempotency-key";
 
+    private static final int TOPIC_PARTITIONS = 3;
+    private static final int TOPIC_REPLICAS = 3;
+    private static final long RETENTION_30_DAYS = Duration.ofDays(30).toMillis();
+
     // ignora eventos em retry em business exception e costumiza os valores de retries
     @Bean
     public DefaultErrorHandler defaultErrorHandler(DeadLetterPublishingRecoverer recoverer) {
@@ -45,12 +51,17 @@ public class KafkaConfig {
 
         ExponentialBackOff exponentialBackOff = new ExponentialBackOff(interval, multiplier);
         exponentialBackOff.setMaxAttempts(maxRetries);
+        exponentialBackOff.setMaxInterval(8_000L);
 
         DefaultErrorHandler defaultErrorHandler = new DefaultErrorHandler(recoverer, exponentialBackOff);
 
         // não realiza retentativas dessas exceptions e envia para o dead letter topic
-        defaultErrorHandler.addNotRetryableExceptions(BusinessException.class);
-        defaultErrorHandler.addNotRetryableExceptions(IllegalArgumentException.class);
+        defaultErrorHandler.addNotRetryableExceptions(
+                DomainException.class,
+                ConstraintViolationException.class,
+                DataIntegrityViolationException.class,
+                IllegalArgumentException.class
+        );
 
         return defaultErrorHandler;
     }
@@ -106,12 +117,12 @@ public class KafkaConfig {
         return createDeadLetterTopic(properties.getOrderCommandTopicName());
     }
 
-    // cria o topic de eventos produzidos em ordering
+    // cria o topic de eventos produzidos em ordering, dono do evento
     @Bean
     public NewTopic orderEventTopic(AlgaShopMessagingKafkaProperties properties) {
         return TopicBuilder.name(properties.getOrderEventTopicName())
-                .partitions(3) // o mesmo do topico original
-                .replicas(3)
+                .partitions(TOPIC_PARTITIONS) // o mesmo do topico original
+                .replicas(TOPIC_REPLICAS)
                 .configs(Map.of(
                         "min.insync.replicas", "2"
                 ))
@@ -121,8 +132,8 @@ public class KafkaConfig {
     @Bean
     public NewTopic orderCommandTopic(AlgaShopMessagingKafkaProperties properties) {
         return TopicBuilder.name(properties.getOrderCommandTopicName())
-                .partitions(3) // o mesmo do topico original
-                .replicas(3)
+                .partitions(TOPIC_PARTITIONS) // o mesmo do topico original
+                .replicas(TOPIC_REPLICAS)
                 .configs(Map.of(
                         "min.insync.replicas", "2"
                 ))
@@ -132,11 +143,11 @@ public class KafkaConfig {
     // método para criar topics de dead letter no lado consumer, configuração padrão
     private NewTopic createDeadLetterTopic(String originalTopicName) {
         return TopicBuilder.name(DLT_PREFIX + originalTopicName)
-                .partitions(3) // o mesmo do topico original
-                .replicas(3)
+                .partitions(TOPIC_PARTITIONS) // o mesmo do topico original
+                .replicas(TOPIC_REPLICAS)
                 .configs(Map.of(
                         "min.insync.replicas", "2",
-                        "retention.ms", String.valueOf(Duration.ofDays(30).toMillis())
+                        "retention.ms", String.valueOf(RETENTION_30_DAYS)
                 ))
                 .build();
     }

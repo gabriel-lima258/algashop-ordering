@@ -4,7 +4,7 @@ import com.gtech.algashop.core.ports.in.commons.AddressData;
 import com.gtech.algashop.core.ports.in.customer.*;
 import com.gtech.algashop.core.application.customer.query.*;
 import com.gtech.algashop.core.ports.in.shoppingcart.ForQueryShoppingCarts;
-import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundException;
+import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundExceptionDomain;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -156,7 +156,7 @@ class CustomerControllerContractTest {
         UUID invalidCustomerId = UUID.randomUUID();
 
         Mockito.when(customerQueryService.findById(invalidCustomerId))
-                .thenThrow(CustomerNotFoundException.class);
+                .thenThrow(CustomerNotFoundExceptionDomain.class);
 
         RestAssuredMockMvc
                 .given()

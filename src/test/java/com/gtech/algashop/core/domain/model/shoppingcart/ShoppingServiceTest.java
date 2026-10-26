@@ -4,7 +4,7 @@ import com.gtech.algashop.core.domain.model.commons.Money;
 import com.gtech.algashop.core.domain.model.commons.Quantity;
 import com.gtech.algashop.core.domain.model.costumer.CustomerAlreadyHaveShoppingCartException;
 import com.gtech.algashop.core.domain.model.costumer.CustomerId;
-import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundException;
+import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundExceptionDomain;
 import com.gtech.algashop.core.domain.model.costumer.Customers;
 import com.gtech.algashop.core.domain.model.customer.CustomerTestDataBuilder;
 import org.assertj.core.api.Assertions;
@@ -98,7 +98,7 @@ class ShoppingServiceTest {
         Mockito.when(customers.exists(customerId)).thenReturn(false);
 
         // Act + Assert
-        Assertions.assertThatExceptionOfType(CustomerNotFoundException.class)
+        Assertions.assertThatExceptionOfType(CustomerNotFoundExceptionDomain.class)
                 .isThrownBy(() -> shoppingService.startShopping(customerId));
 
         // Verifica que a primeira validação foi consultada...

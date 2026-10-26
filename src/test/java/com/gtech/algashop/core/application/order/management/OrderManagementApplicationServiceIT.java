@@ -67,7 +67,7 @@ class OrderManagementApplicationServiceIT extends AbstractIntegrationTest {
         String nonExistentId = new OrderId().toString();
 
         Assertions.assertThatThrownBy(() -> service.markAsCanceled(nonExistentId))
-                .isInstanceOf(OrderNotFoundException.class);
+                .isInstanceOf(OrderNotFoundExceptionDomain.class);
     }
 
     @Test
@@ -101,7 +101,7 @@ class OrderManagementApplicationServiceIT extends AbstractIntegrationTest {
         String nonExistentId = new OrderId().toString();
 
         Assertions.assertThatThrownBy(() -> service.markAsPaid(nonExistentId))
-                .isInstanceOf(OrderNotFoundException.class);
+                .isInstanceOf(OrderNotFoundExceptionDomain.class);
     }
 
     @Test
@@ -141,7 +141,7 @@ class OrderManagementApplicationServiceIT extends AbstractIntegrationTest {
         String nonExistentId = new OrderId().toString();
 
         Assertions.assertThatThrownBy(() -> service.markAsReady(nonExistentId))
-                .isInstanceOf(OrderNotFoundException.class);
+                .isInstanceOf(OrderNotFoundExceptionDomain.class);
     }
 
     @Test

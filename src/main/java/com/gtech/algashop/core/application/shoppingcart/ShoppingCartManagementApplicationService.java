@@ -6,7 +6,7 @@ import com.gtech.algashop.core.domain.model.costumer.CustomerId;
 import com.gtech.algashop.core.domain.model.product.Product;
 import com.gtech.algashop.core.domain.model.product.ProductCatalogService;
 import com.gtech.algashop.core.domain.model.product.ProductId;
-import com.gtech.algashop.core.domain.model.product.ProductNotFoundException;
+import com.gtech.algashop.core.domain.model.product.ProductNotFoundExceptionDomain;
 import com.gtech.algashop.core.domain.model.shoppingcart.*;
 import com.gtech.algashop.core.ports.in.shoppingcart.ForManagingShoppingCarts;
 import com.gtech.algashop.core.ports.in.shoppingcart.ShoppingCartItemInput;
@@ -38,9 +38,9 @@ public class ShoppingCartManagementApplicationService implements ForManagingShop
         ProductId productId = new ProductId(input.getProductId());
 
         ShoppingCart shoppingCart = shoppingCarts.ofId(shoppingCartId)
-                .orElseThrow(ShoppingCartNotFound::new);
+                .orElseThrow(ShoppingCartNotFoundDomain::new);
         Product product = productCatalogService.ofId(productId)
-                .orElseThrow(ProductNotFoundException::new);
+                .orElseThrow(ProductNotFoundExceptionDomain::new);
 
         shoppingCart.addItem(product, new Quantity(input.getQuantity()));
 
@@ -64,7 +64,7 @@ public class ShoppingCartManagementApplicationService implements ForManagingShop
 
         ShoppingCartId shoppingId = new ShoppingCartId(shoppingCartId);
         ShoppingCart shoppingCart = shoppingCarts.ofId(shoppingId)
-                .orElseThrow(ShoppingCartNotFound::new);
+                .orElseThrow(ShoppingCartNotFoundDomain::new);
 
         shoppingCart.removeItem(new ShoppingCartItemId(shoppingCartItemId));
         shoppingCarts.add(shoppingCart);
@@ -77,7 +77,7 @@ public class ShoppingCartManagementApplicationService implements ForManagingShop
 
         ShoppingCartId shoppingId = new ShoppingCartId(shoppingCartId);
         ShoppingCart shoppingCart = shoppingCarts.ofId(shoppingId)
-                .orElseThrow(ShoppingCartNotFound::new);
+                .orElseThrow(ShoppingCartNotFoundDomain::new);
 
         shoppingCart.empty();
         shoppingCarts.add(shoppingCart);
@@ -90,7 +90,7 @@ public class ShoppingCartManagementApplicationService implements ForManagingShop
 
         ShoppingCartId shoppingId = new ShoppingCartId(shoppingCartId);
         ShoppingCart shoppingCart = shoppingCarts.ofId(shoppingId)
-                .orElseThrow(ShoppingCartNotFound::new);
+                .orElseThrow(ShoppingCartNotFoundDomain::new);
 
         shoppingCarts.remove(shoppingCart);
     }
