@@ -1,5 +1,6 @@
 package com.gtech.algashop.infrastructure.config.kafka;
 
+import com.gtech.algashop.core.domain.model.DomainEntityNotFoundException;
 import com.gtech.algashop.core.domain.model.DomainException;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -58,6 +59,7 @@ public class KafkaConfig {
         // não realiza retentativas dessas exceptions e envia para o dead letter topic
         defaultErrorHandler.addNotRetryableExceptions(
                 DomainException.class,
+                DomainEntityNotFoundException.class,
                 ConstraintViolationException.class,
                 DataIntegrityViolationException.class,
                 IllegalArgumentException.class
@@ -115,6 +117,11 @@ public class KafkaConfig {
     @Bean
     public NewTopic orderCommandsDlt(AlgaShopMessagingKafkaProperties properties) {
         return createDeadLetterTopic(properties.getOrderCommandTopicName());
+    }
+
+    @Bean
+    public NewTopic invoiceEventsDlt(AlgaShopMessagingKafkaProperties properties) {
+        return createDeadLetterTopic(properties.getInvoiceEventTopicName());
     }
 
     // cria o topic de eventos produzidos em ordering, dono do evento

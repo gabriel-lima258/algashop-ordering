@@ -28,7 +28,7 @@ import java.util.UUID;
 @Component
 @Slf4j
 @KafkaListener(
-        id = "ordering.order-commands",
+        id = "#{algaShopMessagingKafkaProperties.orderCommandsConsumerGroup}",
         concurrency = "3", // threads em paralelo para cada partição
         topics = "#{algaShopMessagingKafkaProperties.orderCommandTopicName}"
 )

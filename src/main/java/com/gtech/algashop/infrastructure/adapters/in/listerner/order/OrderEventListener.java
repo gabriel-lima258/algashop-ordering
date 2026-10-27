@@ -1,5 +1,7 @@
 package com.gtech.algashop.infrastructure.adapters.in.listerner.order;
 
+import com.gtech.algashop.core.application.order.event.OrderPaidIntegrationEvent;
+import com.gtech.algashop.core.application.order.event.OrderPaidIntegrationEventAssembler;
 import com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEvent;
 import com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEventAssembler;
 import com.gtech.algashop.core.domain.model.order.*;
@@ -21,6 +23,7 @@ public class OrderEventListener {
     private final ForPublishingOrderIntegrationEvents forPublishingOrderIntegrationEvents;
 
     private final OrderPlacedIntegrationEventAssembler orderPlacedIntegrationEventAssembler;
+    private final OrderPaidIntegrationEventAssembler orderPaidIntegrationEventAssembler;
     private final Orders orders;
 
     @EventListener
@@ -48,6 +51,10 @@ public class OrderEventListener {
                 event.customerId().value()
         );
         forNotifyingOrder.notificateOrderPaid(input);
+
+        Order order = orders.ofId(event.orderId()).orElseThrow(OrderNotFoundExceptionDomain::new);
+        OrderPaidIntegrationEvent integrationEvent = orderPaidIntegrationEventAssembler.toIntegrationEvent(order);
+        forPublishingOrderIntegrationEvents.send(integrationEvent);
     }
 
     @EventListener
