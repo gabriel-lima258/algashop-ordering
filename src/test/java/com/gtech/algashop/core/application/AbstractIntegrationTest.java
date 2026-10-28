@@ -1,5 +1,6 @@
 package com.gtech.algashop.core.application;
 
+import com.gtech.algashop.utils.CacheTestConfig;
 import com.gtech.algashop.utils.MockJwtDecoderConfig;
 import com.gtech.algashop.utils.TestContainerPostgresSQLConfig;
 import com.gtech.algashop.utils.WithMockJwt;
@@ -11,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({TestContainerPostgresSQLConfig.class, MockJwtDecoderConfig.class})
+@Import({TestContainerPostgresSQLConfig.class, MockJwtDecoderConfig.class, CacheTestConfig.class})
 /**
  * Identidade DECLARATIVA para os ITs de aplicacao.
  *

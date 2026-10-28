@@ -91,7 +91,11 @@ class ResilientProductCatalogAPIClientIT extends AbstractDomainIT {
 
     @DynamicPropertySource
     static void productCatalogUrl(DynamicPropertyRegistry registry) {
-        registry.add("algashop.integrations.product-catalog.url",
+        // O RestClient do catalogo e @LoadBalanced: o host da URL (http://product-catalog) e o
+        // serviceId, e o endereco real vem do SimpleDiscoveryClient. Sobrescrever a URL com
+        // localhost nao funciona - o balancer trataria "localhost" como serviceId sem
+        // instancia. Por isso o que se troca aqui e a instancia registrada no discovery.
+        registry.add("spring.cloud.discovery.client.simple.instances.product-catalog[0].uri",
                 () -> "http://localhost:" + wireMockProductCatalog.port());
 
         // O RestClient do catalogo carrega o OAuth2ClientHttpRequestInterceptor: antes de

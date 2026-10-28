@@ -1,12 +1,14 @@
 package com.gtech.algashop.infrastructure.adapters.in.web;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.gtech.algashop.utils.CacheTestConfig;
 import com.gtech.algashop.utils.MockJwtDecoderConfig;
 import com.gtech.algashop.utils.MockJwtFactory;
 import com.gtech.algashop.utils.TestContainerPostgresSQLConfig;
 import io.restassured.RestAssured;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.specification.RequestSpecification;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.circuitbreaker.retry.FrameworkRetryCircuitBreaker;
 import org.springframework.cloud.circuitbreaker.retry.FrameworkRetryConfig;
@@ -15,19 +17,22 @@ import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.security.oauth2.client.web.client.OAuth2ClientHttpRequestInterceptor;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static io.restassured.config.JsonConfig.jsonConfig;
+import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 // crie dados antes do teste
 @Sql(scripts = "classpath:db/testdata/afterMigrate.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 // limpa o banco apos o teste
 @Sql(scripts = "classpath:db/clean/afterMigrate.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
-@Import({TestContainerPostgresSQLConfig.class, MockJwtDecoderConfig.class}) // importando o gerenciamento de bean do postgres
+@Import({TestContainerPostgresSQLConfig.class, MockJwtDecoderConfig.class, CacheTestConfig.class}) // importando o gerenciamento de bean do postgres
 public class AbstractPresentationIT {
 
     @LocalServerPort
@@ -79,6 +84,16 @@ public class AbstractPresentationIT {
     }
 
     protected void beforeEach() {
+        try {
+            Mockito.doAnswer(invocation -> {
+                HttpRequest request = invocation.getArgument(0);
+                byte[] body = invocation.getArgument(1);
+                ClientHttpRequestExecution execution = invocation.getArgument(2);
+                return execution.execute(request, body); // segue sem token
+            }).when(productCatalogAPIClientInterceptor).intercept(any(), any(), any());
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
         resetProductCatalogCircuitBreaker();
 
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();

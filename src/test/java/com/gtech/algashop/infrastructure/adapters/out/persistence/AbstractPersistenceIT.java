@@ -2,6 +2,7 @@ package com.gtech.algashop.infrastructure.adapters.out.persistence;
 
 import com.gtech.algashop.core.application.security.SecurityCheckApplicationService;
 import com.gtech.algashop.infrastructure.config.auditing.SpringDataAuditingConfig;
+import com.gtech.algashop.utils.CacheTestConfig;
 import com.gtech.algashop.utils.TestContainerPostgresSQLConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
@@ -21,7 +22,8 @@ import java.util.UUID;
 // resposta se precisar.
 @Import({
         TestContainerPostgresSQLConfig.class,   // gerenciamento do bean do postgres
-        SpringDataAuditingConfig.class
+        SpringDataAuditingConfig.class,
+        CacheTestConfig.class
 })
 public class AbstractPersistenceIT {
 
