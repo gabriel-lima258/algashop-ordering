@@ -1,5 +1,6 @@
 package com.gtech.algashop.infrastructure.adapters.in.messaging.kafka.invoice;
 
+import com.gtech.algashop.core.application.invoice.event.InvoiceCanceledIntegrationEvent;
 import com.gtech.algashop.core.application.invoice.event.InvoicePaidIntegrationEvent;
 import com.gtech.algashop.core.ports.in.order.ForManagingOrders;
 import jakarta.validation.Valid;
@@ -31,6 +32,16 @@ public class KafkaInvoiceIntegrationEventListener {
             @Header(value = KafkaHeaders.OFFSET, required = false) Long offset) {
         logReceived(event, messageKey, partition, offset);
         forManagingOrders.markAsPaid(event.getOrderId());
+    }
+
+    @KafkaHandler
+    public void handle(
+            @Payload @Valid InvoiceCanceledIntegrationEvent event,
+            @Header(value = KafkaHeaders.RECEIVED_KEY, required = false) String messageKey,
+            @Header(value = KafkaHeaders.RECEIVED_PARTITION, required = false) Integer partition,
+            @Header(value = KafkaHeaders.OFFSET, required = false) Long offset) {
+        logReceived(event, messageKey, partition, offset);
+        forManagingOrders.markAsCanceled(event.getOrderId());
     }
 
     @KafkaHandler(isDefault = true)

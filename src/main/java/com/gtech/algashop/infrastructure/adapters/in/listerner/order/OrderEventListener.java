@@ -1,9 +1,7 @@
 package com.gtech.algashop.infrastructure.adapters.in.listerner.order;
 
-import com.gtech.algashop.core.application.order.event.OrderPaidIntegrationEvent;
-import com.gtech.algashop.core.application.order.event.OrderPaidIntegrationEventAssembler;
-import com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEvent;
-import com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEventAssembler;
+import com.gtech.algashop.core.application.order.event.*;
+import com.gtech.algashop.core.application.util.Mapper;
 import com.gtech.algashop.core.domain.model.order.*;
 import com.gtech.algashop.core.ports.out.order.ForNotifyingOrder;
 import com.gtech.algashop.core.ports.out.order.ForPublishingOrderIntegrationEvents;
@@ -24,6 +22,8 @@ public class OrderEventListener {
 
     private final OrderPlacedIntegrationEventAssembler orderPlacedIntegrationEventAssembler;
     private final OrderPaidIntegrationEventAssembler orderPaidIntegrationEventAssembler;
+    private final Mapper mapper;
+
     private final Orders orders;
 
     @EventListener
@@ -75,5 +75,8 @@ public class OrderEventListener {
                 event.customerId().value()
         );
         forNotifyingOrder.notificateOrderCanceled(input);
+
+        OrderCanceledIntegrationEvent integrationEvent = mapper.convert(event, OrderCanceledIntegrationEvent.class);
+        forPublishingOrderIntegrationEvents.send(integrationEvent);
     }
 }

@@ -89,7 +89,9 @@ spring:
         Ordering.OrderPlacedIntegrationEvent:com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEvent,
         Ordering.ProcessAcceptedCheckoutIntegrationCommand:com.gtech.algashop.core.application.checkout.command.ProcessAcceptedCheckoutIntegrationCommand,
         Ordering.OrderPaidIntegrationEvent:com.gtech.algashop.core.application.order.event.OrderPaidIntegrationEvent,
-        Billing.InvoicePaidIntegrationEvent:com.gtech.algashop.core.application.invoice.event.InvoicePaidIntegrationEvent
+        Ordering.OrderCanceledIntegrationEvent:com.gtech.algashop.core.application.order.event.OrderCanceledIntegrationEvent,
+        Billing.InvoicePaidIntegrationEvent:com.gtech.algashop.core.application.invoice.event.InvoicePaidIntegrationEvent,
+        Billing.InvoiceCanceledIntegrationEvent:com.gtech.algashop.core.application.invoice.event.InvoiceCanceledIntegrationEvent
     producer: # produtor para topico de dead letter topic
       acks: all
       key-serializer: org.apache.kafka.common.serialization.StringSerializer # chave String
