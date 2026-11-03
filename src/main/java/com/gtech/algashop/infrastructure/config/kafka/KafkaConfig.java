@@ -66,16 +66,6 @@ public class KafkaConfig {
         return createDeadLetterTopic(properties.getOrderEventTopicName());
     }
 
-    @Bean
-    public NewTopic invoiceEventsDlt(AlgaShopMessagingKafkaProperties properties) {
-        return createDeadLetterTopic(properties.getInvoiceEventTopicName());
-    }
-
-    @Bean
-    public NewTopic stockEventsDlt(AlgaShopMessagingKafkaProperties properties) {
-        return createDeadLetterTopic(properties.getStockEventTopicName());
-    }
-
     // método para criar topics de dead letter no lado consumer, configuração padrão
     private NewTopic createDeadLetterTopic(String originalTopicName) {
         return TopicBuilder.name(DLT_PREFIX + originalTopicName)
