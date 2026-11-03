@@ -30,6 +30,9 @@ public class AlgaShopMessagingKafkaProperties {
     private String invoiceEventTopicName;
 
     @NotBlank
+    private String stockEventTopicName;
+
+    @NotBlank
     private String productEventsConsumerGroup;
 
     @NotBlank
@@ -37,4 +40,7 @@ public class AlgaShopMessagingKafkaProperties {
 
     @NotBlank
     private String invoiceEventsConsumerGroup;
+
+    @NotBlank
+    private String stockEventsConsumerGroup;
 }

@@ -65,6 +65,10 @@ public class OrderEventListener {
                 event.customerId().value()
         );
         forNotifyingOrder.notificateOrderReady(input);
+
+        OrderReadyIntegrationEvent integrationEvent = mapper.convert(event, OrderReadyIntegrationEvent.class);
+        forPublishingOrderIntegrationEvents.send(integrationEvent);
+
     }
 
     @EventListener

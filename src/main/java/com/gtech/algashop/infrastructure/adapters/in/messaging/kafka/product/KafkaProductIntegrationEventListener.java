@@ -1,8 +1,6 @@
 package com.gtech.algashop.infrastructure.adapters.in.messaging.kafka.product;
 
-import com.gtech.algashop.core.application.product.event.ProductDelistedIntegrationEvent;
-import com.gtech.algashop.core.application.product.event.ProductListedIntegrationEvent;
-import com.gtech.algashop.core.application.product.event.ProductPriceChangedV2IntegrationEvent;
+import com.gtech.algashop.core.application.product.event.*;
 import com.gtech.algashop.core.ports.in.shoppingcart.ForManagingShoppingCarts;
 import com.gtech.algashop.core.ports.out.idempotency.ForGuardingIdempotency;
 import com.gtech.algashop.infrastructure.config.cache.ProductCacheManager;
@@ -95,6 +93,28 @@ public class KafkaProductIntegrationEventListener {
     ) {
         logReceived(event, messageKey, partition, messageOffset);
 
+        forManagingShoppingCarts.changeProductAvailability(event.getProductId(), false);
+        productCacheManager.evict(event.getProductId());
+    }
+
+    @KafkaHandler
+    public void handle(@Payload ProductRestockedIntegrationEvent event,
+                       @Header(value = KafkaHeaders.RECEIVED_KEY, required = false) String messageKey,
+                       @Header(value = KafkaHeaders.RECEIVED_PARTITION, required = false) Integer partition,
+                       @Header(value = KafkaHeaders.OFFSET, required = false) Integer messageOffset
+    ) {
+        logReceived(event, messageKey, partition, messageOffset);
+        forManagingShoppingCarts.changeProductAvailability(event.getProductId(), true);
+        productCacheManager.evict(event.getProductId());
+    }
+
+    @KafkaHandler
+    public void handle(@Payload ProductSoldOutIntegrationEvent event,
+                       @Header(value = KafkaHeaders.RECEIVED_KEY, required = false) String messageKey,
+                       @Header(value = KafkaHeaders.RECEIVED_PARTITION, required = false) Integer partition,
+                       @Header(value = KafkaHeaders.OFFSET, required = false) Integer messageOffset
+    ) {
+        logReceived(event, messageKey, partition, messageOffset);
         forManagingShoppingCarts.changeProductAvailability(event.getProductId(), false);
         productCacheManager.evict(event.getProductId());
     }

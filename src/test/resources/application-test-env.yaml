@@ -64,10 +64,16 @@ spring:
         ProductCatalog.ProductDelistedIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductDelistedIntegrationEvent,
         ProductCatalog.ProductListedIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductListedIntegrationEvent,
         ProductCatalog.ProductPriceChangedV2IntegrationEvent:com.gtech.algashop.core.application.product.event.ProductPriceChangedV2IntegrationEvent,
+        ProductCatalog.StockReservationConfirmedIntegrationEvent:com.gtech.algashop.core.application.stock.event.StockReservationConfirmedIntegrationEvent,
+        ProductCatalog.ProductRestockedIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductRestockedIntegrationEvent,
+        ProductCatalog.ProductSoldOutIntegrationEvent:com.gtech.algashop.core.application.product.event.ProductSoldOutIntegrationEvent,
         Ordering.OrderPlacedIntegrationEvent:com.gtech.algashop.core.application.order.event.OrderPlacedIntegrationEvent,
+        Ordering.ProcessAcceptedCheckoutIntegrationCommand:com.gtech.algashop.core.application.checkout.command.ProcessAcceptedCheckoutIntegrationCommand,
         Ordering.OrderPaidIntegrationEvent:com.gtech.algashop.core.application.order.event.OrderPaidIntegrationEvent,
+        Ordering.OrderCanceledIntegrationEvent:com.gtech.algashop.core.application.order.event.OrderCanceledIntegrationEvent,
+        Ordering.OrderReadyIntegrationEvent:com.gtech.algashop.core.application.order.event.OrderReadyIntegrationEvent,
         Billing.InvoicePaidIntegrationEvent:com.gtech.algashop.core.application.invoice.event.InvoicePaidIntegrationEvent,
-        Ordering.ProcessAcceptedCheckoutIntegrationCommand:com.gtech.algashop.core.application.checkout.command.ProcessAcceptedCheckoutIntegrationCommand
+        Billing.InvoiceCanceledIntegrationEvent:com.gtech.algashop.core.application.invoice.event.InvoiceCanceledIntegrationEvent
     producer:
       acks: all
       key-serializer: org.apache.kafka.common.serialization.StringSerializer

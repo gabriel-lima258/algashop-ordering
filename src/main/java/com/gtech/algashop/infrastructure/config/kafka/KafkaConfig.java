@@ -43,29 +43,65 @@ public class KafkaConfig {
     private static final int TOPIC_REPLICAS = 3;
     private static final long RETENTION_30_DAYS = Duration.ofDays(30).toMillis();
 
-    // ignora eventos em retry em business exception e costumiza os valores de retries
+
+    // cria o topic de eventos produzidos em ordering, dono do evento
     @Bean
-    public DefaultErrorHandler defaultErrorHandler(DeadLetterPublishingRecoverer recoverer) {
-        long interval = 2000L; // 2 segundos
-        double multiplier = 2; // multiplicador exponencial
-        long maxRetries = 3L; // 3 RETENTATIVAS: com a entrega original sao 4 execucoes (2s/4s/8s)
+    public NewTopic orderEventTopic(AlgaShopMessagingKafkaProperties properties) {
+        return TopicBuilder.name(properties.getOrderEventTopicName())
+                .partitions(TOPIC_PARTITIONS) // o mesmo do topico original
+                .replicas(TOPIC_REPLICAS)
+                .configs(Map.of(
+                        "min.insync.replicas", "2"
+                ))
+                .build();
+    }
 
-        ExponentialBackOff exponentialBackOff = new ExponentialBackOff(interval, multiplier);
-        exponentialBackOff.setMaxAttempts(maxRetries);
-        exponentialBackOff.setMaxInterval(8_000L);
+    @Bean
+    public NewTopic orderCommandTopic(AlgaShopMessagingKafkaProperties properties) {
+        return TopicBuilder.name(properties.getOrderCommandTopicName())
+                .partitions(TOPIC_PARTITIONS) // o mesmo do topico original
+                .replicas(TOPIC_REPLICAS)
+                .configs(Map.of(
+                        "min.insync.replicas", "2"
+                ))
+                .build();
+    }
 
-        DefaultErrorHandler defaultErrorHandler = new DefaultErrorHandler(recoverer, exponentialBackOff);
+    @Bean
+    public NewTopic productEventsDlt(AlgaShopMessagingKafkaProperties properties) {
+        return createDeadLetterTopic(properties.getProductEventTopicName());
+    }
 
-        // não realiza retentativas dessas exceptions e envia para o dead letter topic
-        defaultErrorHandler.addNotRetryableExceptions(
-                DomainException.class,
-                DomainEntityNotFoundException.class,
-                ConstraintViolationException.class,
-                DataIntegrityViolationException.class,
-                IllegalArgumentException.class
-        );
+    @Bean
+    public NewTopic orderEventsDlt(AlgaShopMessagingKafkaProperties properties) {
+        return createDeadLetterTopic(properties.getOrderEventTopicName());
+    }
 
-        return defaultErrorHandler;
+    @Bean
+    public NewTopic orderCommandsDlt(AlgaShopMessagingKafkaProperties properties) {
+        return createDeadLetterTopic(properties.getOrderCommandTopicName());
+    }
+
+    @Bean
+    public NewTopic invoiceEventsDlt(AlgaShopMessagingKafkaProperties properties) {
+        return createDeadLetterTopic(properties.getInvoiceEventTopicName());
+    }
+
+    @Bean
+    public NewTopic stockEventsDlt(AlgaShopMessagingKafkaProperties properties) {
+        return createDeadLetterTopic(properties.getStockEventTopicName());
+    }
+
+    // método para criar topics de dead letter no lado consumer, configuração padrão
+    private NewTopic createDeadLetterTopic(String originalTopicName) {
+        return TopicBuilder.name(DLT_PREFIX + originalTopicName)
+                .partitions(TOPIC_PARTITIONS) // o mesmo do topico original
+                .replicas(TOPIC_REPLICAS)
+                .configs(Map.of(
+                        "min.insync.replicas", "2",
+                        "retention.ms", String.valueOf(RETENTION_30_DAYS)
+                ))
+                .build();
     }
 
     /**
@@ -104,58 +140,28 @@ public class KafkaConfig {
         return recoverer;
     }
 
+    // ignora eventos em retry em business exception e costumiza os valores de retries
     @Bean
-    public NewTopic productEventsDlt(AlgaShopMessagingKafkaProperties properties) {
-        return createDeadLetterTopic(properties.getProductEventTopicName());
-    }
+    public DefaultErrorHandler defaultErrorHandler(DeadLetterPublishingRecoverer recoverer) {
+        long interval = 2000L; // 2 segundos
+        double multiplier = 2; // multiplicador exponencial
+        long maxRetries = 3L; // 3 RETENTATIVAS: com a entrega original sao 4 execucoes (2s/4s/8s)
 
-    @Bean
-    public NewTopic orderEventsDlt(AlgaShopMessagingKafkaProperties properties) {
-        return createDeadLetterTopic(properties.getOrderEventTopicName());
-    }
+        ExponentialBackOff exponentialBackOff = new ExponentialBackOff(interval, multiplier);
+        exponentialBackOff.setMaxAttempts(maxRetries);
+        exponentialBackOff.setMaxInterval(8_000L);
 
-    @Bean
-    public NewTopic orderCommandsDlt(AlgaShopMessagingKafkaProperties properties) {
-        return createDeadLetterTopic(properties.getOrderCommandTopicName());
-    }
+        DefaultErrorHandler defaultErrorHandler = new DefaultErrorHandler(recoverer, exponentialBackOff);
 
-    @Bean
-    public NewTopic invoiceEventsDlt(AlgaShopMessagingKafkaProperties properties) {
-        return createDeadLetterTopic(properties.getInvoiceEventTopicName());
-    }
+        // não realiza retentativas dessas exceptions e envia para o dead letter topic
+        defaultErrorHandler.addNotRetryableExceptions(
+                DomainException.class,
+                DomainEntityNotFoundException.class,
+                ConstraintViolationException.class,
+                DataIntegrityViolationException.class,
+                IllegalArgumentException.class
+        );
 
-    // cria o topic de eventos produzidos em ordering, dono do evento
-    @Bean
-    public NewTopic orderEventTopic(AlgaShopMessagingKafkaProperties properties) {
-        return TopicBuilder.name(properties.getOrderEventTopicName())
-                .partitions(TOPIC_PARTITIONS) // o mesmo do topico original
-                .replicas(TOPIC_REPLICAS)
-                .configs(Map.of(
-                        "min.insync.replicas", "2"
-                ))
-                .build();
-    }
-
-    @Bean
-    public NewTopic orderCommandTopic(AlgaShopMessagingKafkaProperties properties) {
-        return TopicBuilder.name(properties.getOrderCommandTopicName())
-                .partitions(TOPIC_PARTITIONS) // o mesmo do topico original
-                .replicas(TOPIC_REPLICAS)
-                .configs(Map.of(
-                        "min.insync.replicas", "2"
-                ))
-                .build();
-    }
-
-    // método para criar topics de dead letter no lado consumer, configuração padrão
-    private NewTopic createDeadLetterTopic(String originalTopicName) {
-        return TopicBuilder.name(DLT_PREFIX + originalTopicName)
-                .partitions(TOPIC_PARTITIONS) // o mesmo do topico original
-                .replicas(TOPIC_REPLICAS)
-                .configs(Map.of(
-                        "min.insync.replicas", "2",
-                        "retention.ms", String.valueOf(RETENTION_30_DAYS)
-                ))
-                .build();
+        return defaultErrorHandler;
     }
 }

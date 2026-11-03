@@ -25,6 +25,7 @@ public class ShoppingCartManagementApplicationService implements ForManagingShop
 
     private final ProductCatalogService productCatalogService;
     private final ShoppingService shoppingService;
+    private final ShoppingCartProductAdjustmentService shoppingCartProductAdjustmentService;
 
     // repositorio
     private final ShoppingCarts shoppingCarts;
@@ -101,16 +102,7 @@ public class ShoppingCartManagementApplicationService implements ForManagingShop
     @Override
     @Transactional
     public void changeProductAvailability(UUID productId, boolean available) {
-        List<ShoppingCart> affectedShoppingCarts = shoppingCarts.findAllContainingItem(new ProductId(productId));
-
-        if (affectedShoppingCarts.isEmpty()) {
-            return;
-        }
-
-        affectedShoppingCarts.forEach(shoppingCart -> {
-            shoppingCart.changeItemAvailability(new ProductId(productId), available);
-            shoppingCarts.add(shoppingCart);
-        });
+        shoppingCartProductAdjustmentService.changeAvailability(new ProductId(productId), available);
     }
 
     // caminho via AGREGADO (carrega, muda, salva): as invariantes ficam no dominio, ao
@@ -120,17 +112,7 @@ public class ShoppingCartManagementApplicationService implements ForManagingShop
     @Override
     @Transactional
     public void refreshProductPrice(UUID productId, BigDecimal salePrice) {
-        ProductId domainProductId = new ProductId(productId);
-        List<ShoppingCart> affectedShoppingCarts = shoppingCarts.findAllContainingItem(domainProductId);
-
-        if (affectedShoppingCarts.isEmpty()) {
-            return;
-        }
-
-        affectedShoppingCarts.forEach(shoppingCart -> {
-            shoppingCart.changeItemPrice(domainProductId, new Money(salePrice));
-            shoppingCarts.add(shoppingCart);
-        });
+        shoppingCartProductAdjustmentService.adjustPrice(new ProductId(productId), new Money(salePrice));
     }
 
 }
