@@ -1,10 +1,7 @@
 package com.gtech.algashop.infrastructure.adapters.in.messaging.kafka.stock;
 
-import com.gtech.algashop.core.application.checkout.command.ProcessAcceptedCheckoutIntegrationCommand;
-import com.gtech.algashop.core.application.invoice.event.InvoicePaidIntegrationEvent;
 import com.gtech.algashop.core.application.stock.event.StockReservationConfirmedIntegrationEvent;
 import com.gtech.algashop.core.ports.in.order.ForManagingOrders;
-import com.gtech.algashop.infrastructure.config.kafka.KafkaConfig;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +12,6 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
 
 @Component
 @Slf4j

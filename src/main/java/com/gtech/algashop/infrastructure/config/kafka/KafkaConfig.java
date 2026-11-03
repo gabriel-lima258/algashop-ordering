@@ -29,8 +29,8 @@ import java.util.Map;
 //   headers de topico/particao/offset/excecao originais -> offset commitado, o
 //   consumo segue. A mensagem nao se perde: fica 30 dias no DLT esperando alguem.
 //
-// Os topicos proprios do ordering (order.events / order.commands) e os tres DLTs
-// tambem nascem aqui, com a mesma topologia do modulo: 3/3, min.insync.replicas=2.
+// O topico proprio do ordering (order.events) e os DLTs dos topicos consumidos tambem
+// nascem aqui, com a mesma topologia do modulo: 3/3, min.insync.replicas=2.
 @Configuration
 public class KafkaConfig {
 
@@ -57,17 +57,6 @@ public class KafkaConfig {
     }
 
     @Bean
-    public NewTopic orderCommandTopic(AlgaShopMessagingKafkaProperties properties) {
-        return TopicBuilder.name(properties.getOrderCommandTopicName())
-                .partitions(TOPIC_PARTITIONS) // o mesmo do topico original
-                .replicas(TOPIC_REPLICAS)
-                .configs(Map.of(
-                        "min.insync.replicas", "2"
-                ))
-                .build();
-    }
-
-    @Bean
     public NewTopic productEventsDlt(AlgaShopMessagingKafkaProperties properties) {
         return createDeadLetterTopic(properties.getProductEventTopicName());
     }
@@ -75,11 +64,6 @@ public class KafkaConfig {
     @Bean
     public NewTopic orderEventsDlt(AlgaShopMessagingKafkaProperties properties) {
         return createDeadLetterTopic(properties.getOrderEventTopicName());
-    }
-
-    @Bean
-    public NewTopic orderCommandsDlt(AlgaShopMessagingKafkaProperties properties) {
-        return createDeadLetterTopic(properties.getOrderCommandTopicName());
     }
 
     @Bean

@@ -8,8 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 // Raiz do snapshot: espelho plano do agregado Order em tipos primitivos/JDK (sem value
-// objects), pronto para virar JSON no ProcessAcceptedCheckoutIntegrationCommand. O shoppingCartId
-// nao pertence ao Order - viaja aqui para o consumidor saber qual carrinho esvaziar.
+// objects), pronto para virar JSON. Volta a viajar no comando de emissao de fatura da Saga.
 public record OrderSnapshot(
         String orderId,
         UUID customerId,
@@ -21,6 +20,5 @@ public record OrderSnapshot(
         UUID creditCardId,
         BigDecimal totalAmount,
         Integer totalItems,
-        Set<OrderItemSnapshot> items,
-        UUID shoppingCartId
+        Set<OrderItemSnapshot> items
 ) {}
