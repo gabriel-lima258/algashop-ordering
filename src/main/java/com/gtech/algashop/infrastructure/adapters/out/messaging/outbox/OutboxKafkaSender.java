@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.KafkaException;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +19,10 @@ import java.util.concurrent.TimeoutException;
 
 // O braco Kafka do dispatcher: envia os BYTES gravados na outbox, sem reserializar
 // (template dedicado com ByteArraySerializer - ver OutboxConfig). Reconstroi os
-// headers a partir das colunas: __TypeId__ = eventType, idempotency-key = id da
+// headers a partir das colunas: __TypeId__ = messageType, idempotency-key = id da
 // LINHA da outbox (estavel entre reenvios - e essa chave que o consumidor deduplica).
+// Em comandos da saga vao tambem kafka_correlationId e kafka_replyTopic, que dizem ao
+// participante a que pedido a resposta pertence e para onde envia-la; eventos nao os tem.
 // O send e sincrono com get(send-timeout): o dispatcher precisa saber AGORA se deu
 // certo, porque a decisao seguinte e deletar a linha ou registrar a falha.
 @Component
@@ -44,15 +47,23 @@ public class OutboxKafkaSender {
                 message.getPayload().getBytes(StandardCharsets.UTF_8)
         );
 
-        record.headers().add(KafkaConfig.TYPE_ID_HEADER, message.getEventType().getBytes(StandardCharsets.UTF_8));
+        record.headers().add(KafkaConfig.TYPE_ID_HEADER, message.getMessageType().getBytes(StandardCharsets.UTF_8));
         record.headers().add(KafkaConfig.IDEMPOTENCY_KEY_HEADER, message.getId().toString().getBytes(StandardCharsets.UTF_8));
+
+        if (message.getCorrelationId() != null) {
+            record.headers().add(KafkaHeaders.CORRELATION_ID, message.getCorrelationId().getBytes(StandardCharsets.UTF_8));
+        }
+
+        if (message.getReplyTopic() != null) {
+            record.headers().add(KafkaHeaders.REPLY_TOPIC, message.getReplyTopic().getBytes(StandardCharsets.UTF_8));
+        }
 
         SendResult<String, byte[]> result = doSend(record);
 
         RecordMetadata metadata = result.getRecordMetadata();
 
         log.info("Published {} from outbox to {}-{} at offset {} | messageId={} aggregateId={}",
-                message.getEventType(),
+                message.getMessageType(),
                 metadata.topic(),
                 metadata.partition(),
                 metadata.offset(),

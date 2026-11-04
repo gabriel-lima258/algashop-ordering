@@ -17,6 +17,12 @@ public class OutboxOrderIntegrationEventPublisher implements ForPublishingOrderI
 
     @Override
     public void send(OutboundIntegrationEvent event) {
-        recorder.record(properties.getOrderEventTopicName(), event.getAggregateId(), event);
+        recorder.record(
+                OutboxDraft.builder()
+                        .channelName(properties.getOrderEventTopicName())
+                        .aggregateId(event.getAggregateId())
+                        .payload(event)
+                        .build()
+        );
     }
 }

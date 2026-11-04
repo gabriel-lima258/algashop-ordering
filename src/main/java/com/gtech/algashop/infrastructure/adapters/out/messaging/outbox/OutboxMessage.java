@@ -13,7 +13,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 // Uma linha da fila transacional: payload JSON pronto + os metadados que o dispatcher
-// precisa (channelName = topico, aggregateId = key, eventType = __TypeId__) e o estado
+// precisa (channelName = topico, aggregateId = key, messageType = __TypeId__) e o estado
 // do ciclo de vida (attempts, nextAttemptAt, lastError, failedAt). O id e UUIDv7
 // gerado na criacao: ordenavel por tempo, ele E a ordem de envio - e tambem a chave de
 // idempotencia que viaja no header. Persistable.isNew()=true: so INSERT, nunca merge.
@@ -28,9 +28,13 @@ public class OutboxMessage implements Persistable<UUID> {
 
     private String channelName;
 
+    private String replyTopic;
+
     private String aggregateId;
 
-    private String eventType;
+    private String correlationId;
+
+    private String messageType;
 
     @JdbcType(PostgreSQLJsonPGObjectJsonType.class)
     private String payload;
@@ -46,11 +50,13 @@ public class OutboxMessage implements Persistable<UUID> {
     private OffsetDateTime failedAt;
 
     @Builder
-    public OutboxMessage(String channelName, String aggregateId, String eventType, String payload) {
+    public OutboxMessage(String channelName, String aggregateId, String messageType, String payload, String correlationId, String replyTopic) {
         this.id = IdGenerator.generateTimeBasedUUID();
         this.channelName = channelName;
+        this.replyTopic = replyTopic;
         this.aggregateId = aggregateId;
-        this.eventType = eventType;
+        this.correlationId = correlationId;
+        this.messageType = messageType;
         this.payload = payload;
         this.createdAt = OffsetDateTime.now();
         this.nextAttemptAt = OffsetDateTime.now();
