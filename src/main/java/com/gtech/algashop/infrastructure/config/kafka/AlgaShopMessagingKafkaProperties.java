@@ -25,4 +25,12 @@ public class AlgaShopMessagingKafkaProperties {
 
     @NotBlank
     private String productEventsConsumerGroup;
+
+    // topico de comandos do billing: o ordering so PUBLICA nele (quem cria e o billing)
+    @NotBlank
+    private String billingInvoiceCommandsTopicName;
+
+    // topico onde os participantes respondem aos comandos (vai no kafka_replyTopic)
+    @NotBlank
+    private String sagaRepliesTopicName;
 }

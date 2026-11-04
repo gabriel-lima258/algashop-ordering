@@ -44,6 +44,13 @@ public class PlaceOrderSaga {
         );
     }
 
+    // primeira transicao: so sai de PLACING_ORDER se a saga estiver rodando nele; o passo
+    // seguinte (INVOICING) e validado pelo enum. Status continua RUNNING
+    public void moveToInvoicing() {
+        require(isRunningAt(PlaceOrderSagaStep.PLACING_ORDER));
+        changeStepTo(PlaceOrderSagaStep.INVOICING);
+    }
+
     public boolean isRunningAt(PlaceOrderSagaStep step) {
         return this.status == SagaStatus.RUNNING && this.step == step;
     }
@@ -106,4 +113,5 @@ public class PlaceOrderSaga {
                 ", version=" + version +
                 '}';
     }
+
 }

@@ -43,6 +43,18 @@ public class KafkaConfig {
     private static final int TOPIC_REPLICAS = 3;
     private static final long RETENTION_30_DAYS = Duration.ofDays(30).toMillis();
 
+    // topico de respostas da saga: o ordering e quem o CONSOME, entao e quem o cria (o
+    // dono do consumo declara o topico, como o billing faz com billing.invoice.commands)
+    @Bean
+    public NewTopic sagaRepliesTopic(AlgaShopMessagingKafkaProperties properties) {
+        return TopicBuilder.name(properties.getSagaRepliesTopicName())
+                .partitions(TOPIC_PARTITIONS)
+                .replicas(TOPIC_REPLICAS)
+                .configs(Map.of(
+                        "min.insync.replicas", "2"
+                ))
+                .build();
+    }
 
     // cria o topic de eventos produzidos em ordering, dono do evento
     @Bean
@@ -64,6 +76,11 @@ public class KafkaConfig {
     @Bean
     public NewTopic orderEventsDlt(AlgaShopMessagingKafkaProperties properties) {
         return createDeadLetterTopic(properties.getOrderEventTopicName());
+    }
+
+    @Bean
+    public NewTopic sagaRepliesDlt(AlgaShopMessagingKafkaProperties properties) {
+        return createDeadLetterTopic(properties.getSagaRepliesTopicName());
     }
 
     // método para criar topics de dead letter no lado consumer, configuração padrão
