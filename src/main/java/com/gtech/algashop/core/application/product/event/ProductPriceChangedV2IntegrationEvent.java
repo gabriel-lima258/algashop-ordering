@@ -1,6 +1,6 @@
 package com.gtech.algashop.core.application.product.event;
 
-import com.gtech.algashop.core.application.IntegrationEvent;
+import com.gtech.algashop.core.application.InboundIntegrationEvent;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +24,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductPriceChangedV2IntegrationEvent implements IntegrationEvent {
+public class ProductPriceChangedV2IntegrationEvent implements InboundIntegrationEvent {
     @NotNull
     private UUID productId;
     @NotNull
@@ -37,13 +37,4 @@ public class ProductPriceChangedV2IntegrationEvent implements IntegrationEvent {
     private BigDecimal newRegularPrice;
     @NotNull
     private BigDecimal newSalePrice;
-
-    @Override
-    public String getAggregateId() {
-        if (productId == null) {
-            return null;
-        }
-
-        return productId.toString();
-    }
 }

@@ -1,7 +1,7 @@
 package com.gtech.algashop.infrastructure.adapters.out.messaging.kafka.order;
 
 import com.gtech.algashop.core.application.EventPublishingException;
-import com.gtech.algashop.core.application.IntegrationEvent;
+import com.gtech.algashop.core.application.OutboundIntegrationEvent;
 import com.gtech.algashop.core.ports.out.order.ForPublishingOrderIntegrationEvents;
 import com.gtech.algashop.infrastructure.config.kafka.AlgaShopMessagingKafkaProperties;
 import com.gtech.algashop.infrastructure.config.kafka.KafkaConfig;
@@ -31,7 +31,7 @@ public class KafkaOrderIntegrationEventPublisher implements ForPublishingOrderIn
     private final BeanValidationUtil beanValidationUtil;
 
     @Override
-    public void send(IntegrationEvent event) {
+    public void send(OutboundIntegrationEvent event) {
         beanValidationUtil.validate(event);
         SendResult<String, Object> result = null;
         try {

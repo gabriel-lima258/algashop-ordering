@@ -1,6 +1,6 @@
 package com.gtech.algashop.core.application.product.event;
 
-import com.gtech.algashop.core.application.IntegrationEvent;
+import com.gtech.algashop.core.application.InboundIntegrationEvent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,16 +20,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductAddedIntegrationEvent implements IntegrationEvent {
+public class ProductAddedIntegrationEvent implements InboundIntegrationEvent {
     private UUID productId;
     private OffsetDateTime addedAt;
-
-    @Override
-    public String getAggregateId() {
-        if (productId == null) {
-            return null;
-        }
-
-        return productId.toString();
-    }
 }

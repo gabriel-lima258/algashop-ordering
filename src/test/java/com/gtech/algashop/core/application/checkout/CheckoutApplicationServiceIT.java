@@ -79,8 +79,12 @@ class CheckoutApplicationServiceIT extends AbstractIntegrationTest {
         ShoppingCart updatedCart = shoppingCarts.ofId(cart.id()).orElseThrow();
         Assertions.assertThat(updatedCart.isEmpty()).isTrue();
 
+        // o OrderPlacedEvent agora tem dois ouvintes: publicar o evento de integracao e
+        // iniciar a saga, ambos dentro da transacao do checkout
         Mockito.verify(orderEventListener, Mockito.times(1))
-                .listen(Mockito.any(OrderPlacedEvent.class));
+                .onOrderPlacedPublishIntegrationEvent(Mockito.any(OrderPlacedEvent.class));
+        Mockito.verify(orderEventListener, Mockito.times(1))
+                .onOrderPlacedStartSaga(Mockito.any(OrderPlacedEvent.class));
     }
 
     // O carrinho agora e resolvido pelo cliente do input: "carrinho inexistente" significa

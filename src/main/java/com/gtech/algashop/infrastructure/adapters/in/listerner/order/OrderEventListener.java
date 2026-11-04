@@ -3,6 +3,7 @@ package com.gtech.algashop.infrastructure.adapters.in.listerner.order;
 import com.gtech.algashop.core.application.order.event.*;
 import com.gtech.algashop.core.application.util.Mapper;
 import com.gtech.algashop.core.domain.model.order.*;
+import com.gtech.algashop.core.ports.in.order.saga.ForCoordinatingPlaceOrderSaga;
 import com.gtech.algashop.core.ports.out.order.ForNotifyingOrder;
 import com.gtech.algashop.core.ports.out.order.ForPublishingOrderIntegrationEvents;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +27,12 @@ public class OrderEventListener {
 
     private final Orders orders;
 
+    // saga
+    private final ForCoordinatingPlaceOrderSaga forCoordinatingPlaceOrderSaga;
+
+    // notifica o cliente e publica o OrderPlacedIntegrationEvent no broker (broadcast, sem esperar resposta)
     @EventListener
-    public void listen(OrderPlacedEvent event) {
+    public void onOrderPlacedPublishIntegrationEvent(OrderPlacedEvent event) {
         log.info("OrderPlacedEvent listen 1");
         ForNotifyingOrder.NotifyOrderStatusInput input = new ForNotifyingOrder.NotifyOrderStatusInput(
                 event.orderId().toString(),
@@ -41,6 +46,13 @@ public class OrderEventListener {
         OrderPlacedIntegrationEvent integrationEvent = orderPlacedIntegrationEventAssembler.toIntegrationEvent(order);
         // publica evento
         forPublishingOrderIntegrationEvents.send(integrationEvent);
+    }
+
+    // inicia a saga orquestrada do pedido (o orquestrador coordena os próximos passos e as compensações)
+    @EventListener
+    public void onOrderPlacedStartSaga(OrderPlacedEvent event) {
+        log.info("OrderPlaced Saga");
+        forCoordinatingPlaceOrderSaga.start(event.orderId().toString());
     }
 
     @EventListener

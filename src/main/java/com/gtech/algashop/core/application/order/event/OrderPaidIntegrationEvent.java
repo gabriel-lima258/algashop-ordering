@@ -1,6 +1,6 @@
 package com.gtech.algashop.core.application.order.event;
 
-import com.gtech.algashop.core.application.IntegrationEvent;
+import com.gtech.algashop.core.application.OutboundIntegrationEvent;
 import com.gtech.algashop.core.application.order.snapshot.OrderItemSnapshot;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -20,7 +20,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderPaidIntegrationEvent implements IntegrationEvent {
+public class OrderPaidIntegrationEvent implements OutboundIntegrationEvent {
 
     @NotBlank
     private String orderId;
