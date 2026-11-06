@@ -3,6 +3,7 @@ package com.gtech.algashop.core.application.order.saga;
 import com.gtech.algashop.core.application.invoice.command.IssueInvoiceIntegrationCommand;
 import com.gtech.algashop.core.application.order.snapshot.OrderSnapshot;
 import com.gtech.algashop.core.application.order.snapshot.OrderSnapshotAssembler;
+import com.gtech.algashop.core.application.stock.command.ReserveStockIntegrationCommand;
 import com.gtech.algashop.core.domain.model.order.Order;
 import com.gtech.algashop.core.domain.model.order.OrderId;
 import com.gtech.algashop.core.domain.model.order.OrderNotFoundExceptionDomain;
@@ -14,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -50,6 +53,49 @@ public class PlaceOrderSagaCoordinator implements ForCoordinatingPlaceOrderSaga 
         commands.send(saga.sagaId().toString(), command);
 
         log.info("Place order saga started: saga={} order={}", saga.sagaId(), saga.orderId());
+    }
+
+    // Resposta "fatura paga": numa transacao so, o pedido vira PAID (e o OrderPaid vai para
+    // a outbox), a saga passa a RESERVING_STOCK e o comando ReserveStock e gravado na outbox
+    @Override
+    @Transactional
+    public void onInvoicePaid(UUID sagaId) {
+        PlaceOrderSaga saga = findSaga(sagaId);
+        Order order = findOrder(saga.orderId());
+
+        // reply repetido (reentrega, at-least-once do billing): a saga ja avancou, ignora
+        if (saga.isReservingStock()) {
+            logIgnored(saga);
+            return;
+        }
+
+        order.markAsPaid();
+        orders.add(order);
+
+        saga.moveToReservingStock();
+        sagas.add(saga);
+
+        commands.send(saga.sagaId().toString(), reserveStockIntegrationCommand(order));
+    }
+
+    private void logIgnored(PlaceOrderSaga saga) {
+        log.info("Saga reply was ignored: saga:{} order:{} status:{} step:{}",
+                saga.sagaId(), saga.orderId(), saga.status(), saga.step()
+        );
+    }
+
+    private ReserveStockIntegrationCommand reserveStockIntegrationCommand(Order order) {
+        return new ReserveStockIntegrationCommand(
+                order.id().toString(),
+                order.items().stream().map(item -> new ReserveStockIntegrationCommand.Item(
+                        item.productId().value(),
+                        item.quantity().quantity()
+                )).toList()
+        );
+    }
+
+    private PlaceOrderSaga findSaga(UUID sagaId) {
+        return sagas.ofId(sagaId).orElseThrow(() -> new PlaceOrderSagaNotFoundException(sagaId));
     }
 
     private Order findOrder(OrderId orderId) {

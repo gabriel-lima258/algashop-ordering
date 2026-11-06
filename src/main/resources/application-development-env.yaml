@@ -92,7 +92,9 @@ spring:
         Ordering.OrderPaidIntegrationEvent:com.gtech.algashop.core.application.order.event.OrderPaidIntegrationEvent,
         Ordering.OrderCanceledIntegrationEvent:com.gtech.algashop.core.application.order.event.OrderCanceledIntegrationEvent,
         Ordering.OrderReadyIntegrationEvent:com.gtech.algashop.core.application.order.event.OrderReadyIntegrationEvent,
-        Billing.IssueInvoiceIntegrationCommand:com.gtech.algashop.core.application.invoice.command.IssueInvoiceIntegrationCommand
+        Billing.IssueInvoiceIntegrationCommand:com.gtech.algashop.core.application.invoice.command.IssueInvoiceIntegrationCommand,
+        Billing.InvoicePaidIntegrationReply:com.gtech.algashop.core.application.invoice.reply.InvoicePaidIntegrationReply,
+        Stock.ReserveStockIntegrationCommand:com.gtech.algashop.core.application.stock.command.ReserveStockIntegrationCommand
     producer: # produtor para topico de dead letter topic
       acks: all
       key-serializer: org.apache.kafka.common.serialization.StringSerializer # chave String
@@ -134,8 +136,10 @@ algashop:
       product-event-topic-name: product-catalog.product.events
       order-event-topic-name: ordering.order.events
       product-events-consumer-group: ordering.product-events
+      product-catalog-commands-topic-name: product-catalog.stock.commands
       billing-invoice-commands-topic-name: billing.invoice.commands
       saga-replies-topic-name: ordering.saga.replies
+      saga-replies-consumer-group: ordering.saga-replies
     outbox:
       enabled: true # persistencia
       send-timeout: PT5S

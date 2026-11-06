@@ -46,7 +46,10 @@ public abstract class SagaInstancePersistenceEntity {
     @Enumerated(EnumType.STRING)
     private SagaStatus status;
 
+    // updatable = false: o adaptador monta uma entidade nova a cada gravacao, e sem isso o
+    // merge de uma saga existente sobrescreveria o created_at com nulo
     @CreatedDate
+    @Column(updatable = false)
     private OffsetDateTime createdAt;
 
     @LastModifiedDate

@@ -33,4 +33,10 @@ public class AlgaShopMessagingKafkaProperties {
     // topico onde os participantes respondem aos comandos (vai no kafka_replyTopic)
     @NotBlank
     private String sagaRepliesTopicName;
+
+    @NotBlank
+    private String sagaRepliesConsumerGroup;
+
+    @NotBlank
+    private String productCatalogCommandsTopicName;
 }
