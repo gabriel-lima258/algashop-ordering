@@ -94,6 +94,7 @@ spring:
         Ordering.OrderReadyIntegrationEvent:com.gtech.algashop.core.application.order.event.OrderReadyIntegrationEvent,
         Billing.IssueInvoiceIntegrationCommand:com.gtech.algashop.core.application.invoice.command.IssueInvoiceIntegrationCommand,
         Billing.InvoicePaidIntegrationReply:com.gtech.algashop.core.application.invoice.reply.InvoicePaidIntegrationReply,
+        Billing.InvoiceCanceledIntegrationReply:com.gtech.algashop.core.application.invoice.reply.InvoiceCanceledIntegrationReply,
         Stock.ReserveStockIntegrationCommand:com.gtech.algashop.core.application.stock.command.ReserveStockIntegrationCommand,
         Stock.StockReservationConfirmedIntegrationReply:com.gtech.algashop.core.application.stock.reply.StockReservationConfirmedIntegrationReply
     producer: # produtor para topico de dead letter topic

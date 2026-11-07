@@ -1,6 +1,7 @@
 package com.gtech.algashop.infrastructure.adapters.in.messaging.kafka.saga;
 
 import com.gtech.algashop.core.application.InboundIntegrationReply;
+import com.gtech.algashop.core.application.invoice.reply.InvoiceCanceledIntegrationReply;
 import com.gtech.algashop.core.application.invoice.reply.InvoicePaidIntegrationReply;
 import com.gtech.algashop.core.application.stock.reply.StockReservationConfirmedIntegrationReply;
 import com.gtech.algashop.core.ports.in.order.saga.ForCoordinatingPlaceOrderSaga;
@@ -41,6 +42,18 @@ public class KafkaPlaceOrderSagaReplyListener {
         UUID sagaId = requireSagaId(correlationId);
         logReceived(reply, sagaId, messageKey, partition, offset);
         coordinator.onInvoicePaid(sagaId);
+    }
+
+    @KafkaHandler
+    public void handle(
+            @Payload @Valid InvoiceCanceledIntegrationReply reply,
+            @Header(value = KafkaHeaders.CORRELATION_ID, required = false) byte[] correlationId,
+            @Header(value = KafkaHeaders.RECEIVED_KEY, required = false) String messageKey,
+            @Header(value = KafkaHeaders.RECEIVED_PARTITION, required = false) Integer partition,
+            @Header(value = KafkaHeaders.OFFSET, required = false) Long offset) {
+        UUID sagaId = requireSagaId(correlationId);
+        logReceived(reply, sagaId, messageKey, partition, offset);
+        coordinator.onInvoiceCanceled(sagaId);
     }
 
     // resposta do catalogo (reply automatico via @SendTo): reserva confirmada

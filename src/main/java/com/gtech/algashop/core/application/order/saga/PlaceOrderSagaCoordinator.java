@@ -100,6 +100,34 @@ public class PlaceOrderSagaCoordinator implements ForCoordinatingPlaceOrderSaga 
         sagas.add(saga);
     }
 
+    // Resposta "fatura cancelada" (pagamento recusado): so o pedido precisa ser desfeito.
+    // Numa transacao so: saga em COMPENSATING com o motivo, pedido CANCELED, saga
+    // CANCELLING_ORDER -> COMPENSATED. Reexecutavel: o pedido ja cancelado nao e cancelado de novo
+    @Override
+    @Transactional
+    public void onInvoiceCanceled(UUID sagaId) {
+        PlaceOrderSaga saga = findSaga(sagaId);
+
+        if (saga.isCompensated()) {
+            logIgnored(saga);
+            return;
+        }
+
+        if (!saga.hasFailed()) {
+            saga.failWithPaymentRefused();
+        }
+
+        Order order = findOrder(saga.orderId());
+        if (!order.isCanceled()) {
+            order.markAsCanceled();
+            orders.add(order);
+        }
+
+        saga.compensateOrder();
+        saga.endCompensated();
+        sagas.add(saga);
+    }
+
     private void logIgnored(PlaceOrderSaga saga) {
         log.info("Saga reply was ignored: saga:{} order:{} status:{} step:{}",
                 saga.sagaId(), saga.orderId(), saga.status(), saga.step()

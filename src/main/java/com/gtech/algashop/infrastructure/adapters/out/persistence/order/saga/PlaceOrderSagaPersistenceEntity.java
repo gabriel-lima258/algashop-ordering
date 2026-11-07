@@ -1,5 +1,6 @@
 package com.gtech.algashop.infrastructure.adapters.out.persistence.order.saga;
 
+import com.gtech.algashop.core.application.order.saga.PlaceOrderSagaFailure;
 import com.gtech.algashop.core.application.order.saga.PlaceOrderSagaStep;
 import com.gtech.algashop.infrastructure.adapters.out.persistence.saga.SagaInstancePersistenceEntity;
 import jakarta.persistence.DiscriminatorValue;
@@ -23,4 +24,7 @@ public class PlaceOrderSagaPersistenceEntity extends SagaInstancePersistenceEnti
 
     @Enumerated(EnumType.STRING)
     private PlaceOrderSagaStep step;
+
+    @Enumerated(EnumType.STRING)
+    private PlaceOrderSagaFailure failure;
 }

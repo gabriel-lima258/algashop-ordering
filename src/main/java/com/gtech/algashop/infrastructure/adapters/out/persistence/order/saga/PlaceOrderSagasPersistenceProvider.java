@@ -34,6 +34,7 @@ public class PlaceOrderSagasPersistenceProvider implements ForStoringPlaceOrderS
         entity.setAggregateId(saga.orderId().toString());
         entity.setStatus(saga.status());
         entity.setStep(saga.step());
+        entity.setFailure(saga.failure());
         entity.setVersion(saga.version());
         return entity;
     }
@@ -44,6 +45,7 @@ public class PlaceOrderSagasPersistenceProvider implements ForStoringPlaceOrderS
                 new OrderId(entity.getAggregateId()),
                 entity.getStatus(),
                 entity.getStep(),
+                entity.getFailure(),
                 entity.getVersion()
         );
     }
