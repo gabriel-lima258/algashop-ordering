@@ -72,7 +72,8 @@ spring:
         Ordering.OrderReadyIntegrationEvent:com.gtech.algashop.core.application.order.event.OrderReadyIntegrationEvent,
         Billing.IssueInvoiceIntegrationCommand:com.gtech.algashop.core.application.invoice.command.IssueInvoiceIntegrationCommand,
         Billing.InvoicePaidIntegrationReply:com.gtech.algashop.core.application.invoice.reply.InvoicePaidIntegrationReply,
-        Stock.ReserveStockIntegrationCommand:com.gtech.algashop.core.application.stock.command.ReserveStockIntegrationCommand
+        Stock.ReserveStockIntegrationCommand:com.gtech.algashop.core.application.stock.command.ReserveStockIntegrationCommand,
+        Stock.StockReservationConfirmedIntegrationReply:com.gtech.algashop.core.application.stock.reply.StockReservationConfirmedIntegrationReply
     producer:
       acks: all
       key-serializer: org.apache.kafka.common.serialization.StringSerializer

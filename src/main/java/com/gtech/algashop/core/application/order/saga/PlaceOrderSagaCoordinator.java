@@ -64,7 +64,7 @@ public class PlaceOrderSagaCoordinator implements ForCoordinatingPlaceOrderSaga 
         Order order = findOrder(saga.orderId());
 
         // reply repetido (reentrega, at-least-once do billing): a saga ja avancou, ignora
-        if (saga.isReservingStock()) {
+        if (saga.isReservingStock() || saga.hasSucceeded()) {
             logIgnored(saga);
             return;
         }
@@ -76,6 +76,28 @@ public class PlaceOrderSagaCoordinator implements ForCoordinatingPlaceOrderSaga 
         sagas.add(saga);
 
         commands.send(saga.sagaId().toString(), reserveStockIntegrationCommand(order));
+    }
+
+    // Resposta "reserva confirmada": o pivo deu certo, a saga nao volta mais. Numa transacao
+    // so, o pedido vira READY (OrderReady na outbox) e a saga passa por APPROVING_ORDER - um
+    // passo interno, sem comando - ate SUCCEEDED
+    @Override
+    @Transactional
+    public void onStockReservationConfirmed(UUID sagaId) {
+        PlaceOrderSaga saga = findSaga(sagaId);
+
+        if (saga.hasSucceeded()) {
+            logIgnored(saga);
+            return;
+        }
+
+        Order order = findOrder(saga.orderId());
+        order.markAsReady();
+        orders.add(order);
+
+        saga.moveToApprovingOrder();
+        saga.endSucceeded();
+        sagas.add(saga);
     }
 
     private void logIgnored(PlaceOrderSaga saga) {

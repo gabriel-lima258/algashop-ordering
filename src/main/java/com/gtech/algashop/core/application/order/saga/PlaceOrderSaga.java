@@ -57,6 +57,23 @@ public class PlaceOrderSaga {
         changeStepTo(PlaceOrderSagaStep.RESERVING_STOCK);
     }
 
+    // terceira transicao: so depois da reserva confirmada
+    public void moveToApprovingOrder() {
+        require(isRunningAt(PlaceOrderSagaStep.RESERVING_STOCK));
+        changeStepTo(PlaceOrderSagaStep.APPROVING_ORDER);
+    }
+
+    public boolean hasSucceeded() {
+        return this.status == SagaStatus.SUCCEEDED;
+    }
+
+    // fim do caminho feliz: muda o STATUS (RUNNING -> SUCCEEDED), e nao o passo, que fica
+    // em APPROVING_ORDER como registro de onde a saga terminou
+    public void endSucceeded() {
+        require(canEndSucceeded());
+        changeStatusTo(SagaStatus.SUCCEEDED);
+    }
+
     public boolean isReservingStock() {
         return isRunningAt(PlaceOrderSagaStep.RESERVING_STOCK);
     }
@@ -67,6 +84,10 @@ public class PlaceOrderSaga {
 
     public boolean isCompensatingAt(PlaceOrderSagaStep step) {
         return this.status == SagaStatus.COMPENSATING && this.step == step;
+    }
+
+    private boolean canEndSucceeded() {
+        return isRunningAt(PlaceOrderSagaStep.APPROVING_ORDER);
     }
 
     public boolean isActive() {
