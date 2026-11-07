@@ -1,7 +1,5 @@
 package com.gtech.algashop.core.application.order.saga;
 
-import com.gtech.algashop.core.application.saga.SagaStatus;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,8 +8,8 @@ public enum PlaceOrderSagaStep {
     INVOICING(PLACING_ORDER),
     RESERVING_STOCK(INVOICING),
     APPROVING_ORDER(RESERVING_STOCK),
-    REFUNDING_INVOICE(RESERVING_STOCK),
-    CANCELLING_ORDER(INVOICING, REFUNDING_INVOICE);
+    CANCELLING_INVOICE(RESERVING_STOCK),
+    CANCELLING_ORDER(INVOICING, CANCELLING_INVOICE);
 
     private final List<PlaceOrderSagaStep> previousStatus;
 

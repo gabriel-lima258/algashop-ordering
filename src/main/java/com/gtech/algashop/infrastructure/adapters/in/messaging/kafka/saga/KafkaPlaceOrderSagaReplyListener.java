@@ -4,6 +4,7 @@ import com.gtech.algashop.core.application.InboundIntegrationReply;
 import com.gtech.algashop.core.application.invoice.reply.InvoiceCanceledIntegrationReply;
 import com.gtech.algashop.core.application.invoice.reply.InvoicePaidIntegrationReply;
 import com.gtech.algashop.core.application.stock.reply.StockReservationConfirmedIntegrationReply;
+import com.gtech.algashop.core.application.stock.reply.StockReservationRejectedIntegrationReply;
 import com.gtech.algashop.core.ports.in.order.saga.ForCoordinatingPlaceOrderSaga;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -67,6 +68,18 @@ public class KafkaPlaceOrderSagaReplyListener {
         UUID sagaId = requireSagaId(correlationId);
         logReceived(reply, sagaId, messageKey, partition, offset);
         coordinator.onStockReservationConfirmed(sagaId);
+    }
+
+    @KafkaHandler
+    public void handle(
+            @Payload @Valid StockReservationRejectedIntegrationReply reply,
+            @Header(value = KafkaHeaders.CORRELATION_ID, required = false) byte[] correlationId,
+            @Header(value = KafkaHeaders.RECEIVED_KEY, required = false) String messageKey,
+            @Header(value = KafkaHeaders.RECEIVED_PARTITION, required = false) Integer partition,
+            @Header(value = KafkaHeaders.OFFSET, required = false) Long offset) {
+        UUID sagaId = requireSagaId(correlationId);
+        logReceived(reply, sagaId, messageKey, partition, offset);
+        coordinator.onStockReservationRejected(sagaId);
     }
 
     // o tópico é exclusivo da saga: tipo desconhecido é erro de contrato

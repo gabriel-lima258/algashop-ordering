@@ -7,4 +7,5 @@ public interface ForCoordinatingPlaceOrderSaga {
     void onInvoicePaid(UUID sagaId);
     void onStockReservationConfirmed(UUID sagaId);
     void onInvoiceCanceled(UUID sagaId);
+    void onStockReservationRejected(UUID sagaId);
 }

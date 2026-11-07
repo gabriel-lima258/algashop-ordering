@@ -95,11 +95,28 @@ public class PlaceOrderSaga {
         startCompensation(PlaceOrderSagaFailure.PAYMENT_REFUSED);
     }
 
+    // falha no pivo (reserva de estoque): a fatura ja foi paga, entao a compensacao tem de
+    // comecar por ela. Status vai a COMPENSATING com o motivo OUT_OF_STOCK
+    public void failWithOutOfStock() {
+        require(isRunningAt(PlaceOrderSagaStep.RESERVING_STOCK));
+        startCompensation(PlaceOrderSagaFailure.OUT_OF_STOCK);
+    }
+
     // compensacao do pedido: so durante COMPENSATING e a partir de um passo que leva a
-    // CANCELLING_ORDER (INVOICING ou REFUNDING_INVOICE)
+    // CANCELLING_ORDER (INVOICING ou CANCELLING_INVOICE)
     public void compensateOrder() {
         require(canCompensateOrder());
         changeStepTo(PlaceOrderSagaStep.CANCELLING_ORDER);
+    }
+
+    // primeira compensacao do caminho de estoque: cancelar (estornar) a fatura no billing
+    public void compensateInvoice() {
+        require(canCompensateInvoice());
+        changeStepTo(PlaceOrderSagaStep.CANCELLING_INVOICE);
+    }
+
+    public boolean wasStockRejected() {
+        return this.failure == PlaceOrderSagaFailure.OUT_OF_STOCK;
     }
 
     // fim do caminho de falha: status COMPENSATING -> COMPENSATED, passo fica CANCELLING_ORDER
@@ -179,6 +196,10 @@ public class PlaceOrderSaga {
 
     private boolean canCompensateOrder() {
         return this.status == SagaStatus.COMPENSATING && this.step.canChangeTo(PlaceOrderSagaStep.CANCELLING_ORDER);
+    }
+
+    private boolean canCompensateInvoice() {
+        return this.status == SagaStatus.COMPENSATING && this.step.canChangeTo(PlaceOrderSagaStep.CANCELLING_INVOICE);
     }
 
     private boolean canEndCompensated() {

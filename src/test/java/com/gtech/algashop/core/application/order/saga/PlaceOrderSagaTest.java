@@ -30,6 +30,33 @@ class PlaceOrderSagaTest {
     }
 
     @Test
+    void shouldCompensateWhenStockIsRejected() {
+        PlaceOrderSaga saga = invoicingSaga();
+        saga.moveToReservingStock();
+
+        saga.failWithOutOfStock();
+        saga.compensateInvoice();
+        saga.compensateOrder();
+        saga.endCompensated();
+
+        Assertions.assertWith(saga,
+                s -> Assertions.assertThat(s.status()).isEqualTo(SagaStatus.COMPENSATED),
+                s -> Assertions.assertThat(s.step()).isEqualTo(PlaceOrderSagaStep.CANCELLING_ORDER),
+                s -> Assertions.assertThat(s.failure()).isEqualTo(PlaceOrderSagaFailure.OUT_OF_STOCK),
+                s -> Assertions.assertThat(s.wasStockRejected()).isTrue());
+    }
+
+    @Test
+    void shouldNotCancelInvoiceWhenPaymentWasRefused() {
+        PlaceOrderSaga saga = invoicingSaga();
+        saga.failWithPaymentRefused();
+
+        // pagamento recusado nao tem o que estornar: a fatura nao entra na compensacao
+        Assertions.assertThatThrownBy(saga::compensateInvoice)
+                .isInstanceOf(SagaTransitionException.class);
+    }
+
+    @Test
     void shouldNotCompensateOrderWhileStillRunning() {
         PlaceOrderSaga saga = invoicingSaga();
 

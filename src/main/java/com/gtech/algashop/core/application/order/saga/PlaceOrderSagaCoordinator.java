@@ -1,5 +1,6 @@
 package com.gtech.algashop.core.application.order.saga;
 
+import com.gtech.algashop.core.application.invoice.command.CancelInvoiceIntegrationCommand;
 import com.gtech.algashop.core.application.invoice.command.IssueInvoiceIntegrationCommand;
 import com.gtech.algashop.core.application.order.snapshot.OrderSnapshot;
 import com.gtech.algashop.core.application.order.snapshot.OrderSnapshotAssembler;
@@ -21,6 +22,9 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+// cada metodo e uma unidade (muda pedido, saga e grava o proximo comando): a transacao na
+// classe garante que nenhum deles grave metade do trabalho se algo falhar no meio
+@Transactional
 public class PlaceOrderSagaCoordinator implements ForCoordinatingPlaceOrderSaga {
 
     private final ForStoringPlaceOrderSagas sagas;
@@ -34,7 +38,6 @@ public class PlaceOrderSagaCoordinator implements ForCoordinatingPlaceOrderSaga 
     // comando commitam juntos, ou nenhum. A ordem importa: monta o comando, inicia a saga
     // e ja a move para INVOICING, grava, e so entao registra o comando na outbox
     @Override
-    @Transactional
     public void start(String rawOrderId) {
         // carrega e converte order
         OrderId orderId = new OrderId(rawOrderId);
@@ -58,7 +61,6 @@ public class PlaceOrderSagaCoordinator implements ForCoordinatingPlaceOrderSaga 
     // Resposta "fatura paga": numa transacao so, o pedido vira PAID (e o OrderPaid vai para
     // a outbox), a saga passa a RESERVING_STOCK e o comando ReserveStock e gravado na outbox
     @Override
-    @Transactional
     public void onInvoicePaid(UUID sagaId) {
         PlaceOrderSaga saga = findSaga(sagaId);
         Order order = findOrder(saga.orderId());
@@ -82,7 +84,6 @@ public class PlaceOrderSagaCoordinator implements ForCoordinatingPlaceOrderSaga 
     // so, o pedido vira READY (OrderReady na outbox) e a saga passa por APPROVING_ORDER - um
     // passo interno, sem comando - ate SUCCEEDED
     @Override
-    @Transactional
     public void onStockReservationConfirmed(UUID sagaId) {
         PlaceOrderSaga saga = findSaga(sagaId);
 
@@ -104,7 +105,6 @@ public class PlaceOrderSagaCoordinator implements ForCoordinatingPlaceOrderSaga 
     // Numa transacao so: saga em COMPENSATING com o motivo, pedido CANCELED, saga
     // CANCELLING_ORDER -> COMPENSATED. Reexecutavel: o pedido ja cancelado nao e cancelado de novo
     @Override
-    @Transactional
     public void onInvoiceCanceled(UUID sagaId) {
         PlaceOrderSaga saga = findSaga(sagaId);
 
@@ -126,6 +126,27 @@ public class PlaceOrderSagaCoordinator implements ForCoordinatingPlaceOrderSaga 
         saga.compensateOrder();
         saga.endCompensated();
         sagas.add(saga);
+    }
+
+    // Resposta "reserva rejeitada" (sem estoque): o pivo falhou depois do pagamento. A saga
+    // entra em compensacao e manda o billing cancelar a fatura. O pedido so e cancelado
+    // quando a resposta InvoiceCanceled voltar (onInvoiceCanceled, o mesmo do pagamento recusado)
+    @Override
+    public void onStockReservationRejected(UUID sagaId) {
+        PlaceOrderSaga saga = findSaga(sagaId);
+        findOrder(saga.orderId());
+
+        if (saga.wasStockRejected()) {
+            logIgnored(saga);
+            return;
+        }
+
+        saga.failWithOutOfStock();
+        saga.compensateInvoice();
+        sagas.add(saga);
+
+        commands.send(saga.sagaId().toString(), new CancelInvoiceIntegrationCommand(saga.orderId().toString()));
+
     }
 
     private void logIgnored(PlaceOrderSaga saga) {
