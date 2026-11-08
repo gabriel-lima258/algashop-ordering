@@ -11,7 +11,7 @@
   },
   "response" : {
     "status" : 200,
-    "body" : "{\"id\":\"{{{request.path.[3]}}}\",\"addedAt\":\"2015-05-15T12:23:34.123Z\",\"name\":\"Notebook X11\",\"brand\":\"Deep Diver\",\"regularPrice\":1500.00,\"salePrice\":1000.00,\"inStock\":true,\"enabled\":true,\"category\":{\"id\":\"b5a514c9-2530-4306-b562-5b62491cf3c6\",\"name\":\"Notebook\"},\"description\":\"A Gamer Notebook\"}",
+    "body" : "{\"id\":\"{{{request.path.[3]}}}\",\"addedAt\":\"2015-05-15T12:23:34.123Z\",\"name\":\"Notebook X11\",\"brand\":\"Deep Diver\",\"regularPrice\":1500.00,\"salePrice\":1000.00,\"inStock\":true,\"quantityInStock\":100,\"enabled\":true,\"category\":{\"id\":\"b5a514c9-2530-4306-b562-5b62491cf3c6\",\"name\":\"Notebook\"},\"description\":\"A Gamer Notebook\"}",
     "headers" : {
       "Content-Type" : "application/json"
     },

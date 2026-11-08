@@ -1,6 +1,7 @@
 package com.gtech.algashop.core.domain.model.product;
 
 import com.gtech.algashop.core.domain.model.commons.Money;
+import com.gtech.algashop.core.domain.model.commons.Quantity;
 import lombok.Builder;
 
 import java.util.Objects;
@@ -10,7 +11,8 @@ public record Product(
         ProductId id,
         ProductName productName,
         Money price,
-        Boolean inStock
+        Boolean inStock,
+        Quantity quantityInStock
 ) {
     public Product {
         Objects.requireNonNull(id);
@@ -23,5 +25,18 @@ public record Product(
         if (!inStock) {
             throw new ProductOutOfStockException(this.id());
         }
+    }
+
+    // valida a quantidade de produto antes de iniciar o fluxo saga
+    public void checkForQuantity(Quantity quantity) {
+        Objects.requireNonNull(quantity);
+        checkOutOfStock();
+        if (this.quantityInStock() != null && this.quantityInStock().compareTo(quantity) < 0) {
+            throw new InsufficientQuantityException(this.productName(), quantity);
+        }
+    }
+
+    private boolean isOutOfStock() {
+        return !inStock();
     }
 }

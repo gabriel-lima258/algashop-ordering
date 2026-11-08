@@ -43,7 +43,7 @@ public class CheckoutService {
                     item.productId(),
                     item.name(),
                     item.price(),
-                    item.available()),
+                    item.available(), null),
                     item.quantity()
             );
         }

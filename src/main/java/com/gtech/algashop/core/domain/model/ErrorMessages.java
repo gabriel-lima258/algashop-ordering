@@ -34,6 +34,8 @@ public class ErrorMessages {
 
     public static final String ERROR_PRODUCT_IS_OUT_OF_STOCK = "Product %s is out of stock";
 
+    public static final String ERROR_PRODUCT_INSUFFICIENT_STOCK = "Product %s doesn't have the necessary quantity of %s";
+
     public static final String ERROR_ORDER_CANNOT_BE_EDITED = "Order %s with status %s cannot be edited";
 
     public static final String ERROR_CUSTOMER_NOT_FOUND = "Customer %s was not found";

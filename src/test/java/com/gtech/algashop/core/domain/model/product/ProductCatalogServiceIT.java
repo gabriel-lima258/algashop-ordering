@@ -64,7 +64,7 @@ class ProductCatalogServiceIT {
         // do upstream (BadGatewayException), entao um mock com thenReturn(null) testaria o
         // caminho de erro sem querer - e ainda abriria o circuito para os testes seguintes.
         Mockito.when(productCatalogApiClient.getById(rawProductId)).thenReturn(
-                new ProductResponse(rawProductId, "Notebook X11", new BigDecimal("1000.00"), true));
+                new ProductResponse(rawProductId, "Notebook X11", new BigDecimal("1000.00"), true, 100));
 
         List<Future<Optional<Product>>> results = new ArrayList<>();
 

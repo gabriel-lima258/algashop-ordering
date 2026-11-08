@@ -1,6 +1,7 @@
 package com.gtech.algashop.infrastructure.adapters.out.web.product.client.http;
 
 import com.gtech.algashop.core.domain.model.commons.Money;
+import com.gtech.algashop.core.domain.model.commons.Quantity;
 import com.gtech.algashop.core.domain.model.product.Product;
 import com.gtech.algashop.core.domain.model.product.ProductCatalogService;
 import com.gtech.algashop.core.domain.model.product.ProductId;
@@ -32,6 +33,11 @@ public class ProductCatalogServiceHttpImpl implements ProductCatalogService {
                         .productName(new ProductName(productResponse.getName()))
                         .price(new Money(productResponse.getSalePrice()))
                         .inStock(productResponse.getInStock())
+                        // null = quantidade desconhecida (ex.: resposta antiga no cache); o
+                        // dominio entao valida so a disponibilidade
+                        .quantityInStock(productResponse.getQuantityInStock() == null
+                                ? null
+                                : new Quantity(productResponse.getQuantityInStock()))
                         .build()
         );
     }
