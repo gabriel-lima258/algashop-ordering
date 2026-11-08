@@ -268,7 +268,7 @@ O `WithMockJwtSecurityContextFactory` monta o `Jwt` com os mesmos claims que o a
 
 > ⚠️ O `JwtDecoder` é mockado: assinatura, `iss`, `exp` e `aud` **nunca** são verificados. A suíte cobre **autorização**, não autenticação.
 
-Ver [Testando segurança](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/testando-seguranca.md).
+Ver [Testando segurança](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/05-testando-seguranca.md).
 
 ---
 
@@ -299,7 +299,7 @@ O grupo `readiness` inclui **apenas o banco** — cache ou circuito fora do ar n
 
 > ⚠️ `DEGRADED` devolve **HTTP 200**: só `DOWN` e `OUT_OF_SERVICE` viram 503 por padrão. Um probe que olhe o código de status não vê diferença.
 
-Detalhes em [Health check e degradação](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/health-checks.md).
+Detalhes em [Health check e degradação](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/07-health-checks.md).
 
 
 ### Teste de carga
@@ -312,7 +312,7 @@ O `POST /api/v1/orders` é o caminho mais caro do sistema: abre transação no P
 
 No compose ele sobe com o Tomcat limitado a 10 threads, de propósito. Medido: **1156 req/s** sustentados, `p(95)` de 2,44s e zero erros — exatamente `10 threads ÷ 8,6ms`, a Lei de Little. Ligando threads virtuais a vazão **caiu para 127 req/s** e o serviço travou de vez, porque o teto do Tomcat era o único controle de admissão que existia.
 
-Detalhes em [Threads e concorrência](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/threads-e-concorrencia.md).
+Detalhes em [Threads e concorrência](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/08-threads-e-concorrencia.md).
 
 
 ### Segurança — escopos exigidos
@@ -332,7 +332,7 @@ Este serviço é um **resource server**: toda rota exige `Authorization: Bearer 
 
 Este serviço também é **OAuth2 client**: para chamar o `product-catalog` ele pede um token por `client_credentials` (escopo `products:read`), guarda em cache e anexa o `Bearer` por interceptor — sem uma linha de código HTTP escrita à mão.
 
-> O lado client declara `token-uri`, e não `issuer-uri`, de propósito: `issuer-uri` faria descoberta na **subida do contexto** e o `ordering` deixaria de subir sem o authorization server no ar. Ver [OAuth2 client e token](https://github.com/gabriel-lima258/algashop-docs/blob/main/05-seguranca/oauth2-client-e-token.md).
+> O lado client declara `token-uri`, e não `issuer-uri`, de propósito: `issuer-uri` faria descoberta na **subida do contexto** e o `ordering` deixaria de subir sem o authorization server no ar. Ver [OAuth2 client e token](https://github.com/gabriel-lima258/algashop-docs/blob/main/05-seguranca/04-oauth2-client-e-token.md).
 
 O carrinho sob `/customers/{id}/shopping-cart` exige escopo de **carrinho**, não de cliente: o escopo segue o recurso, não a URL.
 
@@ -343,7 +343,7 @@ TOKEN=$(curl -s -u algashop-test:testing123 -d grant_type=client_credentials \
 curl -s -H "Authorization: Bearer $TOKEN" localhost:8081/api/v1/...
 ```
 
-Sem token → **401**. Com token e sem o escopo → **403**. Detalhes em [Resource servers e escopos](https://github.com/gabriel-lima258/algashop-docs/blob/main/05-seguranca/resource-server-e-escopos.md).
+Sem token → **401**. Com token e sem o escopo → **403**. Detalhes em [Resource servers e escopos](https://github.com/gabriel-lima258/algashop-docs/blob/main/05-seguranca/03-resource-server-e-escopos.md).
 
 ---
 
@@ -351,18 +351,18 @@ Sem token → **401**. Com token e sem o escopo → **403**. Detalhes em [Resour
 
 O projeto tem um caderno de estudos separado, em [`algashop-docs`](https://github.com/gabriel-lima258/algashop-docs). Os documentos que tocam este serviço:
 
-- [Arquitetura](https://github.com/gabriel-lima258/algashop-docs/blob/main/00-visao-geral/arquitetura.md) — como os quatro serviços se conectam
-- [Ports & Adapters](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/ports-hexagonal.md) — por que `ports/in` e `ports/out` são separados
-- [Specification Pattern](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/specification.md) — regra de negócio como objeto combinável
-- [CQS e CQRS](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/cqrs.md) — separar comando de consulta
-- [Cache](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/cache.md) — client-side × server-side, e por que quem cacheia dado dos outros só tem TTL
-- [Resiliência](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/resiliencia.md) — os cinco padrões, a ordem em que se aninham e quando um fallback mente
-- [Resiliência na prática](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/resiliencia-config.md) — parâmetros, biblioteca e como testar retry
-- [Redis na prática](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/redis.md) — eviction, TTL e a armadilha da senha vazia
-- [Contract tests](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/stubs-contract-tests.md) — testar integração sem subir o outro serviço
-- [Health check e degradação](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/health-checks.md) — liveness × readiness e o status DEGRADED
-- [Resource servers e escopos](https://github.com/gabriel-lima258/algashop-docs/blob/main/05-seguranca/resource-server-e-escopos.md) — escopo por rota, 401 × 403 e a matriz de testes
-- [OAuth2 client e token](https://github.com/gabriel-lima258/algashop-docs/blob/main/05-seguranca/oauth2-client-e-token.md) — como este serviço obtém e propaga token ao chamar o catálogo
-- [Threads e concorrência](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/threads-e-concorrencia.md) — onde o serviço satura, medido sob carga
-- [Tratamento de erros](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/tratamento-erros-api.md) — `ProblemDetail` e quando usar 404, 422 ou 502
-- [Paginação](https://github.com/gabriel-lima258/algashop-docs/blob/main/02-persistencia/paginacao.md) · [Flyway](https://github.com/gabriel-lima258/algashop-docs/blob/main/02-persistencia/flyway.md) · [Ambiente local](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/ambiente-local.md)
+- [Arquitetura](https://github.com/gabriel-lima258/algashop-docs/blob/main/00-visao-geral/01-arquitetura.md) — como os quatro serviços se conectam
+- [Ports & Adapters](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/01-ports-hexagonal.md) — por que `ports/in` e `ports/out` são separados
+- [Specification Pattern](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/03-specification.md) — regra de negócio como objeto combinável
+- [CQS e CQRS](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/02-cqrs.md) — separar comando de consulta
+- [Cache](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/05-cache.md) — client-side × server-side, e por que quem cacheia dado dos outros só tem TTL
+- [Resiliência](https://github.com/gabriel-lima258/algashop-docs/blob/main/01-arquitetura-design/06-resiliencia.md) — os cinco padrões, a ordem em que se aninham e quando um fallback mente
+- [Resiliência na prática](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/06-resiliencia-config.md) — parâmetros, biblioteca e como testar retry
+- [Redis na prática](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/05-redis.md) — eviction, TTL e a armadilha da senha vazia
+- [Contract tests](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/01-stubs-contract-tests.md) — testar integração sem subir o outro serviço
+- [Health check e degradação](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/07-health-checks.md) — liveness × readiness e o status DEGRADED
+- [Resource servers e escopos](https://github.com/gabriel-lima258/algashop-docs/blob/main/05-seguranca/03-resource-server-e-escopos.md) — escopo por rota, 401 × 403 e a matriz de testes
+- [OAuth2 client e token](https://github.com/gabriel-lima258/algashop-docs/blob/main/05-seguranca/04-oauth2-client-e-token.md) — como este serviço obtém e propaga token ao chamar o catálogo
+- [Threads e concorrência](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/08-threads-e-concorrencia.md) — onde o serviço satura, medido sob carga
+- [Tratamento de erros](https://github.com/gabriel-lima258/algashop-docs/blob/main/03-testes-integracao/02-tratamento-erros-api.md) — `ProblemDetail` e quando usar 404, 422 ou 502
+- [Paginação](https://github.com/gabriel-lima258/algashop-docs/blob/main/02-persistencia/02-paginacao.md) · [Flyway](https://github.com/gabriel-lima258/algashop-docs/blob/main/02-persistencia/01-flyway.md) · [Ambiente local](https://github.com/gabriel-lima258/algashop-docs/blob/main/04-infraestrutura/01-ambiente-local.md)

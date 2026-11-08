@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 // ShippingCostService. Vale notar a consequencia, porque ela e contra-intuitiva - aquele
 // client tem FALLBACK, entao este metodo nunca ve a Rapidex falhar. Se a transportadora
 // estiver fora, o cliente recebe um frete estimado e nao um erro. Ver
-// docs/01-arquitetura-design/resiliencia.md
+// docs/01-arquitetura-design/06-resiliencia.md
 @Service
 @RequiredArgsConstructor
 public class ShippingApplicationService {

@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 // Para provar o bulkhead de verdade seria preciso CONCURRENT_CALLS > 10 e uma forma de medir
 // que a 11a esperou - por exemplo, um mock que segura a resposta e conta quantas threads
 // entraram simultaneamente. Fica registrado como pendencia em
-// docs/01-arquitetura-design/resiliencia.md
+// docs/01-arquitetura-design/06-resiliencia.md
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Import({TestContainerPostgresSQLConfig.class, MockJwtDecoderConfig.class, CacheTestConfig.class}) // banco real em container, so para o contexto subir
 class ProductCatalogServiceIT {

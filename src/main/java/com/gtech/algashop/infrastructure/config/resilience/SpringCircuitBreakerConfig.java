@@ -81,7 +81,7 @@ public class SpringCircuitBreakerConfig {
             //
             // Nao foi alterado aqui de proposito: mexer em qualquer um dos dois muda
             // comportamento, e a escolha certa depende de medir. Fica registrado em
-            // docs/01-arquitetura-design/resiliencia.md
+            // docs/01-arquitetura-design/06-resiliencia.md
             factory.configure(builder -> builder
                     .retryPolicy(retryPolicy)
                     .openTimeout(openTimeout)
