@@ -98,7 +98,8 @@ spring:
         Billing.InvoiceCanceledIntegrationReply:com.gtech.algashop.core.application.invoice.reply.InvoiceCanceledIntegrationReply,
         Stock.ReserveStockIntegrationCommand:com.gtech.algashop.core.application.stock.command.ReserveStockIntegrationCommand,
         Stock.StockReservationConfirmedIntegrationReply:com.gtech.algashop.core.application.stock.reply.StockReservationConfirmedIntegrationReply,
-        Stock.StockReservationRejectedIntegrationReply:com.gtech.algashop.core.application.stock.reply.StockReservationRejectedIntegrationReply
+        Stock.StockReservationRejectedIntegrationReply:com.gtech.algashop.core.application.stock.reply.StockReservationRejectedIntegrationReply,
+        Notifications.SendEmailCommand:com.gtech.algashop.core.application.notification.command.SendEmailIntegrationCommand
     producer: # produtor para topico de dead letter topic
       acks: all
       key-serializer: org.apache.kafka.common.serialization.StringSerializer # chave String
@@ -144,6 +145,7 @@ algashop:
       billing-invoice-commands-topic-name: billing.invoice.commands
       saga-replies-topic-name: ordering.saga.replies
       saga-replies-consumer-group: ordering.saga-replies
+      notifications-email-commands-topic-name: notifications.email.commands
     outbox:
       enabled: true # persistencia
       send-timeout: PT5S
@@ -154,6 +156,10 @@ algashop:
       batch-deadline: PT3M # tempo maximo que schedule de tentativa de envio pode ter e respeitar o lock
       dispatcher:
         enabled: true # envio
+  notifications:
+    email-templates:
+      # Order Placed: o notifications o recria com este id a cada subida (so no development-env)
+      order-placed: 0198d0a1-2c44-7d0b-8e11-9a0b7c5d3f21
 
 eureka:
   client:

@@ -2,10 +2,15 @@ package com.gtech.algashop.infrastructure.adapters.in.listerner.order;
 
 import com.gtech.algashop.core.application.order.event.*;
 import com.gtech.algashop.core.application.util.Mapper;
+import com.gtech.algashop.core.domain.model.costumer.Customer;
+import com.gtech.algashop.core.domain.model.costumer.CustomerNotFoundExceptionDomain;
+import com.gtech.algashop.core.domain.model.costumer.Customers;
 import com.gtech.algashop.core.domain.model.order.*;
 import com.gtech.algashop.core.ports.in.order.saga.ForCoordinatingPlaceOrderSaga;
+import com.gtech.algashop.core.ports.out.notification.ForPublishingNotificationCommands;
 import com.gtech.algashop.core.ports.out.order.ForNotifyingOrder;
 import com.gtech.algashop.core.ports.out.order.ForPublishingOrderIntegrationEvents;
+import com.gtech.algashop.infrastructure.config.email.NotificationsProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -30,6 +35,12 @@ public class OrderEventListener {
     // saga
     private final ForCoordinatingPlaceOrderSaga forCoordinatingPlaceOrderSaga;
 
+    // notification
+    private final Customers customers;
+    private final NotificationsProperties notificationsProperties;
+    private final OrderPlacedEmailCommandAssembler orderPlacedEmailCommandAssembler;
+    private final ForPublishingNotificationCommands forPublishingNotificationCommands;
+
     // notifica o cliente e publica o OrderPlacedIntegrationEvent no broker (broadcast, sem esperar resposta)
     @EventListener
     public void onOrderPlacedPublishIntegrationEvent(OrderPlacedEvent event) {
@@ -53,6 +64,18 @@ public class OrderEventListener {
     public void onOrderPlacedStartSaga(OrderPlacedEvent event) {
         log.info("OrderPlaced Saga");
         forCoordinatingPlaceOrderSaga.start(event.orderId().toString());
+    }
+
+    // pede ao notifications o e-mail de confirmacao (dispare e esqueca). @EventListener comum:
+    // roda dentro da transacao do checkout, entao o comando so e gravado se o pedido for.
+    // Cliente inexistente lanca CustomerNotFoundExceptionDomain e desfaz o checkout inteiro.
+    @EventListener
+    public void onOrderPlacedSendConfirmationEmail(OrderPlacedEvent event) {
+        Order order = orders.ofId(event.orderId()).orElseThrow(OrderNotFoundExceptionDomain::new);
+        Customer customer = customers.ofId(order.customerId())
+                .orElseThrow(() -> new CustomerNotFoundExceptionDomain(order.customerId()));
+        forPublishingNotificationCommands.send(orderPlacedEmailCommandAssembler.toCommand(
+                order, customer, notificationsProperties.getEmailTemplates().getOrderPlaced()));
     }
 
     @EventListener

@@ -39,4 +39,8 @@ public class AlgaShopMessagingKafkaProperties {
 
     @NotBlank
     private String productCatalogCommandsTopicName;
+
+    // topico de comandos do notifications: o ordering so PUBLICA nele (quem cria e o notifications)
+    @NotBlank
+    private String notificationsEmailCommandsTopicName;
 }

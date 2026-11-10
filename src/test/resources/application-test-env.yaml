@@ -76,7 +76,8 @@ spring:
         Billing.InvoiceCanceledIntegrationReply:com.gtech.algashop.core.application.invoice.reply.InvoiceCanceledIntegrationReply,
         Stock.ReserveStockIntegrationCommand:com.gtech.algashop.core.application.stock.command.ReserveStockIntegrationCommand,
         Stock.StockReservationConfirmedIntegrationReply:com.gtech.algashop.core.application.stock.reply.StockReservationConfirmedIntegrationReply,
-        Stock.StockReservationRejectedIntegrationReply:com.gtech.algashop.core.application.stock.reply.StockReservationRejectedIntegrationReply
+        Stock.StockReservationRejectedIntegrationReply:com.gtech.algashop.core.application.stock.reply.StockReservationRejectedIntegrationReply,
+        Notifications.SendEmailCommand:com.gtech.algashop.core.application.notification.command.SendEmailIntegrationCommand
     producer:
       acks: all
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -120,10 +121,11 @@ algashop:
       product-event-topic-name: product-catalog.product.events
       order-event-topic-name: ordering.order.events
       product-events-consumer-group: ordering.product-events
+      product-catalog-commands-topic-name: product-catalog.stock.commands
       billing-invoice-commands-topic-name: billing.invoice.commands
       saga-replies-topic-name: ordering.saga.replies
       saga-replies-consumer-group: ordering.saga-replies
-      product-catalog-commands-topic-name: product-catalog.stock.commands
+      notifications-email-commands-topic-name: notifications.email.commands
     outbox:
       enabled: true
       send-timeout: PT5S
@@ -134,3 +136,7 @@ algashop:
       batch-deadline: PT3M
       dispatcher:
         enabled: false
+  notifications:
+    # id fixo so nos testes: nenhum teste chama o notifications, mas a propriedade e obrigatoria
+    email-templates:
+      order-placed: 0198d0a1-2c44-7d0b-8e11-9a0b7c5d3f21
