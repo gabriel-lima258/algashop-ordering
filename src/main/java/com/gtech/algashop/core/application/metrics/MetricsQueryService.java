@@ -3,6 +3,7 @@ package com.gtech.algashop.core.application.metrics;
 import com.gtech.algashop.core.ports.in.metrics.ForQueryingMetrics;
 import com.gtech.algashop.core.ports.out.metrics.ForObtainingMetrics;
 import com.gtech.algashop.core.ports.out.metrics.SalesOverviewOutput;
+import com.gtech.algashop.core.ports.out.metrics.TotalOverviewOutput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,5 +24,10 @@ public class MetricsQueryService implements ForQueryingMetrics {
                 yearMonthStart.atDay(1),
                 yearMonthEnd.atEndOfMonth()
         );
+    }
+
+    @Override
+    public TotalOverviewOutput getTotalOverview() {
+        return forObtainingMetrics.getTotalOverview();
     }
 }

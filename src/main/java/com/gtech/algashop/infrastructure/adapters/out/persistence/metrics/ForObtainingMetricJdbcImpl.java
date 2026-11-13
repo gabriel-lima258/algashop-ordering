@@ -1,7 +1,8 @@
-package com.gtech.algashop.infrastructure.adapters.out.metrics;
+package com.gtech.algashop.infrastructure.adapters.out.persistence.metrics;
 
 import com.gtech.algashop.core.ports.out.metrics.ForObtainingMetrics;
 import com.gtech.algashop.core.ports.out.metrics.SalesOverviewOutput;
+import com.gtech.algashop.core.ports.out.metrics.TotalOverviewOutput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -12,8 +13,9 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 
-// Relatorio tatico (periodo fechado) direto no banco do proprio ordering. SQL na mao e nao
-// JPA: e leitura agregada (soma e contagem por mes), nao ha agregado de dominio para carregar.
+// Relatorios taticos direto no banco do proprio ordering. SQL na mao e nao JPA: e leitura
+// agregada (soma e contagem), nao ha agregado de dominio para carregar.
+// Vendas por mes:
 //   - generate_series cria um mes por linha: mes sem venda aparece com 0 em vez de sumir
 //     do grafico (por isso o left join e o coalesce);
 //   - conta pelo paid_at, nao pelo placed_at: receita e o que foi pago, nao o que foi pedido;
@@ -38,6 +40,25 @@ public class ForObtainingMetricJdbcImpl implements ForObtainingMetrics {
             order by 1
             """;
 
+    // Totais. O numero vale o que vale a definicao de "ativo":
+    //   - cliente ativo = nao arquivado, tenha carrinho ou nao;
+    //   - carrinho ativo = com pelo menos um item E de cliente ativo.
+    // Uma consulta so: parte do cliente (left join, para quem nao tem carrinho continuar na
+    // conta) e conta coluna, nao linha: count(sc.id) ignora o null de quem ficou sem carrinho,
+    // count(*) contaria. O total_items > 0 fica no ON: no WHERE ele tiraria da contagem
+    // de clientes quem tem carrinho vazio ou nenhum carrinho.
+    // Depende de haver no maximo um carrinho por cliente (regra do dominio, sem UNIQUE no
+    // banco): com dois carrinhos com item, o cliente seria contado duas vezes.
+    private static final String TOTAL_OVERVIEW_SQL = """
+            select count(c.id) as active_customers,
+                   count(sc.id) as active_shopping_carts
+            from customer c
+            left join shopping_cart sc
+                on sc.customer_id = c.id
+                and sc.total_items > 0
+            where c.archived is false
+            """;
+
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
     @Override
@@ -48,6 +69,17 @@ public class ForObtainingMetricJdbcImpl implements ForObtainingMetrics {
                         YearMonth.parse(rs.getString("year_month")),
                         rs.getInt("quantity"),
                         rs.getBigDecimal("revenue")
+                    )
+                );
+    }
+
+    @Override
+    public TotalOverviewOutput getTotalOverview() {
+        return jdbcTemplate.queryForObject(TOTAL_OVERVIEW_SQL,
+                Map.of(),
+                (rs, rowNum) -> new TotalOverviewOutput(
+                        rs.getInt("active_customers"),
+                        rs.getInt("active_shopping_carts")
                     )
                 );
     }

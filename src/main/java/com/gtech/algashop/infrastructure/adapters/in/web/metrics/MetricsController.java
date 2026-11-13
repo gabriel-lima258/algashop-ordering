@@ -2,6 +2,7 @@ package com.gtech.algashop.infrastructure.adapters.in.web.metrics;
 
 import com.gtech.algashop.core.ports.in.metrics.ForQueryingMetrics;
 import com.gtech.algashop.core.ports.out.metrics.SalesOverviewOutput;
+import com.gtech.algashop.core.ports.out.metrics.TotalOverviewOutput;
 import com.gtech.algashop.infrastructure.config.security.check.SecurityAnnotations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,8 +15,9 @@ import java.time.Year;
 import java.time.YearMonth;
 import java.util.List;
 
-// Metricas de vendas para o painel admin. Sem periodo, vale o ano corrente inteiro.
-// Mes fora do formato yyyy-MM nao converte e responde 400 antes de chegar ao servico.
+// Metricas do ordering para o painel admin: vendas por mes e totais de clientes e carrinhos.
+// Nas vendas, sem periodo vale o ano corrente inteiro, e mes fora do formato yyyy-MM nao
+// converte: responde 400 antes de chegar ao servico.
 @RestController
 @RequestMapping("/api/v1/metrics")
 @RequiredArgsConstructor
@@ -40,5 +42,12 @@ public class MetricsController {
         }
 
         return forQueryingMetrics.getSalesOverview(yearMonthStart, yearMonthEnd);
+    }
+
+    // sem parametros: e uma foto de agora, nao um periodo
+    @SecurityAnnotations.CanReadMetrics
+    @GetMapping("/total-overview")
+    public TotalOverviewOutput getTotalOverview() {
+        return forQueryingMetrics.getTotalOverview();
     }
 }

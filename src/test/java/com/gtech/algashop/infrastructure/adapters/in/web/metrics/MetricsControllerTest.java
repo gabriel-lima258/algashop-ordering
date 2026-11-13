@@ -2,6 +2,7 @@ package com.gtech.algashop.infrastructure.adapters.in.web.metrics;
 
 import com.gtech.algashop.core.ports.in.metrics.ForQueryingMetrics;
 import com.gtech.algashop.core.ports.out.metrics.SalesOverviewOutput;
+import com.gtech.algashop.core.ports.out.metrics.TotalOverviewOutput;
 import com.gtech.algashop.infrastructure.config.security.OrderingSecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -24,13 +25,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// Fatia web do relatorio de vendas por mes: formato do mes no JSON, periodo padrao,
-// mes invalido e a regra de acesso (escopo metrics:read E papel MANAGER, os dois).
+// Fatia web das metricas: formato do mes no JSON, periodo padrao, mes invalido, o JSON dos
+// totais e a regra de acesso (escopo metrics:read e cliente final bloqueado).
 @WebMvcTest(controllers = MetricsController.class)
 @Import(OrderingSecurityConfig.class)
 class MetricsControllerTest {
 
     private static final String URL = "/api/v1/metrics/sales-overview";
+    private static final String TOTALS_URL = "/api/v1/metrics/total-overview";
 
     @Autowired
     private MockMvc mockMvc;
@@ -83,11 +85,18 @@ class MetricsControllerTest {
         mockMvc.perform(get(URL)).andExpect(status().isUnauthorized());
     }
 
+    // token de maquina (client_credentials, como o algashop-test): escopo e nenhum papel
     @Test
-    void shouldRequireManagerRoleEvenWithScope() throws Exception {
+    void shouldAllowMachineTokenWithScope() throws Exception {
+        mockMvc.perform(get(URL).with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_metrics:read"))))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldDenyCustomerEvenWithScope() throws Exception {
         mockMvc.perform(get(URL).with(jwt().authorities(
                         new SimpleGrantedAuthority("SCOPE_metrics:read"),
-                        new SimpleGrantedAuthority("ROLE_OPERATOR"))))
+                        new SimpleGrantedAuthority("ROLE_CUSTOMER"))))
                 .andExpect(status().isForbidden());
     }
 
@@ -97,5 +106,28 @@ class MetricsControllerTest {
                         new SimpleGrantedAuthority("SCOPE_orders:read"),
                         new SimpleGrantedAuthority("ROLE_MANAGER"))))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldReturnTotalOverview() throws Exception {
+        Mockito.when(forQueryingMetrics.getTotalOverview()).thenReturn(new TotalOverviewOutput(21, 2));
+
+        mockMvc.perform(get(TOTALS_URL).with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_metrics:read"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.activeCustomers").value(21))
+                .andExpect(jsonPath("$.activeShoppingCarts").value(2));
+    }
+
+    @Test
+    void shouldRequireTokenForTotalOverview() throws Exception {
+        mockMvc.perform(get(TOTALS_URL)).andExpect(status().isUnauthorized());
+        Mockito.verifyNoInteractions(forQueryingMetrics);
+    }
+
+    @Test
+    void shouldRequireScopeForTotalOverview() throws Exception {
+        mockMvc.perform(get(TOTALS_URL).with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_products:read"))))
+                .andExpect(status().isForbidden());
+        Mockito.verifyNoInteractions(forQueryingMetrics);
     }
 }

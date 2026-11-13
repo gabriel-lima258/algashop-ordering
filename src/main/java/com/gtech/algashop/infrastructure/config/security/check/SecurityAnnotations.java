@@ -84,11 +84,14 @@ public class SecurityAnnotations {
     public @interface CanPreviewShippingCosts {}
 
     // METRICS
-    // escopo E papel: o escopo diz que o app pode ler metricas; o papel diz que a pessoa e
-    // gerente. Um operador no mesmo painel admin tem o token do mesmo cliente, mas nao ve.
+    // Mesma regra do CanReadOrders: escopo obrigatorio e cliente final bloqueado, mesmo que um
+    // dia receba o escopo. Token de maquina (client_credentials, ex.: algashop-test) nao tem
+    // papel, entao nao e CUSTOMER e passa. Exigir hasRole('MANAGER') barrava esse token.
+    // OPERATOR x MANAGER agora e separado pelo escopo: o seed do authorization-server so da
+    // metrics:read ao MANAGER no painel admin.
     @Target({ElementType.METHOD, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
-    @PreAuthorize("hasAuthority('SCOPE_metrics:read') and hasRole('MANAGER')")
+    @PreAuthorize("hasAuthority('SCOPE_metrics:read') and not hasRole('CUSTOMER')")
     public @interface CanReadMetrics {}
 
 }

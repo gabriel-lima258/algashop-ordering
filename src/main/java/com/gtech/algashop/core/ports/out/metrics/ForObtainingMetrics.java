@@ -6,4 +6,5 @@ import java.util.List;
 // Porta de saida: quem calcula (hoje SQL no banco do ordering) fica fora do core.
 public interface ForObtainingMetrics {
     List<SalesOverviewOutput> getSalesOverview(LocalDate startDate, LocalDate endDate);
+    TotalOverviewOutput getTotalOverview();
 }
