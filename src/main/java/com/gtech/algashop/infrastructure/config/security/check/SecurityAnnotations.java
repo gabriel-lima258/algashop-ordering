@@ -83,4 +83,12 @@ public class SecurityAnnotations {
     @PreAuthorize("hasAuthority('SCOPE_shipping-costs:preview')")
     public @interface CanPreviewShippingCosts {}
 
+    // METRICS
+    // escopo E papel: o escopo diz que o app pode ler metricas; o papel diz que a pessoa e
+    // gerente. Um operador no mesmo painel admin tem o token do mesmo cliente, mas nao ve.
+    @Target({ElementType.METHOD, ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @PreAuthorize("hasAuthority('SCOPE_metrics:read') and hasRole('MANAGER')")
+    public @interface CanReadMetrics {}
+
 }
