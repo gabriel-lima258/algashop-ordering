@@ -154,8 +154,14 @@ algashop:
       max-attempts: 10 # maximas tentativas ao falhar
       backoff: PT5S # tempo entre tentativas
       batch-deadline: PT3M # tempo maximo que schedule de tentativa de envio pode ter e respeitar o lock
+      # Quem publica e o Debezium (conector cdc.source.ordering.outbox): ele le o INSERT no
+      # WAL, nao na tabela. Por isso a linha e apagada na MESMA transacao em que nasce - a
+      # tabela nunca acumula e nao precisa de job de limpeza.
+      # So ligue com o conector (e o slot cdc_ordering_outbox) ja criado: e o slot que guarda
+      # o WAL enquanto o conector esta fora do ar. Sem slot, a mensagem se perde.
+      delete-after-record: true
       dispatcher:
-        enabled: true # envio
+        enabled: false # envio por polling; desligado porque o Debezium publica (nao ligar junto com delete-after-record)
   notifications:
     email-templates:
       # Order Placed: o notifications o recria com este id a cada subida (so no development-env)

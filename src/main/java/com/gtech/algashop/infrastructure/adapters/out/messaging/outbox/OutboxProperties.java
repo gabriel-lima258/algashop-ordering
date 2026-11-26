@@ -1,5 +1,6 @@
 package com.gtech.algashop.infrastructure.adapters.out.messaging.outbox;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -40,6 +41,21 @@ public class OutboxProperties {
 
     @NotNull
     private Duration batchDeadLine = Duration.ofMinutes(3);
+
+    // true = a publicacao e feita pelo Debezium (CDC por log): o OutboxRecorder apaga a
+    // linha logo depois de grava-la, na mesma transacao. O INSERT fica no WAL, que e de
+    // onde o conector le; a tabela nunca acumula.
+    private boolean deleteAfterRecord = false;
+
+    // Trava: com a linha apagada na gravacao, o dispatcher nunca a veria - o envio dependeria
+    // so do conector e o dispatcher ficaria girando em vao. Uma das duas formas de publicar,
+    // nunca as duas. Getter sem setter: o Spring so valida, nao faz bind de "configuration-consistent".
+    @AssertTrue(message = "algashop.messaging.outbox: delete-after-record (publicacao pelo Debezium) "
+            + "e dispatcher.enabled (publicacao por polling) nao podem estar ligados juntos - "
+            + "a linha seria apagada antes de o dispatcher le-la")
+    public boolean isConfigurationConsistent() {
+        return !(deleteAfterRecord && dispatcher != null && dispatcher.isEnabled());
+    }
 
     @Data
     public static class Dispatcher {

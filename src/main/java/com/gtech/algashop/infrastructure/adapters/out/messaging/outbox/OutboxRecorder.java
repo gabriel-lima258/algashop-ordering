@@ -19,7 +19,9 @@ import java.nio.charset.StandardCharsets;
 // IllegalTransactionStateException na hora, em vez de gravar um outbox orfao.
 // Pedido e mensagem entram no MESMO commit - o dual-write morre aqui.
 // O payload ja sai SERIALIZADO (mesmo JacksonJsonSerializer do caminho Kafka, mesmo
-// __TypeId__ logico): o dispatcher depois so transporta bytes, sem reserializar.
+// __TypeId__ logico): quem publica depois so transporta bytes, sem reserializar - seja o
+// dispatcher (polling na tabela) ou o Debezium (CDC no WAL, com o EventRouter montando
+// topico, key e headers a partir das colunas).
 
 @Component
 @RequiredArgsConstructor
@@ -29,6 +31,8 @@ public class OutboxRecorder {
 
     private final OutboxMessageRepository repository;
     private final JacksonJsonSerializer<Object> outboxJsonSerializer;
+
+    private final OutboxProperties outboxProperties;
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void record(OutboxDraft draft) {
@@ -52,6 +56,14 @@ public class OutboxRecorder {
 
         // salva message outbox
         repository.save(outboxMessage);
+
+        // Caminho Debezium: grava e apaga na MESMA transacao. O conector le o INSERT no WAL
+        // (o DELETE ele ignora), entao a tabela fica sempre vazia e dispensa limpeza.
+        // O deleteMessage e JPQL @Modifying: antes de rodar, o Hibernate faz flush do
+        // persist pendente - o INSERT chega ao banco (e ao WAL) antes do DELETE.
+        if (outboxProperties.isDeleteAfterRecord()) {
+            repository.deleteMessage(outboxMessage.getId());
+        }
 
         log.info("Recorder {} on outbox: channel={} aggregateId={} id={}",
                 message.getClass().getSimpleName(),
