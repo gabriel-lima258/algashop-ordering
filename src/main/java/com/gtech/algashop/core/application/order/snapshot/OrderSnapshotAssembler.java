@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 
 // Conversor do agregado Order para o OrderSnapshot serializavel: desembrulha value objects
 // para tipos simples. So existe o sentido de ida - a volta (toDomain) servia apenas ao
-// consumidor do checkout assincrono, removido. Sem chamador por enquanto: volta quando a
-// Saga montar o conteudo do comando de emissao de fatura.
+// consumidor do checkout assincrono, removido. Quem chama hoje e o PlaceOrderSagaCoordinator,
+// para montar o IssueInvoiceIntegrationCommand (cobranca e entrega vao congeladas ao billing).
 @Component
 public class OrderSnapshotAssembler {
 
@@ -29,10 +29,17 @@ public class OrderSnapshotAssembler {
         );
     }
 
+    // Records com varios String seguidos: o compilador nao pega argumento trocado de lugar.
+    // Um argumento por linha, na ordem do record (email ANTES de phone), para a troca ficar
+    // visivel na leitura - a ordem invertida ja mandou o telefone no campo de e-mail.
     private BillingSnapshot toSnapshot(Billing billing) {
         return new BillingSnapshot(
-                billing.fullName().firstName(), billing.fullName().lastName(), billing.document().document(),
-                billing.phone().phone(), billing.email().email(), toSnapshot(billing.address())
+                billing.fullName().firstName(),
+                billing.fullName().lastName(),
+                billing.document().document(),
+                billing.email().email(),
+                billing.phone().phone(),
+                toSnapshot(billing.address())
         );
     }
 
@@ -48,8 +55,15 @@ public class OrderSnapshotAssembler {
     }
 
     private AddressSnapshot toSnapshot(Address address) {
-        return new AddressSnapshot(address.street(), address.complement(), address.neighborhood(),
-                address.number(), address.city(), address.state(), address.zipCode().zipcode());
+        // ordem do record: street, number, complement, neighborhood, city, state, zipCode
+        return new AddressSnapshot(
+                address.street(),
+                address.number(),
+                address.complement(),
+                address.neighborhood(),
+                address.city(),
+                address.state(),
+                address.zipCode().zipcode());
     }
 
     private OrderItemSnapshot toSnapshot(OrderItem item) {
