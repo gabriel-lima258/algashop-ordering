@@ -26,7 +26,4 @@ algashop:
   integrations:
     shipping.provider: "RAPIDEX"
     rapidex.url: "http://wiremock:8080"
-    # service ID no Eureka, nao nome de container: o builder e @LoadBalanced e o
-    # host desta URL e resolvido no registry (o catalogo se registra como
-    # "product-catalog"). O nome de container com porta quebraria o lookup.
     product-catalog.url: "http://product-catalog"
